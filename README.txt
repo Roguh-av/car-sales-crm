@@ -11,3 +11,4 @@ Changes:
 Your existing records remain assigned to your account.
 
 Cloudflare deployment enabled
+Deployment retry 2
