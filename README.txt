@@ -9,3 +9,5 @@ Changes:
 - Added Sign out button.
 
 Your existing records remain assigned to your account.
+
+Cloudflare deployment enabled
