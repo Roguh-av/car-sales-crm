@@ -114,6 +114,9 @@ select,input,textarea{color:var(--text);background:#0b1322}
 .status-badge{padding:4px 8px;border-radius:999px;background:#1e293b;font-size:11px}
 .status-badge.sold{background:#1e3a8a;color:#dbeafe}.status-badge.in-prep{background:#78350f;color:#fef3c7}.status-badge.ready{background:#164e63;color:#cffafe}.status-badge.delivered{background:#14532d;color:#dcfce7}.status-badge.lost{background:#7f1d1d;color:#fee2e2}
 .deal-table tbody tr{transition:background .15s ease}.deal-table tbody tr:hover{background:#172235}.deal-customer b,.deal-vehicle b{display:block}.deal-customer .label,.deal-vehicle .label{margin-top:3px}.deal-empty{padding:18px}
+.contract-tabs{display:flex;gap:7px;margin:14px 0}.contract-tabs button{border:1px solid var(--line);background:var(--card);color:#cbd5e1;padding:9px 12px;border-radius:9px;font-weight:750}.contract-tabs button.active{background:var(--accent);color:white;border-color:var(--accent)}
+.finance-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.finance-summary .card{display:flex;align-items:baseline;gap:9px}.finance-summary .metric{font-size:23px}.finance-tools{display:grid;grid-template-columns:minmax(250px,1fr) 190px 200px;gap:9px;margin:10px 0}.finance-tools select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px}.contract-table td b,.contract-table td span{display:block}.contract-table td .label{margin-top:3px}.contract-table .btn{padding:7px 10px}.maturity{font-weight:800;white-space:nowrap}.maturity.soon{color:#fbbf24}.maturity.urgent{color:#fca5a5}.maturity.later{color:#86efac}.maturity.completed{color:var(--muted)}
+.finance-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.finance-pagination{display:flex;gap:7px}.finance-pagination .btn:disabled{opacity:.45;cursor:not-allowed}.finance-empty{padding:18px}.contract-count{display:inline-block;margin-top:5px;padding:3px 7px;border-radius:999px;background:#1e293b;color:#bfdbfe;font-size:11px}
 .customer-suggest{position:relative}
 .suggest-list{position:absolute;z-index:5;left:0;right:0;top:100%;background:#0b1322;border:1px solid var(--line);border-radius:8px;max-height:220px;overflow:auto}
 .suggest-list button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--text);padding:9px}
@@ -133,6 +136,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
  .month-event{display:inline-block;width:7px;height:7px;min-height:0;margin:3px 1px 0;padding:0;border-radius:50%;font-size:0;vertical-align:top}.month-event .month-event-open,.month-event .calendar-check{display:none}.month-more{display:none}.mobile-agenda{display:block}
  .top h1{font-size:23px}.top .btn{padding:10px 12px}
  .deal-table,.deal-table tbody,.deal-table tr,.deal-table td{display:block;width:100%}.deal-table thead{display:none}.deal-table{background:transparent}.deal-table tbody{display:grid;gap:10px}.deal-table tr{padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.deal-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0}.deal-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.deal-table td:last-child{display:block;padding-top:10px}.deal-table td:last-child:before{display:none}.deal-table td:last-child .btn{width:100%;text-align:center}
+ .finance-summary{grid-template-columns:1fr 1fr}.finance-summary .card:last-child{display:none}.finance-tools{grid-template-columns:1fr 1fr}.finance-tools .search{grid-column:1/-1}.contract-table,.contract-table tbody,.contract-table tr,.contract-table td{display:block;width:100%}.contract-table thead{display:none}.contract-table{background:transparent}.contract-table tbody{display:grid;gap:10px}.contract-table tr{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.contract-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0;overflow-wrap:anywhere}.contract-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.contract-table td:last-child .btn{width:100%;text-align:center}.finance-footer{align-items:stretch;flex-direction:column}.finance-pagination{display:grid;grid-template-columns:1fr 1fr}.contract-tabs{display:grid;grid-template-columns:1fr 1fr}.contract-tabs button{min-width:0;padding:10px 5px}
 }
 
 /* Collapsible sidebar */
@@ -220,8 +224,21 @@ select,input,textarea{color:var(--text);background:#0b1322}
 </section>
 
 <section id="leases" class="page hide">
-  <div class="top"><h1>Lease Customers</h1></div>
-  <input id="leasesearch" class="search" placeholder="Search customer, vehicle, VIN, stock..."><div id="leasetable" class="section"></div>
+  <div class="top"><div><h1>Lease &amp; Finance Customers</h1><div class="label">Manage lease maturities and finance follow-up opportunities.</div></div><button id="addFinance" class="btn hide" onclick="openFinanceContract()">+ Finance Contract</button></div>
+  <div id="contractTabs" class="contract-tabs"><button class="active" data-contract-view="lease">Lease Customers</button><button data-contract-view="finance">Finance Customers <span id="financeTabCount"></span></button></div>
+  <div id="leasePanel">
+    <input id="leasesearch" class="search" placeholder="Search customer, vehicle, VIN, stock..."><div id="leasetable" class="section"></div>
+  </div>
+  <div id="financePanel" class="hide">
+    <div id="financeSummary" class="finance-summary"></div>
+    <div class="finance-tools">
+      <input id="financesearch" class="search" placeholder="Search customer, phone, email or vehicle...">
+      <select id="financeFilter" aria-label="Finance maturity"><option value="all">All maturities</option><option value="soon">Ending ≤12 months</option><option value="mid">13–24 months</option><option value="later">25+ months</option><option value="completed">Completed</option></select>
+      <select id="financeSort" aria-label="Sort finance contracts"><option value="maturity">Last payment: soonest</option><option value="customer">Customer: A–Z</option><option value="delivery">Delivery: newest</option></select>
+    </div>
+    <div id="financetable" class="section"></div>
+    <div class="finance-footer"><div id="financePageLabel" class="label"></div><div class="finance-pagination"><button id="financePrev" class="btn secondary">← Previous</button><button id="financeNext" class="btn secondary">Next →</button></div></div>
+  </div>
 </section>
 
 <section id="orders" class="page hide">
@@ -249,7 +266,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
 const GOOGLE_REVIEW_URL='https://search.google.com/local/writereview?placeid=ChIJrUZBpnI4yUwR56f_GEoH90s';
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all';
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],finance:[],orders:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all',contractView='lease',financeFilter='all',financeSort='maturity',financePage=1;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -259,9 +276,19 @@ const fmt=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'shor
 const dateFmt=x=>x?new Date(x+'T12:00:00').toLocaleDateString([],{dateStyle:'medium'}):'—';
 /* CUSTOMER_LANGUAGE_V1 */
 function leaseDaysLeft(endDate){if(!endDate)return {days:null,label:'—'};const end=new Date(endDate+'T12:00:00'),now=new Date();now.setHours(12,0,0,0);const days=Math.ceil((end-now)/86400000);return {days,label:days<0?`Expired ${Math.abs(days)} days ago`:days===0?'Ends today':`${days} days`}}
+function financeMaturity(endDate){
+  if(!endDate)return {days:null,bucket:'later',label:'—',tone:'later'};
+  const end=new Date(endDate+'T12:00:00'),now=new Date();now.setHours(12,0,0,0);const days=Math.ceil((end-now)/86400000);
+  if(days<0)return {days,bucket:'completed',label:'Completed',tone:'completed'};
+  const bucket=days<=365?'soon':days<=730?'mid':'later';
+  if(days<60)return {days,bucket,label:days===0?'Ends today':`${days} days`,tone:days<=90?'urgent':'soon'};
+  let months=(end.getFullYear()-now.getFullYear())*12+end.getMonth()-now.getMonth();if(end.getDate()<now.getDate())months--;
+  const label=months<24?`${Math.max(1,months)} months`:`${Math.floor(months/12)}y ${months%12}m`;
+  return {days,bucket,label,tone:days<=90?'urgent':days<=365?'soon':days>730?'later':''}
+}
 
 async function load(){
-  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',orders:'orders'})){
+  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',finance:'finance_contracts',orders:'orders'})){
     let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=data||[]
   }
   if(isAdmin){let {data,error}=await sb.from('crm_account_access').select('user_id,email,status,is_admin,created_at,reviewed_at').order('created_at',{ascending:true});if(error)throw error;DB.access=data||[]}else DB.access=[]
@@ -535,8 +562,36 @@ $('#leasesearch').oninput=leases;
 function leases(){
   let q=$('#leasesearch').value.toLowerCase(),a=[...DB.leases].sort((x,y)=>(x.lease_end_date||'').localeCompare(y.lease_end_date||''));
   if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+x.vin+' '+x.stock_number).toLowerCase().includes(q));
-  $('#leasetable').innerHTML=tab(['Customer','Phone','Vehicle','Stock','Lease End','Days Left'],a.map(x=>{const left=leaseDaysLeft(x.lease_end_date),style=left.days!==null&&left.days<=90?'color:#fca5a5;font-weight:800':left.days!==null&&left.days<=180?'color:#fbbf24;font-weight:800':'';return `<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(cust(x.customer_id).phone||'')}</td><td>${esc(x.vehicle)}</td><td>${esc(x.stock_number||'')}</td><td>${esc(x.lease_end_date||'')}</td><td style="${style}">${esc(left.label)}</td></tr>`}))
+  $('#leasetable').innerHTML=a.length?`<table class="contract-table"><thead><tr><th>Customer</th><th>Phone</th><th>Vehicle</th><th>Stock</th><th>Lease End</th><th>Days Left</th></tr></thead><tbody>${a.map(x=>{const c=cust(x.customer_id),left=leaseDaysLeft(x.lease_end_date),style=left.days!==null&&left.days<=90?'urgent':left.days!==null&&left.days<=180?'soon':'';return `<tr><td data-label="Customer"><button class="btn secondary" onclick="customerFile('${x.customer_id}')">${esc(c.name)}</button></td><td data-label="Phone">${esc(c.phone||'—')}</td><td data-label="Vehicle">${esc(x.vehicle)}</td><td data-label="Stock">${esc(x.stock_number||'—')}</td><td data-label="Lease End">${dateFmt(x.lease_end_date)}</td><td data-label="Days Left"><span class="maturity ${style}">${esc(left.label)}</span></td></tr>`}).join('')}</tbody></table>`:'<div class="card label">No lease customers found.</div>';
+  financeCustomers()
 }
+function showContractView(view){
+  contractView=view;
+  $$('#contractTabs button').forEach(button=>button.classList.toggle('active',button.dataset.contractView===view));
+  $('#leasePanel').classList.toggle('hide',view!=='lease');$('#financePanel').classList.toggle('hide',view!=='finance');$('#addFinance').classList.toggle('hide',view!=='finance');
+  if(view==='finance')financeCustomers()
+}
+$('#contractTabs').onclick=e=>{const button=e.target.closest('[data-contract-view]');if(button)showContractView(button.dataset.contractView)};
+function financeCustomers(){
+  $('#financeTabCount').textContent=`(${DB.finance.length})`;
+  const all=[...DB.finance],soon=all.filter(x=>financeMaturity(x.last_payment_date).bucket==='soon').length,completed=all.filter(x=>financeMaturity(x.last_payment_date).bucket==='completed').length;
+  $('#financeSummary').innerHTML=`<div class="card"><div class="metric">${all.length}</div><div class="label">Finance contracts</div></div><div class="card"><div class="metric">${soon}</div><div class="label">Ending within 12 months</div></div><div class="card"><div class="metric">${completed}</div><div class="label">Completed</div></div>`;
+  const q=$('#financesearch').value.trim().toLowerCase();let a=all;
+  if(q)a=a.filter(x=>{const c=cust(x.customer_id);return `${c.name||''} ${c.phone||''} ${c.email||''} ${x.vehicle||''} ${x.delivery_date||''} ${x.last_payment_date||''}`.toLowerCase().includes(q)});
+  if(financeFilter!=='all')a=a.filter(x=>financeMaturity(x.last_payment_date).bucket===financeFilter);
+  if(financeSort==='customer')a.sort((x,y)=>String(cust(x.customer_id).name||'').localeCompare(String(cust(y.customer_id).name||''))||String(x.last_payment_date||'').localeCompare(String(y.last_payment_date||'')));
+  else if(financeSort==='delivery')a.sort((x,y)=>String(y.delivery_date||'').localeCompare(String(x.delivery_date||'')));
+  else a.sort((x,y)=>String(x.last_payment_date||'9999').localeCompare(String(y.last_payment_date||'9999')));
+  const counts=new Map();all.forEach(x=>counts.set(x.customer_id,(counts.get(x.customer_id)||0)+1));
+  const pageSize=25,totalPages=Math.max(1,Math.ceil(a.length/pageSize));financePage=Math.min(Math.max(1,financePage),totalPages);const start=(financePage-1)*pageSize,shown=a.slice(start,start+pageSize);
+  $('#financetable').innerHTML=shown.length?`<table class="contract-table"><thead><tr><th>Customer</th><th>Contact</th><th>Vehicle</th><th>Delivered</th><th>Term</th><th>Last Payment</th><th>Time Left</th><th></th></tr></thead><tbody>${shown.map(x=>{const c=cust(x.customer_id),left=financeMaturity(x.last_payment_date),count=counts.get(x.customer_id)||1;return `<tr><td data-label="Customer"><button class="btn secondary" onclick="customerFile('${x.customer_id}')">${esc(c.name||'Customer')}</button>${count>1?`<span class="contract-count">${count} finance contracts</span>`:''}</td><td data-label="Contact"><b>${esc(c.phone||'—')}</b><span class="label">${esc(c.email||'No email')}</span></td><td data-label="Vehicle">${esc(x.vehicle||'—')}</td><td data-label="Delivered">${dateFmt(x.delivery_date)}</td><td data-label="Term">${x.term_months?`${esc(x.term_months)} mo.`:'—'}</td><td data-label="Last Payment">${dateFmt(x.last_payment_date)}</td><td data-label="Time Left"><span class="maturity ${left.tone}">${esc(left.label)}</span></td><td data-label=""><button class="btn secondary" onclick="openFinanceContract('${x.id}')">Edit</button></td></tr>`}).join('')}</tbody></table>`:'<div class="card label finance-empty">No matching finance contracts.</div>';
+  $('#financePageLabel').textContent=a.length?`Showing ${start+1}–${Math.min(start+pageSize,a.length)} of ${a.length} contracts`:'0 contracts';$('#financePrev').disabled=financePage<=1;$('#financeNext').disabled=financePage>=totalPages
+}
+$('#financesearch').oninput=()=>{financePage=1;financeCustomers()};
+$('#financeFilter').onchange=e=>{financeFilter=e.target.value;financePage=1;financeCustomers()};
+$('#financeSort').onchange=e=>{financeSort=e.target.value;financePage=1;financeCustomers()};
+$('#financePrev').onclick=()=>{if(financePage>1){financePage--;financeCustomers()}};
+$('#financeNext').onclick=()=>{financePage++;financeCustomers()};
 $('#ordersearch').oninput=orders;
 function orders(){
   let q=$('#ordersearch').value.toLowerCase(),a=[...DB.orders].sort((x,y)=>String(x.estimated_arrival||'9999').localeCompare(String(y.estimated_arrival||'9999')));
@@ -686,6 +741,26 @@ window.openDelivery=(lid='',cid='',vehicle='')=>{
   wireDateTimePickers($('#f'));
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('deliveries').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null});if(error)return alert(error.message);closeModal();await load();render()}
 }
+window.openFinanceContract=(id='')=>{
+  const x=id?DB.finance.find(item=>item.id===id):null;
+  modal(x?'Edit Finance Contract':'Add Finance Contract',`<form id="f" class="form">
+    ${customerSearchField(x?.customer_id||'')}
+    <label>Vehicle<input name="vehicle" required value="${esc(x?.vehicle||'')}" placeholder="e.g. 2024 RAV4 XLE AWD"></label>
+    <label>Delivery Date<input type="date" name="delivery_date" value="${esc(x?.delivery_date||'')}"></label>
+    <label>Term (months)<input type="number" name="term_months" min="1" max="120" value="${esc(x?.term_months||'')}"></label>
+    <label>Last Payment Date<input type="date" name="last_payment_date" required value="${esc(x?.last_payment_date||'')}"></label>
+    <label class="full">Notes<textarea name="notes">${esc(x?.notes||'')}</textarea></label>
+    <div class="full inline-actions"><button class="btn">${x?'Save Changes':'Add Contract'}</button>${x?'<button type="button" id="deleteFinance" class="btn danger">Delete Contract</button>':''}</div>
+  </form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{
+    e.preventDefault();const o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');
+    const payload={owner_id:user.id,customer_id:o.customer_id,vehicle:o.vehicle,delivery_date:o.delivery_date||null,term_months:o.term_months?Number(o.term_months):null,last_payment_date:o.last_payment_date,payment_mode:'Financing',notes:o.notes||null,updated_at:new Date().toISOString()};
+    let error;if(x)({error}=await sb.from('finance_contracts').update(payload).eq('id',x.id));else({error}=await sb.from('finance_contracts').insert(payload));
+    if(error)return alert(error.message);closeModal();await load();render();page('leases');showContractView('finance')
+  };
+  if(x)$('#deleteFinance').onclick=async()=>{if(!confirm('Delete this finance contract?'))return;const {error}=await sb.from('finance_contracts').delete().eq('id',x.id);if(error)return alert(error.message);closeModal();await load();render();page('leases');showContractView('finance')}
+}
 window.openOrder=(id='')=>{
   const x=id?DB.orders.find(o=>o.id===id):null;
   modal(x?'Edit New Vehicle Order':'New Vehicle Order',`<form id="f" class="form">
@@ -772,8 +847,8 @@ window.editCustomer=id=>{
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').update({name:o.name,phone:o.phone||null,email:o.email||null,city:o.city||null,language:o.language,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render();customerFile(id)}
 }
 window.customerFile=id=>{
-  let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),le=DB.leads.filter(x=>x.customer_id===id),os=DB.orders.filter(x=>x.customer_id===id);
-  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div><div class="label" style="margin-top:6px">Language: ${esc(c.language||'English')}</div><div style="margin-top:9px"><button class="btn secondary" onclick="editCustomer('${c.id}')">Edit Customer</button></div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${esc(x.lease_end_date||'')}</div>`).join('')}</div>`)
+  let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),fs=DB.finance.filter(x=>x.customer_id===id).sort((a,b)=>String(a.last_payment_date||'').localeCompare(String(b.last_payment_date||''))),le=DB.leads.filter(x=>x.customer_id===id),os=DB.orders.filter(x=>x.customer_id===id);
+  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div><div class="label" style="margin-top:6px">Language: ${esc(c.language||'English')}</div><div style="margin-top:9px"><button class="btn secondary" onclick="editCustomer('${c.id}')">Edit Customer</button></div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${dateFmt(x.lease_end_date)}</div>`).join('')||'<div class="label">No leases.</div>'}</div><div class="section"><h2>Finance Contracts</h2>${fs.map(x=>{const left=financeMaturity(x.last_payment_date);return `<div class="hist" onclick="openFinanceContract('${x.id}')" style="cursor:pointer"><b>${esc(x.vehicle)}</b><div class="label">Delivered ${dateFmt(x.delivery_date)} · ${esc(x.term_months||'—')} months · Last payment ${dateFmt(x.last_payment_date)}</div><div class="maturity ${left.tone}" style="margin-top:5px">${esc(left.label)}</div></div>`}).join('')||'<div class="label">No finance contracts.</div>'}</div>`)
 }
 
 function setupSidebarToggle(){
