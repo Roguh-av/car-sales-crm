@@ -1,4 +1,4 @@
-const VERSION='crm-live-v2';
+const VERSION='crm-live-v3';
 self.addEventListener('install',event=>{self.skipWaiting()});
 self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{
@@ -12,19 +12,7 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   const req=event.request;
   if(req.mode==='navigate'){
-    event.respondWith((async()=>{
-      const res=await fetch(req,{cache:'no-store'});
-      const type=res.headers.get('content-type')||'';
-      if(!type.includes('text/html'))return res;
-      let html=await res.text();
-      if(!html.includes('/crm-ui-patch.js')){
-        html=html.replace('</body>','<script src="/crm-ui-patch.js?v=2"></script></body>');
-      }
-      const headers=new Headers(res.headers);
-      headers.delete('content-length');
-      headers.set('cache-control','no-store');
-      return new Response(html,{status:res.status,statusText:res.statusText,headers});
-    })());
+    event.respondWith(fetch(req,{cache:'no-store'}));
     return;
   }
   event.respondWith(fetch(req,{cache:'no-store'}));

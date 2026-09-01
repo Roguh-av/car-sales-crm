@@ -27,6 +27,9 @@ button{cursor:pointer}
 .nav button:hover,.nav button.active{background:#172235;color:white}
 .nav .sep{height:1px;background:var(--line);margin:10px 4px}
 .main{margin-left:235px;width:calc(100% - 235px);padding:20px}
+.appbar{height:58px;margin:-20px -20px 20px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;background:#0a1422;border-bottom:1px solid var(--line)}
+.appbar-brand{display:flex;align-items:center;gap:9px;font-weight:850}.appbar-brand:before{content:"🚙";font-size:20px}
+.appbar-user{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px}.user-avatar{display:grid;place-items:center;width:31px;height:31px;border-radius:50%;background:#1d4ed8;color:white;font-weight:850}
 .top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
 h1{margin:0;font-size:25px}h2{font-size:17px;margin:0 0 10px}
 .label{font-size:12px;color:var(--muted)}
@@ -55,6 +58,20 @@ h1{margin:0;font-size:25px}h2{font-size:17px;margin:0 0 10px}
 .dayhead{text-align:center;font-size:12px;font-weight:800;border-bottom:1px solid var(--line);padding-bottom:6px}
 .event{width:100%;border:0;color:white;background:#0e7490;border-radius:7px;padding:7px;text-align:left;margin-top:6px;font-size:11px}
 .event.past{background:#7f1d1d}.event.today{background:#1d4ed8}.event.done{background:#166534}.event.order{background:#7c3aed}
+.calendar-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0 12px}
+.calendar-selects,.monthnav{display:flex;align-items:end;gap:8px}
+.calendar-selects label{display:grid;gap:4px;color:var(--muted);font-size:11px;font-weight:700}.calendar-selects select{min-width:160px;padding:9px 32px 9px 10px;border:1px solid var(--line);border-radius:9px}
+.month-calendar{background:#0d1626;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.month-title{min-height:48px;display:flex;align-items:center;justify-content:center;padding:0 12px;border-bottom:1px solid var(--line);font-size:16px;font-weight:850}
+.month-weekdays,.month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.month-weekdays div{padding:8px 4px;text-align:center;color:var(--muted);font-size:11px;font-weight:800;border-bottom:1px solid var(--line)}
+.month-day{min-width:0;min-height:112px;padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#0d1626}
+.month-day:nth-child(7n){border-right:0}.month-day:nth-last-child(-n+7){border-bottom:0}.month-day.outside{background:#0a1321;color:#64748b}.month-day.selected{background:#102442}.month-day.today{box-shadow:inset 0 0 0 1px #3b82f6}
+.month-date{width:28px;height:28px;border:0;border-radius:50%;background:transparent;color:inherit;font-size:12px;font-weight:800}.month-day.today .month-date{background:var(--accent);color:white}
+.month-event{display:block;width:100%;margin-top:5px;padding:5px 6px;border:0;border-radius:6px;color:white;text-align:left;font-size:10px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.month-event span{display:block;opacity:.85;margin-top:2px}
+.month-event.call{background:#1556a8}.month-event.appointment{background:#087f74}.month-event.followup{background:#6441b4}.month-event.delivery{background:#9c5c0a}.month-event.completed{opacity:.56;text-decoration:line-through}
+.month-more{margin-top:4px;color:var(--muted);font-size:10px}
+.mobile-agenda{display:none;margin-top:12px}.agenda-heading{margin:0 0 9px;font-size:15px}.agenda-item{display:flex;align-items:center;gap:10px;width:100%;margin-top:7px;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);text-align:left}.agenda-mark{width:7px;height:34px;border-radius:5px;background:var(--accent);flex:0 0 auto}.agenda-item.appointment .agenda-mark{background:#14b8a6}.agenda-item.followup .agenda-mark{background:#8b5cf6}.agenda-item.delivery .agenda-mark{background:#e29a2f}.agenda-copy{flex:1;min-width:0}.agenda-copy b,.agenda-copy span{display:block}.agenda-copy span{margin-top:3px;color:var(--muted);font-size:12px}
 table{width:100%;border-collapse:collapse;background:var(--card)}
 th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
 th{color:var(--muted);background:#0d1626}
@@ -68,7 +85,9 @@ select,input,textarea{color:var(--text);background:#0b1322}
 .form input,.form select,.form textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin-top:4px}
 .form input[type="date"],.form input[type="datetime-local"]{color-scheme:dark}
 .calendar-form-field{font-size:12px;color:var(--muted);font-weight:700}
-.crm-datetime{margin-top:4px;border:1px solid var(--line);border-radius:12px;background:#0b1322;padding:10px}
+.crm-datetime{margin-top:4px}
+.crm-picker-summary{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#0b1322;color:var(--text);text-align:left}.crm-picker-summary:hover{border-color:#3b82f6}.crm-picker-value{font-weight:700}.crm-picker-icon{color:#93c5fd}
+.crm-picker-panel{display:none;margin-top:8px;border:1px solid var(--line);border-radius:12px;background:#0b1322;padding:10px}.crm-datetime.crm-picker-open .crm-picker-panel{display:block}
 .crm-calendar-head{display:grid;grid-template-columns:42px 1fr 42px;gap:7px;align-items:center;margin-bottom:9px}
 .crm-calendar-head button{height:38px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);font-weight:850}
 .crm-calendar-month{text-align:center;color:var(--text);font-size:15px;font-weight:850}
@@ -80,7 +99,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 .crm-calendar-day.selected{background:var(--accent);color:white;border-color:var(--accent)}
 .crm-calendar-day:hover{background:var(--card2)}
 .crm-calendar-day.selected:hover{background:var(--accent2)}
-.crm-time-row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.crm-time-row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin-top:8px}.crm-time-row span{color:var(--muted);font-size:12px}
 .crm-time-row select{margin:0!important}
 .crm-calendar-footer{display:flex;justify-content:flex-end;margin-top:8px}
 .crm-calendar-footer button{border:0;background:transparent;color:#93c5fd;padding:6px 3px;font-weight:750}
@@ -98,11 +117,16 @@ select,input,textarea{color:var(--text);background:#0b1322}
 @media(max-width:800px){
  .side{width:70px;padding:10px 6px}.brand{font-size:0;text-align:center}.brand:after{content:"🚗";font-size:23px}
  .nav button{font-size:0;text-align:center;padding:12px 5px}.nav button:before{font-size:19px}
- .nav button[data-p=dashboard]:before{content:"🏠"}.nav button[data-p=leads]:before{content:"🔥"}.nav button[data-p=customers]:before{content:"👥"}
+ .nav button[data-p=dashboard]:before{content:"🏠"}.nav button[data-p=calendarPage]:before{content:"📅"}.nav button[data-p=leads]:before{content:"🔥"}.nav button[data-p=customers]:before{content:"👥"}
  .nav button[data-p=leases]:before{content:"🟣"}.nav button[data-p=orders]:before{content:"📝"}.nav button[data-p=approvals]:before{content:"🔐"}.nav button[data-p=deliveries]:before{content:"📦"}
  .nav button[data-p=completed]:before{content:"✅"}.nav button#signoutBtn:before{content:"↪"}
  .main{margin-left:70px;width:calc(100% - 70px);padding:13px}.cards{grid-template-columns:repeat(2,1fr)}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.week{grid-template-columns:repeat(7,minmax(175px,1fr))}
+ .appbar{display:none}
+ .calendar-toolbar{display:grid;grid-template-columns:1fr;margin-top:11px}.calendar-selects{width:100%}.calendar-selects label{flex:1}.calendar-selects select{width:100%;min-width:0}.monthnav{width:100%}.monthnav .btn{flex:1;text-align:center}
+ .month-title{min-height:43px}.month-weekdays div{font-size:10px;padding:7px 1px}.month-day{min-height:52px;padding:4px;text-align:center}.month-date{width:27px;height:27px;padding:0}
+ .month-event{display:inline-block;width:7px;height:7px;min-height:0;margin:3px 1px 0;padding:0;border-radius:50%;font-size:0;vertical-align:top}.month-event span{display:none}.month-more{display:none}.mobile-agenda{display:block}
+ .top h1{font-size:23px}.top .btn{padding:10px 12px}
 }
 
 /* Collapsible sidebar */
@@ -136,7 +160,8 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <aside class="side">
   <div class="brand">Car Sales CRM</div>
   <div class="nav">
-    <button class="active" data-p="dashboard">Dashboard</button>
+    <button data-p="dashboard">Dashboard</button>
+    <button class="active" data-p="calendarPage">Calendar</button>
     <button data-p="leads">Leads</button>
     <button data-p="customers">Customers</button>
     <button data-p="leases">Leases</button>
@@ -149,13 +174,29 @@ select,input,textarea{color:var(--text);background:#0b1322}
 </aside>
 
 <main class="main">
-<section id="dashboard" class="page">
-  <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
-  <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div>
-  <div class="filters" id="calfilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
-  <div id="calendar" class="week"></div>
+<header class="appbar"><div class="appbar-brand">Car Sales CRM</div><div class="appbar-user"><span>🔔</span><span id="userBadge" class="user-avatar">J</span><span id="userEmail">Sales</span></div></header>
+
+<section id="dashboard" class="page hide">
+  <div class="top"><div><h1>Dashboard</h1><div class="label">Your sales overview and urgent follow-ups</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
   <div id="metrics" class="cards"></div>
   <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
+</section>
+
+<section id="calendarPage" class="page">
+  <div class="top"><div><h1>Calendar</h1><div class="label">Appointments, follow-ups and deliveries</div></div><button class="btn" onclick="openFollowup('','','Appointment')">+ New Appointment</button></div>
+  <div class="calendar-toolbar">
+    <div class="calendar-selects">
+      <label>Type<select id="calType"><option value="all">All types</option><option value="call">Calls</option><option value="appointment">Appointments</option><option value="followup">Follow-ups</option><option value="delivery">Deliveries</option></select></label>
+      <label>Status<select id="calStatus"><option value="all">All statuses</option><option value="open">Open</option><option value="completed">Completed</option></select></label>
+    </div>
+    <div class="monthnav"><button class="btn secondary" id="prevMonth" aria-label="Previous month">←</button><button class="btn secondary" id="thisMonth">Today</button><button class="btn secondary" id="nextMonth" aria-label="Next month">→</button></div>
+  </div>
+  <div class="month-calendar">
+    <div class="month-title" id="monthLabel"></div>
+    <div class="month-weekdays"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
+    <div id="calendar" class="month-grid"></div>
+  </div>
+  <div id="mobileAgenda" class="mobile-agenda"></div>
 </section>
 
 <section id="leads" class="page hide">
@@ -193,7 +234,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',calFilter='all',weekOffset=0;
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',calType='all',calStatus='all',monthOffset=0,calendarSelected='';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -219,7 +260,8 @@ async function enter(){
     $('#pendingSignout').onclick=async()=>{await sb.auth.signOut();$('#authmsg').textContent='Signed out.'};return
   }
   isAdmin=!!access.is_admin;$('#approvalsNav').classList.toggle('hide',!isAdmin);
-  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');render()
+  const identity=(user.email||'Sales').split('@')[0];$('#userEmail').textContent=identity;$('#userBadge').textContent=(identity[0]||'S').toUpperCase();
+  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');page('calendarPage')
 }
 async function init(){
   let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();
@@ -260,24 +302,35 @@ function calendarDateTimeField(label,name,value='',required=false){
     <div>${esc(label)}${required?' *':''}</div>
     <div class="crm-datetime" id="${id}" data-selected="${esc(date)}" data-view="${esc(view)}">
       <input type="hidden" name="${esc(name)}" value="${esc(stored)}">
-      <div class="crm-calendar-head">
-        <button type="button" data-cal-prev aria-label="Previous month">‹</button>
-        <div class="crm-calendar-month"></div>
-        <button type="button" data-cal-next aria-label="Next month">›</button>
+      <button type="button" class="crm-picker-summary" data-cal-toggle aria-expanded="false">
+        <span class="crm-picker-value">Choose date and time</span><span class="crm-picker-icon">📅</span>
+      </button>
+      <div class="crm-picker-panel">
+        <div class="crm-calendar-head">
+          <button type="button" data-cal-prev aria-label="Previous month">‹</button>
+          <div class="crm-calendar-month"></div>
+          <button type="button" data-cal-next aria-label="Next month">›</button>
+        </div>
+        <div class="crm-calendar-weekdays">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<span>${x}</span>`).join('')}</div>
+        <div class="crm-calendar-days"></div>
+        <div class="crm-calendar-footer"><button type="button" data-cal-today>Choose today</button></div>
       </div>
-      <div class="crm-calendar-weekdays">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<span>${x}</span>`).join('')}</div>
-      <div class="crm-calendar-days"></div>
-      <div class="crm-calendar-footer"><button type="button" data-cal-today>Choose today</button></div>
       <div class="crm-time-row"><span>Time</span><select class="crm-calendar-time">${calendarTimeOptions(time)}</select></div>
     </div>
   </div>`
+}
+function refreshDateTimeSummary(picker){
+  const value=picker.querySelector('input[type="hidden"]').value;
+  const summary=picker.querySelector('.crm-picker-value');
+  if(!value){summary.textContent='Choose date and time';return}
+  const d=new Date(value);summary.textContent=Number.isNaN(d.getTime())?value:d.toLocaleString([],{dateStyle:'medium',timeStyle:'short'})
 }
 function setCalendarDate(picker,date){
   picker.dataset.selected=date;
   picker.dataset.view=date;
   const time=picker.querySelector('.crm-calendar-time').value||'09:00';
   picker.querySelector('input[type="hidden"]').value=`${date}T${time}`;
-  renderDateTimePicker(picker)
+  renderDateTimePicker(picker);refreshDateTimeSummary(picker);picker.classList.remove('crm-picker-open');picker.querySelector('[data-cal-toggle]').setAttribute('aria-expanded','false')
 }
 function renderDateTimePicker(picker){
   const view=new Date(`${picker.dataset.view||today()}T12:00:00`);
@@ -299,11 +352,12 @@ function renderDateTimePicker(picker){
 function wireDateTimePickers(root=document){
   root.querySelectorAll('.crm-datetime').forEach(picker=>{
     if(picker.dataset.wired)return;picker.dataset.wired='1';
+    picker.querySelector('[data-cal-toggle]').onclick=()=>{const open=picker.classList.toggle('crm-picker-open');picker.querySelector('[data-cal-toggle]').setAttribute('aria-expanded',String(open))};
     picker.querySelector('[data-cal-prev]').onclick=()=>{const d=new Date(`${picker.dataset.view}T12:00:00`);d.setDate(1);d.setMonth(d.getMonth()-1);picker.dataset.view=ymd(d);renderDateTimePicker(picker)};
     picker.querySelector('[data-cal-next]').onclick=()=>{const d=new Date(`${picker.dataset.view}T12:00:00`);d.setDate(1);d.setMonth(d.getMonth()+1);picker.dataset.view=ymd(d);renderDateTimePicker(picker)};
     picker.querySelector('[data-cal-today]').onclick=()=>setCalendarDate(picker,today());
-    picker.querySelector('.crm-calendar-time').onchange=e=>{if(picker.dataset.selected)picker.querySelector('input[type="hidden"]').value=`${picker.dataset.selected}T${e.target.value}`};
-    renderDateTimePicker(picker)
+    picker.querySelector('.crm-calendar-time').onchange=e=>{if(picker.dataset.selected){picker.querySelector('input[type="hidden"]').value=`${picker.dataset.selected}T${e.target.value}`;refreshDateTimeSummary(picker)}};
+    renderDateTimePicker(picker);refreshDateTimeSummary(picker)
   })
 }
 function requireDateTime(value){
@@ -312,7 +366,7 @@ function requireDateTime(value){
   return false
 }
 
-function render(){dashboard();leads();customers();leases();orders();deliveries();approvals();completed()}
+function render(){dashboard();monthCalendar();leads();customers();leases();orders();deliveries();approvals();completed()}
 function dashboard(){
   const active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
   const due=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today());
@@ -322,34 +376,50 @@ function dashboard(){
     ['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']
   ].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');
   $$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));
-  calendar();actions()
+  actions()
 }
-function weekDays(){
-  let d=new Date(),s=new Date(d);s.setHours(12,0,0,0);s.setDate(d.getDate()-d.getDay()+weekOffset*7);
-  return Array.from({length:7},(_,i)=>{let x=new Date(s);x.setDate(s.getDate()+i);return x})
+function calendarEventType(item,kind){
+  if(kind==='delivery')return'delivery';
+  if(item.action_type==='Appointment')return'appointment';
+  if(item.action_type==='Call')return'call';
+  return'followup'
 }
-function calendar(){
-  const ds=weekDays();
-  $('#weekLabel').textContent=`${ds[0].toLocaleDateString([],{month:'short',day:'numeric'})} – ${ds[6].toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}`;
-  $('#calendar').innerHTML=ds.map(d=>{
-    let k=localDate(d),ev=[];
-    DB.followups.filter(x=>localDate(x.scheduled_at)===k).forEach(x=>{
-      let a=x.action_type==='Appointment';if(calFilter!=='all'&&calFilter!==(a?'appointments':'followups'))return;
-      let cl=x.status==='Done'?'done':k<today()?'past':k===today()?'today':'';
-      ev.push(`<button class="event ${cl}" onclick="openCalendarFollowup('${x.id}')">${esc(x.action_type)}<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
-    });
-    DB.deliveries.filter(x=>x.delivery_at&&localDate(x.delivery_at)===k).forEach(x=>{
-      if(!['all','deliveries'].includes(calFilter))return;
-      let cl=x.status==='Delivered'?'done':k<today()?'past':k===today()?'today':'';
-      ev.push(`<button class="event ${cl}" onclick="openCalendarDelivery('${x.id}')">Delivery<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
-    });
-    return `<div class="day"><div class="dayhead">${d.toLocaleDateString([],{weekday:'short'})} ${d.getMonth()+1}/${d.getDate()}</div>${ev.join('')||'<div class="label" style="padding:10px;text-align:center">No events</div>'}</div>`
-  }).join('')
+function calendarEventsForDate(date){
+  const events=[];
+  DB.followups.filter(x=>localDate(x.scheduled_at)===date).forEach(x=>events.push({kind:'followup',id:x.id,type:calendarEventType(x,'followup'),status:x.status==='Done'?'completed':'open',title:x.action_type,customer:cust(x.customer_id).name||'Customer',time:x.scheduled_at,leadId:x.lead_id||null}));
+  DB.deliveries.filter(x=>x.delivery_at&&localDate(x.delivery_at)===date).forEach(x=>events.push({kind:'delivery',id:x.id,type:'delivery',status:x.status==='Delivered'?'completed':'open',title:'Delivery',customer:cust(x.customer_id).name||'Customer',time:x.delivery_at,leadId:x.lead_id||null}));
+  return events.filter(x=>(calType==='all'||x.type===calType)&&(calStatus==='all'||x.status===calStatus)).sort((a,b)=>new Date(a.time)-new Date(b.time))
 }
-$('#prevWeek').onclick=()=>{weekOffset--;calendar()};
-$('#nextWeek').onclick=()=>{weekOffset++;calendar()};
-$('#thisWeek').onclick=()=>{weekOffset=0;calendar()};
-$('#calfilters').onclick=e=>{if(e.target.dataset.f){calFilter=e.target.dataset.f;$$('#calfilters button').forEach(b=>b.classList.toggle('active',b===e.target));calendar()}};
+function monthCalendar(){
+  const month=new Date();month.setHours(12,0,0,0);month.setDate(1);month.setMonth(month.getMonth()+monthOffset);
+  $('#monthLabel').textContent=month.toLocaleDateString([],{month:'long',year:'numeric'});
+  if(!calendarSelected)calendarSelected=today();
+  const start=new Date(month);start.setDate(1-month.getDay());
+  $('#calendar').innerHTML=Array.from({length:42},(_,i)=>{
+    const d=new Date(start);d.setDate(start.getDate()+i);const date=ymd(d),events=calendarEventsForDate(date),shown=events.slice(0,3);
+    const classes=['month-day'];if(d.getMonth()!==month.getMonth())classes.push('outside');if(date===today())classes.push('today');if(date===calendarSelected)classes.push('selected');
+    const eventHtml=shown.map(x=>`<button class="month-event ${x.type} ${x.status}" onclick="openMonthCalendarItem('${x.kind}','${x.id}')" aria-label="${esc(x.title)} for ${esc(x.customer)} at ${esc(new Date(x.time).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}))}"><b>${esc(x.title)} · ${esc(x.customer)}</b><span>${esc(new Date(x.time).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}))}</span></button>`).join('');
+    return `<div class="${classes.join(' ')}"><button class="month-date" onclick="selectCalendarDay('${date}')" aria-label="Show ${esc(d.toLocaleDateString([],{dateStyle:'full'}))}">${d.getDate()}</button>${eventHtml}${events.length>3?`<div class="month-more">+${events.length-3} more</div>`:''}</div>`
+  }).join('');
+  renderMobileAgenda()
+}
+function renderMobileAgenda(){
+  const date=calendarSelected||today(),events=calendarEventsForDate(date),heading=new Date(`${date}T12:00:00`).toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});
+  $('#mobileAgenda').innerHTML=`<h2 class="agenda-heading">${esc(heading)}</h2>${events.length?events.map(x=>`<button class="agenda-item ${x.type}" onclick="openMonthCalendarItem('${x.kind}','${x.id}')"><span class="agenda-mark"></span><span class="agenda-copy"><b>${esc(x.title)} — ${esc(x.customer)}</b><span>${esc(new Date(x.time).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}))} · Tap to ${x.leadId?'open lead':'edit item'}</span></span><span>›</span></button>`).join(''):'<div class="card label">No events for this day.</div>'}`
+}
+window.selectCalendarDay=date=>{calendarSelected=date;monthCalendar()};
+window.openMonthCalendarItem=(kind,id)=>{
+  if(kind==='delivery'){
+    const item=DB.deliveries.find(x=>x.id===id);if(item?.lead_id)return openLeadFile(item.lead_id);return openCalendarDelivery(id)
+  }
+  const item=DB.followups.find(x=>x.id===id);if(!item)return;if(item.action_type==='Post-delivery thank you')return openPostDeliveryThankYou(id);if(item.lead_id)return openLeadFile(item.lead_id);return openCalendarFollowupGeneric(id)
+};
+function moveCalendarMonth(delta){monthOffset+=delta;const d=new Date();d.setHours(12,0,0,0);d.setDate(1);d.setMonth(d.getMonth()+monthOffset);calendarSelected=ymd(d);monthCalendar()}
+$('#prevMonth').onclick=()=>moveCalendarMonth(-1);
+$('#nextMonth').onclick=()=>moveCalendarMonth(1);
+$('#thisMonth').onclick=()=>{monthOffset=0;calendarSelected=today();monthCalendar()};
+$('#calType').onchange=e=>{calType=e.target.value;monthCalendar()};
+$('#calStatus').onchange=e=>{calStatus=e.target.value;monthCalendar()};
 
 function dashboardShortcut(kind){
   if(kind==='active'){leadFilter='all';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='all'));page('leads');return}
@@ -473,8 +543,8 @@ window.openCustomer=()=>{
   modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label>Language<select name="language"><option>English</option><option>French</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
 }
-window.openFollowup=(lid='',cid='')=>{
-  modal('Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type"><option>Call</option><option>Text</option><option>Email</option><option>Appointment</option><option>General follow-up</option></select></label>${calendarDateTimeField('Date / Time','scheduled_at','',true)}<label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
+window.openFollowup=(lid='',cid='',defaultAction='Call')=>{
+  modal(defaultAction==='Appointment'?'New Appointment':'Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(action=>`<option ${action===defaultAction?'selected':''}>${action}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at','',true)}<label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
   wireCustomerSearch($('#f'));
   wireDateTimePickers($('#f'));
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
@@ -597,7 +667,7 @@ function setupSidebarToggle(){
     sync();
   };
   overlay.onclick=closeMobile;
-  $('.nav button[data-p]').forEach(b=>b.addEventListener('click',()=>{if(mobile())closeMobile()}));
+  $$('.nav button[data-p]').forEach(b=>b.addEventListener('click',()=>{if(mobile())closeMobile()}));
   window.addEventListener('resize',()=>{if(!mobile())app.classList.remove('sidebar-open');sync()});
   sync();
 }
