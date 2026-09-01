@@ -46,6 +46,7 @@ h1{margin:0;font-size:25px}h2{font-size:17px;margin:0 0 10px}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
 .filters button{border:1px solid var(--line);background:var(--card);color:#cbd5e1;padding:7px 10px;border-radius:999px}
 .filters button.active{background:var(--accent);color:white;border-color:var(--accent)}
+.calendar-dashboard-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px}.calendar-dashboard-controls .filters{margin:4px 0}.calendar-view-switch button{min-width:76px}.calendar-view{margin-top:10px}
 .pipeline{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:9px;overflow:auto}
 .col{background:#0d1626;border:1px solid var(--line);border-radius:10px;padding:9px;min-height:250px}
 .lead{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px;margin-top:8px;cursor:pointer}
@@ -72,6 +73,7 @@ h1{margin:0;font-size:25px}h2{font-size:17px;margin:0 0 10px}
 .month-event.call{background:#1556a8}.month-event.appointment{background:#087f74}.month-event.followup{background:#6441b4}.month-event.delivery{background:#9c5c0a}.month-event.completed{opacity:.56}.month-event.completed .month-event-open{text-decoration:line-through}
 .month-more{margin-top:4px;color:var(--muted);font-size:10px}
 .mobile-agenda{display:none;margin-top:12px}.agenda-heading{margin:0 0 9px;font-size:15px}.agenda-item{position:relative;display:flex;align-items:center;width:100%;margin-top:7px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);overflow:hidden}.agenda-main{display:flex;align-items:center;gap:10px;width:100%;min-height:66px;padding:11px 48px 11px 11px;border:0;background:transparent;color:inherit;text-align:left}.agenda-item .calendar-check{top:50%;right:12px;transform:translateY(-50%);width:28px;height:28px}.agenda-item .calendar-check input{width:19px;height:19px}.agenda-item.completed{opacity:.58}.agenda-item.completed .agenda-main{text-decoration:line-through}.agenda-mark{width:7px;height:34px;border-radius:5px;background:var(--accent);flex:0 0 auto}.agenda-item.appointment .agenda-mark{background:#14b8a6}.agenda-item.followup .agenda-mark{background:#8b5cf6}.agenda-item.delivery .agenda-mark{background:#e29a2f}.agenda-copy{flex:1;min-width:0}.agenda-copy b,.agenda-copy span{display:block}.agenda-copy span{margin-top:3px;color:var(--muted);font-size:12px}
+.day-calendar-list{display:grid;gap:8px}.day-calendar-item{position:relative;display:flex;align-items:center;min-height:70px;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}.day-calendar-main{display:flex;align-items:center;gap:11px;width:100%;min-height:70px;padding:11px 52px 11px 12px;border:0;background:transparent;color:var(--text);text-align:left}.day-calendar-mark{width:7px;height:40px;border-radius:5px;background:#3b82f6;flex:0 0 auto}.day-calendar-item.appointment .day-calendar-mark{background:#14b8a6}.day-calendar-item.followup .day-calendar-mark{background:#8b5cf6}.day-calendar-item.delivery .day-calendar-mark{background:#e29a2f}.day-calendar-item.completed{opacity:.58}.day-calendar-item.completed .day-calendar-main{text-decoration:line-through}.day-calendar-copy{min-width:0}.day-calendar-copy b,.day-calendar-copy span{display:block}.day-calendar-copy span{margin-top:4px;color:var(--muted);font-size:12px}.day-calendar-item .calendar-check{top:50%;right:13px;transform:translateY(-50%);width:28px;height:28px}.day-calendar-item .calendar-check input{width:19px;height:19px}
 table{width:100%;border-collapse:collapse;background:var(--card)}
 th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
 th{color:var(--muted);background:#0d1626}
@@ -119,13 +121,14 @@ select,input,textarea{color:var(--text);background:#0b1322}
 @media(max-width:800px){
  .side{width:70px;padding:10px 6px}.brand{font-size:0;text-align:center}.brand:after{content:"🚗";font-size:23px}
  .nav button{font-size:0;text-align:center;padding:12px 5px}.nav button:before{font-size:19px}
- .nav button[data-p=dashboard]:before{content:"🏠"}.nav button[data-p=calendarPage]:before{content:"📅"}.nav button[data-p=leads]:before{content:"🔥"}.nav button[data-p=customers]:before{content:"👥"}
+ .nav button[data-p=dashboard]:before{content:"🏠"}.nav button[data-p=leads]:before{content:"🔥"}.nav button[data-p=customers]:before{content:"👥"}
  .nav button[data-p=leases]:before{content:"🟣"}.nav button[data-p=orders]:before{content:"📝"}.nav button[data-p=approvals]:before{content:"🔐"}.nav button[data-p=deliveries]:before{content:"📦"}
  .nav button[data-p=completed]:before{content:"✅"}.nav button#signoutBtn:before{content:"↪"}
  .main{margin-left:70px;width:calc(100% - 70px);padding:13px}.cards{grid-template-columns:repeat(2,1fr)}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.week{grid-template-columns:repeat(7,minmax(175px,1fr))}
  .appbar{display:none}
  .calendar-toolbar{display:grid;grid-template-columns:1fr;margin-top:11px}.calendar-selects{width:100%}.calendar-selects label{flex:1}.calendar-selects select{width:100%;min-width:0}.monthnav{width:100%}.monthnav .btn{flex:1;text-align:center}
+ .calendar-dashboard-controls{display:block}.calendar-view-switch{display:grid;grid-template-columns:repeat(3,1fr)}.calendar-view-switch button{min-width:0}.weekhead{align-items:stretch;flex-direction:column}.weeknav{width:100%}.weeknav .btn{flex:1;padding:9px 6px}.weekhead>.label{text-align:center}
  .month-title{min-height:43px}.month-weekdays div{font-size:10px;padding:7px 1px}.month-day{min-height:52px;padding:4px;text-align:center}.month-date{width:27px;height:27px;padding:0}
  .month-event{display:inline-block;width:7px;height:7px;min-height:0;margin:3px 1px 0;padding:0;border-radius:50%;font-size:0;vertical-align:top}.month-event .month-event-open,.month-event .calendar-check{display:none}.month-more{display:none}.mobile-agenda{display:block}
  .top h1{font-size:23px}.top .btn{padding:10px 12px}
@@ -164,7 +167,6 @@ select,input,textarea{color:var(--text);background:#0b1322}
   <div class="brand">Car Sales CRM</div>
   <div class="nav">
     <button class="active" data-p="dashboard">Dashboard</button>
-    <button data-p="calendarPage">Calendar</button>
     <button data-p="leads">Leads</button>
     <button data-p="customers">Customers</button>
     <button data-p="leases">Leases</button>
@@ -180,29 +182,30 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <header class="appbar"><div class="appbar-brand">Car Sales CRM</div><div class="appbar-user"><span>🔔</span><span id="userBadge" class="user-avatar">J</span><span id="userEmail">Sales</span></div></header>
 
 <section id="dashboard" class="page">
-  <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
-  <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div>
-  <div class="filters" id="weekCalFilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
-  <div id="weekCalendar" class="week"></div>
+  <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><div class="inline-actions"><button class="btn secondary" onclick="openFollowup('','','Appointment')">+ Appointment</button><button class="btn" onclick="openLead()">+ New Lead</button></div></div>
+  <div class="calendar-dashboard-controls">
+    <div class="filters calendar-view-switch" id="dashboardCalendarViews"><button data-view="day">Day</button><button class="active" data-view="week">Week</button><button data-view="month">Month</button></div>
+    <div class="filters" id="weekCalFilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
+  </div>
+  <div id="dashboardDayView" class="calendar-view hide">
+    <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevDay">← Previous</button><button class="btn secondary" id="thisDay">Today</button><button class="btn secondary" id="nextDay">Next →</button></div><div id="dayLabel" class="label"></div></div>
+    <div id="dayCalendar" class="day-calendar-list"></div>
+  </div>
+  <div id="dashboardWeekView" class="calendar-view">
+    <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div>
+    <div id="weekCalendar" class="week"></div>
+  </div>
+  <div id="dashboardMonthView" class="calendar-view hide">
+    <div class="calendar-toolbar"><div></div><div class="monthnav"><button class="btn secondary" id="prevMonth" aria-label="Previous month">←</button><button class="btn secondary" id="thisMonth">Today</button><button class="btn secondary" id="nextMonth" aria-label="Next month">→</button></div></div>
+    <div class="month-calendar">
+      <div class="month-title" id="monthLabel"></div>
+      <div class="month-weekdays"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
+      <div id="calendar" class="month-grid"></div>
+    </div>
+    <div id="mobileAgenda" class="mobile-agenda"></div>
+  </div>
   <div id="metrics" class="cards"></div>
   <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
-</section>
-
-<section id="calendarPage" class="page hide">
-  <div class="top"><div><h1>Calendar</h1><div class="label">Appointments, follow-ups and deliveries</div></div><button class="btn" onclick="openFollowup('','','Appointment')">+ New Appointment</button></div>
-  <div class="calendar-toolbar">
-    <div class="calendar-selects">
-      <label>Type<select id="calType"><option value="all">All types</option><option value="call">Calls</option><option value="appointment">Appointments</option><option value="followup">Follow-ups</option><option value="delivery">Deliveries</option></select></label>
-      <label>Status<select id="calStatus"><option value="all">All statuses</option><option value="open">Open</option><option value="completed">Completed</option></select></label>
-    </div>
-    <div class="monthnav"><button class="btn secondary" id="prevMonth" aria-label="Previous month">←</button><button class="btn secondary" id="thisMonth">Today</button><button class="btn secondary" id="nextMonth" aria-label="Next month">→</button></div>
-  </div>
-  <div class="month-calendar">
-    <div class="month-title" id="monthLabel"></div>
-    <div class="month-weekdays"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
-    <div id="calendar" class="month-grid"></div>
-  </div>
-  <div id="mobileAgenda" class="mobile-agenda"></div>
 </section>
 
 <section id="leads" class="page hide">
@@ -245,7 +248,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',dealFilter='all',calType='all',calStatus='all',monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all';
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -377,7 +380,7 @@ function requireDateTime(value){
   return false
 }
 
-function render(){dashboard();monthCalendar();leads();customers();leases();orders();deliveries();approvals();completed()}
+function render(){dashboard();leads();customers();leases();orders();deliveries();approvals();completed()}
 function dashboard(){
   const active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
   const due=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today());
@@ -387,8 +390,25 @@ function dashboard(){
     ['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']
   ].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');
   $$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));
-  weekCalendar();actions()
+  renderDashboardCalendar();actions()
 }
+function renderDashboardCalendar(){
+  $$('#dashboardCalendarViews button').forEach(button=>button.classList.toggle('active',button.dataset.view===dashboardCalendarView));
+  $('#dashboardDayView').classList.toggle('hide',dashboardCalendarView!=='day');
+  $('#dashboardWeekView').classList.toggle('hide',dashboardCalendarView!=='week');
+  $('#dashboardMonthView').classList.toggle('hide',dashboardCalendarView!=='month');
+  if(dashboardCalendarView==='day')dayCalendar();else if(dashboardCalendarView==='month')monthCalendar();else weekCalendar()
+}
+$('#dashboardCalendarViews').onclick=e=>{if(!e.target.dataset.view)return;dashboardCalendarView=e.target.dataset.view;renderDashboardCalendar()};
+function dashboardDay(){const day=new Date();day.setHours(12,0,0,0);day.setDate(day.getDate()+dayOffset);return day}
+function dayCalendar(){
+  const day=dashboardDay(),date=ymd(day),events=calendarEventsForDate(date);
+  $('#dayLabel').textContent=day.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  $('#dayCalendar').innerHTML=events.length?events.map(x=>`<div class="day-calendar-item ${x.type} ${x.status}"><button class="day-calendar-main" onclick="openMonthCalendarItem('${x.kind}','${x.id}')"><span class="day-calendar-mark"></span><span class="day-calendar-copy"><b>${esc(x.title)} — ${esc(x.customer)}</b><span>${esc(new Date(x.time).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}))} · ${x.leadId?'Open deal':'Edit item'}</span></span></button>${calendarCompletionControl(x.kind,x.id,x.status==='completed',`${x.title} — ${x.customer}`)}</div>`).join(''):'<div class="card label">No events for this day.</div>'
+}
+$('#prevDay').onclick=()=>{dayOffset--;dayCalendar()};
+$('#nextDay').onclick=()=>{dayOffset++;dayCalendar()};
+$('#thisDay').onclick=()=>{dayOffset=0;dayCalendar()};
 function weekDays(){
   const now=new Date(),start=new Date(now);start.setHours(12,0,0,0);start.setDate(now.getDate()-now.getDay()+weekOffset*7);
   return Array.from({length:7},(_,i)=>{const date=new Date(start);date.setDate(start.getDate()+i);return date})
@@ -425,7 +445,7 @@ function weekCalendar(){
 $('#prevWeek').onclick=()=>{weekOffset--;weekCalendar()};
 $('#nextWeek').onclick=()=>{weekOffset++;weekCalendar()};
 $('#thisWeek').onclick=()=>{weekOffset=0;weekCalendar()};
-$('#weekCalFilters').onclick=e=>{if(e.target.dataset.f){weekCalFilter=e.target.dataset.f;$$('#weekCalFilters button').forEach(button=>button.classList.toggle('active',button===e.target));weekCalendar()}};
+$('#weekCalFilters').onclick=e=>{if(e.target.dataset.f){weekCalFilter=e.target.dataset.f;$$('#weekCalFilters button').forEach(button=>button.classList.toggle('active',button===e.target));renderDashboardCalendar()}};
 function calendarEventType(item,kind){
   if(kind==='delivery')return'delivery';
   if(item.action_type==='Appointment')return'appointment';
@@ -436,7 +456,7 @@ function calendarEventsForDate(date){
   const events=[];
   DB.followups.filter(x=>localDate(x.scheduled_at)===date).forEach(x=>events.push({kind:'followup',id:x.id,type:calendarEventType(x,'followup'),status:x.status==='Done'?'completed':'open',title:x.action_type,customer:cust(x.customer_id).name||'Customer',time:x.scheduled_at,leadId:x.lead_id||null}));
   DB.deliveries.filter(x=>x.delivery_at&&localDate(x.delivery_at)===date).forEach(x=>events.push({kind:'delivery',id:x.id,type:'delivery',status:x.status==='Delivered'?'completed':'open',title:'Delivery',customer:cust(x.customer_id).name||'Customer',time:x.delivery_at,leadId:x.lead_id||null}));
-  return events.filter(x=>(calType==='all'||x.type===calType)&&(calStatus==='all'||x.status===calStatus)).sort((a,b)=>new Date(a.time)-new Date(b.time))
+  return events.filter(x=>weekCalFilter==='all'||(weekCalFilter==='deliveries'&&x.type==='delivery')||(weekCalFilter==='appointments'&&x.type==='appointment')||(weekCalFilter==='followups'&&!['appointment','delivery'].includes(x.type))).sort((a,b)=>new Date(a.time)-new Date(b.time))
 }
 function monthCalendar(){
   const month=new Date();month.setHours(12,0,0,0);month.setDate(1);month.setMonth(month.getMonth()+monthOffset);
@@ -466,8 +486,6 @@ function moveCalendarMonth(delta){monthOffset+=delta;const d=new Date();d.setHou
 $('#prevMonth').onclick=()=>moveCalendarMonth(-1);
 $('#nextMonth').onclick=()=>moveCalendarMonth(1);
 $('#thisMonth').onclick=()=>{monthOffset=0;calendarSelected=today();monthCalendar()};
-$('#calType').onchange=e=>{calType=e.target.value;monthCalendar()};
-$('#calStatus').onchange=e=>{calStatus=e.target.value;monthCalendar()};
 
 function dashboardShortcut(kind){
   if(kind==='active'){leadFilter='all';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='all'));page('leads');return}
