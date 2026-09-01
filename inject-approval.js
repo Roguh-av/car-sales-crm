@@ -3,8 +3,8 @@ const path = 'index.html';
 let s = fs.readFileSync(path, 'utf8');
 
 // Idempotent: Netlify builds from a clean checkout, but don't double-inject if run twice.
-if (s.includes('id="approvalsNav"') && s.includes("crm_account_access")) {
-  console.log('Account approval UI already injected.');
+if (s.includes('id="approvalsNav"') && s.includes("crm_account_access") && s.includes('openPostDeliveryThankYou')) {
+  console.log('Account approval UI and post-delivery thank-you workflow already injected.');
   process.exit(0);
 }
 
@@ -87,5 +87,44 @@ let deliveriesPos = s.indexOf('function deliveries(){');
 if (deliveriesPos < 0) throw new Error('Could not locate deliveries function for approvals insertion');
 s = s.slice(0, deliveriesPos) + approvalsCode + s.slice(deliveriesPos);
 
+// Post-delivery thank-you workflow. Supabase automatically creates this follow-up one day after a delivery is marked Delivered.
+const oldDue = `function openDueFollowupsList(){
+  const rows=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id);return \`<tr><td>\${x.lead_id?\`<button class="btn secondary" onclick="openLeadFile('\${x.lead_id}')">\${esc(c.name)}</button>\`:esc(c.name)}</td><td>\${esc(c.phone||'')}</td><td>\${esc(x.action_type)}</td><td>\${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('\${x.id}',this.value)"><option \${x.status==='Open'?'selected':''}>Open</option><option \${x.status==='Done'?'selected':''}>Done</option></select></td></tr>\`})):'<div class="card label">No follow-ups are due.</div>')
+}`;
+const newDue = `function openDueFollowupsList(){
+  const rows=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id),action=x.action_type==='Post-delivery thank you'?\`<button class="btn secondary" onclick="openPostDeliveryThankYou('\${x.id}')">Send thank-you text</button>\`:esc(x.action_type);return \`<tr><td>\${x.lead_id?\`<button class="btn secondary" onclick="openLeadFile('\${x.lead_id}')">\${esc(c.name)}</button>\`:esc(c.name)}</td><td>\${esc(c.phone||'')}</td><td>\${action}</td><td>\${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('\${x.id}',this.value)"><option \${x.status==='Open'?'selected':''}>Open</option><option \${x.status==='Done'?'selected':''}>Done</option></select></td></tr>\`})):'<div class="card label">No follow-ups are due.</div>')
+}`;
+replaceRequired(oldDue,newDue,'follow-ups due function');
+
+const thankYouCode = `window.openPostDeliveryThankYou=id=>{
+  const x=DB.followups.find(f=>f.id===id);if(!x)return;
+  const c=cust(x.customer_id),d=DB.deliveries.find(v=>v.id===x.delivery_id)||{};
+  const first=(c.name||'').trim().split(/\\s+/)[0]||'there';
+  const vehicle=d.vehicle||'new vehicle';
+  const message=\`Hi \${first}, thank you again for choosing me for your \${vehicle}! I hope you're enjoying it. If you have any questions or need anything, feel free to reach out anytime.\`;
+  modal('Post-delivery Thank You',\`<div class="card"><b>\${esc(c.name||'Customer')}</b><div class="label">\${esc(c.phone||'No phone number')} · \${esc(vehicle)}</div></div><form id="thankyouForm" class="form section"><label class="full">Message<textarea id="thankyouText" rows="6">\${esc(message)}</textarea></label><div class="full inline-actions">\${c.phone?'<button type="button" class="btn" id="openThankYouSms">Open Text Message</button>':'<span class="label">Add a phone number to this customer before texting.</span>'}<button type="button" class="btn secondary" id="markThankYouSent">Mark Sent / Done</button><button type="button" class="btn secondary" id="editThankYouLater">Edit Reminder</button></div></form>\`);
+  if(c.phone)$('#openThankYouSms').onclick=()=>{const body=$('#thankyouText').value;window.location.href=\`sms:\${c.phone}?body=\${encodeURIComponent(body)}\`};
+  $('#markThankYouSent').onclick=async()=>{let {error}=await sb.from('followups').update({status:'Done',notes:$('#thankyouText').value}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  $('#editThankYouLater').onclick=()=>openCalendarFollowupGeneric(id);
+}
+window.openCalendarFollowupGeneric=id=>{
+  const x=DB.followups.find(f=>f.id===id);if(!x)return;
+  const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
+  modal('Edit Calendar Item',\`<form id="f" class="form">\${customerSearchField(x.customer_id)}<label>Action<select name="action_type">\${['Call','Text','Email','Appointment','General follow-up','Post-delivery thank you'].map(s=>\`<option \${x.action_type===s?'selected':''}>\${s}</option>\`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="\${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option \${x.status==='Open'?'selected':''}>Open</option><option \${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">\${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>\`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
+}
+`;
+let followupEditorPos=s.indexOf('window.openCalendarFollowup=id=>{');
+if(followupEditorPos<0)throw new Error('Could not locate calendar follow-up editor');
+s=s.slice(0,followupEditorPos)+thankYouCode+s.slice(followupEditorPos);
+s=s.replace(
+  "window.openCalendarFollowup=id=>{\n  const x=DB.followups.find(f=>f.id===id);if(!x)return;",
+  "window.openCalendarFollowup=id=>{\n  const x=DB.followups.find(f=>f.id===id);if(!x)return;\n  if(x.action_type==='Post-delivery thank you')return openPostDeliveryThankYou(id);"
+);
+
 fs.writeFileSync(path, s);
-console.log('Injected account approval gate and admin approval UI.');
+console.log('Injected account approval gate, admin approval UI, and post-delivery thank-you workflow.');
