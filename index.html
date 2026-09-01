@@ -92,7 +92,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 </div></div>
 <div id="crm" class="app hide">
 <aside class="side"><div class="brand">Car Sales CRM</div><div class="nav">
-<button class="active" data-p="dashboard">Dashboard</button><button data-p="leads">Leads</button><button data-p="customers">Customers</button><button data-p="leases">Leases</button><button data-p="orders">Orders</button><button data-p="deliveries">Deliveries</button><button data-p="completed">Sold / Lost / Delivered</button><div class="sep"></div><button id="signoutBtn">Sign out</button>
+<button class="active" data-p="dashboard">Dashboard</button><button data-p="leads">Leads</button><button data-p="customers">Customers</button><button data-p="leases">Leases</button><button data-p="orders">Orders</button><button data-p="completed">Sold / Lost / Delivered</button><div class="sep"></div><button id="signoutBtn">Sign out</button>
 </div></aside>
 <main class="main">
 <section id="dashboard" class="page"><div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div><div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div><div class="filters" id="calfilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div><div id="calendar" class="week"></div><div id="metrics" class="cards"></div><div class="section"><h2>Action Needed</h2><div id="actions"></div></div></section>
@@ -109,7 +109,7 @@ import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
 let user=null,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[]},leadFilter='all',calFilter='all',weekOffset=0;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const today=()=>localDate(new Date()),cust=id=>DB.customers.find(x=>x.id===id)||{},fmt=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'—',dateFmt=x=>x?new Date(x+'T12:00:00').toLocaleDateString([],{dateStyle:'medium'}):'—';
 async function load(){for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',orders:'orders'})){let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=data||[]}}
