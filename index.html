@@ -160,8 +160,8 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <aside class="side">
   <div class="brand">Car Sales CRM</div>
   <div class="nav">
-    <button data-p="dashboard">Dashboard</button>
-    <button class="active" data-p="calendarPage">Calendar</button>
+    <button class="active" data-p="dashboard">Dashboard</button>
+    <button data-p="calendarPage">Calendar</button>
     <button data-p="leads">Leads</button>
     <button data-p="customers">Customers</button>
     <button data-p="leases">Leases</button>
@@ -176,7 +176,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <main class="main">
 <header class="appbar"><div class="appbar-brand">Car Sales CRM</div><div class="appbar-user"><span>🔔</span><span id="userBadge" class="user-avatar">J</span><span id="userEmail">Sales</span></div></header>
 
-<section id="dashboard" class="page hide">
+<section id="dashboard" class="page">
   <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
   <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div>
   <div class="filters" id="weekCalFilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
@@ -185,7 +185,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
   <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
 </section>
 
-<section id="calendarPage" class="page">
+<section id="calendarPage" class="page hide">
   <div class="top"><div><h1>Calendar</h1><div class="label">Appointments, follow-ups and deliveries</div></div><button class="btn" onclick="openFollowup('','','Appointment')">+ New Appointment</button></div>
   <div class="calendar-toolbar">
     <div class="calendar-selects">
@@ -264,7 +264,7 @@ async function enter(){
   }
   isAdmin=!!access.is_admin;$('#approvalsNav').classList.toggle('hide',!isAdmin);
   const identity=(user.email||'Sales').split('@')[0];$('#userEmail').textContent=identity;$('#userBadge').textContent=(identity[0]||'S').toUpperCase();
-  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');page('calendarPage')
+  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');page('dashboard')
 }
 async function init(){
   let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();
