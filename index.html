@@ -67,6 +67,23 @@ select,input,textarea{color:var(--text);background:#0b1322}
 .form label{font-size:12px;color:var(--muted);font-weight:700}
 .form input,.form select,.form textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin-top:4px}
 .form input[type="date"],.form input[type="datetime-local"]{color-scheme:dark}
+.calendar-form-field{font-size:12px;color:var(--muted);font-weight:700}
+.crm-datetime{margin-top:4px;border:1px solid var(--line);border-radius:12px;background:#0b1322;padding:10px}
+.crm-calendar-head{display:grid;grid-template-columns:42px 1fr 42px;gap:7px;align-items:center;margin-bottom:9px}
+.crm-calendar-head button{height:38px;border:1px solid var(--line);border-radius:9px;background:var(--card2);color:var(--text);font-weight:850}
+.crm-calendar-month{text-align:center;color:var(--text);font-size:15px;font-weight:850}
+.crm-calendar-weekdays,.crm-calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.crm-calendar-weekdays span{text-align:center;padding:4px 0;color:var(--muted);font-size:10px;text-transform:uppercase}
+.crm-calendar-day{aspect-ratio:1;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--text);font-weight:750;min-width:0;padding:0}
+.crm-calendar-day.other{color:#526078}
+.crm-calendar-day.today{border-color:#60a5fa}
+.crm-calendar-day.selected{background:var(--accent);color:white;border-color:var(--accent)}
+.crm-calendar-day:hover{background:var(--card2)}
+.crm-calendar-day.selected:hover{background:var(--accent2)}
+.crm-time-row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.crm-time-row select{margin:0!important}
+.crm-calendar-footer{display:flex;justify-content:flex-end;margin-top:8px}
+.crm-calendar-footer button{border:0;background:transparent;color:#93c5fd;padding:6px 3px;font-weight:750}
 .full{grid-column:1/-1}
 .hist{background:#0b1322;border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:8px}
 .auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
@@ -219,6 +236,81 @@ $('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.a
 function tab(h,r){return r.length?`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.join('')}</tbody></table>`:'<div class="card label">No records.</div>'}
 function modal(t,b){$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
 window.closeModal=()=>$('#modal').classList.remove('show');
+
+let calendarPickerSeq=0;
+const pad2=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+function calendarTimeOptions(selected='09:00'){
+  const values=[];
+  for(let hour=6;hour<=22;hour++)for(const minute of [0,15,30,45])values.push(`${pad2(hour)}:${pad2(minute)}`);
+  if(selected&&!values.includes(selected))values.push(selected);
+  values.sort();
+  return values.map(value=>{
+    const label=new Date(`2000-01-01T${value}:00`).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+    return `<option value="${value}" ${value===selected?'selected':''}>${label}</option>`
+  }).join('')
+}
+function calendarDateTimeField(label,name,value='',required=false){
+  const id=`crm-calendar-${++calendarPickerSeq}`;
+  const date=value?value.slice(0,10):'';
+  const time=value&&value.length>=16?value.slice(11,16):'09:00';
+  const view=date||today();
+  const stored=date?`${date}T${time}`:'';
+  return `<div class="calendar-form-field full">
+    <div>${esc(label)}${required?' *':''}</div>
+    <div class="crm-datetime" id="${id}" data-selected="${esc(date)}" data-view="${esc(view)}">
+      <input type="hidden" name="${esc(name)}" value="${esc(stored)}">
+      <div class="crm-calendar-head">
+        <button type="button" data-cal-prev aria-label="Previous month">‹</button>
+        <div class="crm-calendar-month"></div>
+        <button type="button" data-cal-next aria-label="Next month">›</button>
+      </div>
+      <div class="crm-calendar-weekdays">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<span>${x}</span>`).join('')}</div>
+      <div class="crm-calendar-days"></div>
+      <div class="crm-calendar-footer"><button type="button" data-cal-today>Choose today</button></div>
+      <div class="crm-time-row"><span>Time</span><select class="crm-calendar-time">${calendarTimeOptions(time)}</select></div>
+    </div>
+  </div>`
+}
+function setCalendarDate(picker,date){
+  picker.dataset.selected=date;
+  picker.dataset.view=date;
+  const time=picker.querySelector('.crm-calendar-time').value||'09:00';
+  picker.querySelector('input[type="hidden"]').value=`${date}T${time}`;
+  renderDateTimePicker(picker)
+}
+function renderDateTimePicker(picker){
+  const view=new Date(`${picker.dataset.view||today()}T12:00:00`);
+  const year=view.getFullYear(),month=view.getMonth();
+  picker.querySelector('.crm-calendar-month').textContent=view.toLocaleDateString([],{month:'long',year:'numeric'});
+  const firstOfMonth=new Date(year,month,1,12);
+  const start=new Date(year,month,1-firstOfMonth.getDay(),12);
+  const selected=picker.dataset.selected||'';
+  picker.querySelector('.crm-calendar-days').innerHTML=Array.from({length:42},(_,i)=>{
+    const d=new Date(start);d.setDate(start.getDate()+i);
+    const date=ymd(d),classes=['crm-calendar-day'];
+    if(d.getMonth()!==month)classes.push('other');
+    if(date===today())classes.push('today');
+    if(date===selected)classes.push('selected');
+    return `<button type="button" class="${classes.join(' ')}" data-cal-date="${date}" aria-label="${d.toLocaleDateString([],{dateStyle:'full'})}">${d.getDate()}</button>`
+  }).join('');
+  picker.querySelectorAll('[data-cal-date]').forEach(button=>button.onclick=()=>setCalendarDate(picker,button.dataset.calDate))
+}
+function wireDateTimePickers(root=document){
+  root.querySelectorAll('.crm-datetime').forEach(picker=>{
+    if(picker.dataset.wired)return;picker.dataset.wired='1';
+    picker.querySelector('[data-cal-prev]').onclick=()=>{const d=new Date(`${picker.dataset.view}T12:00:00`);d.setDate(1);d.setMonth(d.getMonth()-1);picker.dataset.view=ymd(d);renderDateTimePicker(picker)};
+    picker.querySelector('[data-cal-next]').onclick=()=>{const d=new Date(`${picker.dataset.view}T12:00:00`);d.setDate(1);d.setMonth(d.getMonth()+1);picker.dataset.view=ymd(d);renderDateTimePicker(picker)};
+    picker.querySelector('[data-cal-today]').onclick=()=>setCalendarDate(picker,today());
+    picker.querySelector('.crm-calendar-time').onchange=e=>{if(picker.dataset.selected)picker.querySelector('input[type="hidden"]').value=`${picker.dataset.selected}T${e.target.value}`};
+    renderDateTimePicker(picker)
+  })
+}
+function requireDateTime(value){
+  if(value)return true;
+  alert('Choose a date from the calendar and select a time.');
+  return false
+}
 
 function render(){dashboard();leads();customers();leases();orders();deliveries();approvals();completed()}
 function dashboard(){
@@ -382,13 +474,15 @@ window.openCustomer=()=>{
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openFollowup=(lid='',cid='')=>{
-  modal('Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type"><option>Call</option><option>Text</option><option>Email</option><option>Appointment</option><option>General follow-up</option></select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" required></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
+  modal('Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type"><option>Call</option><option>Text</option><option>Email</option><option>Appointment</option><option>General follow-up</option></select></label>${calendarDateTimeField('Date / Time','scheduled_at','',true)}<label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
   wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
+  wireDateTimePickers($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
 }
 window.openDelivery=(lid='',cid='',vehicle='')=>{
-  modal('Schedule Delivery',`<form id="f" class="form">${customerSearchField(cid)}<label>Vehicle<input name="vehicle" value="${esc(vehicle)}"></label><label>Stock #<input name="stock_number"></label><label>Prep Date<input type="date" name="prep_date"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at"></label><label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
+  modal('Schedule Delivery',`<form id="f" class="form">${customerSearchField(cid)}<label>Vehicle<input name="vehicle" value="${esc(vehicle)}"></label><label>Stock #<input name="stock_number"></label><label>Prep Date<input type="date" name="prep_date"></label>${calendarDateTimeField('Delivery Date / Time','delivery_at')}<label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
   wireCustomerSearch($('#f'));
+  wireDateTimePickers($('#f'));
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('deliveries').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null});if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openOrder=(id='')=>{
@@ -430,25 +524,28 @@ window.openPostDeliveryThankYou=id=>{
 window.openCalendarFollowupGeneric=id=>{
   const x=DB.followups.find(f=>f.id===id);if(!x)return;
   const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
-  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up','Post-delivery thank you'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up','Post-delivery thank you'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  wireDateTimePickers($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
   $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openCalendarFollowup=id=>{
   const x=DB.followups.find(f=>f.id===id);if(!x)return;
   if(x.action_type==='Post-delivery thank you')return openPostDeliveryThankYou(id);
   const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
-  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  wireDateTimePickers($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
   $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openCalendarDelivery=id=>{
   const x=DB.deliveries.find(d=>d.id===id);if(!x)return;
   let local='';if(x.delivery_at){const d=new Date(x.delivery_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());local=d.toISOString().slice(0,16)}
-  modal('Edit Delivery',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Vehicle<input name="vehicle" value="${esc(x.vehicle||'')}"></label><label>Stock #<input name="stock_number" value="${esc(x.stock_number||'')}"></label><label>Prep Date<input type="date" name="prep_date" value="${esc(x.prep_date||'')}"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at" value="${local}"></label><label>Status<select name="status"><option ${x.status==='In Prep'?'selected':''}>In Prep</option><option ${x.status==='Ready'?'selected':''}>Ready</option><option ${x.status==='Delivered'?'selected':''}>Delivered</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  modal('Edit Delivery',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Vehicle<input name="vehicle" value="${esc(x.vehicle||'')}"></label><label>Stock #<input name="stock_number" value="${esc(x.stock_number||'')}"></label><label>Prep Date<input type="date" name="prep_date" value="${esc(x.prep_date||'')}"></label>${calendarDateTimeField('Delivery Date / Time','delivery_at',local)}<label>Status<select name="status"><option ${x.status==='In Prep'?'selected':''}>In Prep</option><option ${x.status==='Ready'?'selected':''}>Ready</option><option ${x.status==='Delivered'?'selected':''}>Delivered</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
+  wireDateTimePickers($('#f'));
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('deliveries').update({customer_id:o.customer_id,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
   $('#delEvt').onclick=async()=>{if(!confirm('Delete this delivery?'))return;let {error}=await sb.from('deliveries').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
 }
