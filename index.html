@@ -77,11 +77,28 @@ select,input,textarea{color:var(--text);background:#0b1322}
  .side{width:70px;padding:10px 6px}.brand{font-size:0;text-align:center}.brand:after{content:"🚗";font-size:23px}
  .nav button{font-size:0;text-align:center;padding:12px 5px}.nav button:before{font-size:19px}
  .nav button[data-p=dashboard]:before{content:"🏠"}.nav button[data-p=leads]:before{content:"🔥"}.nav button[data-p=customers]:before{content:"👥"}
- .nav button[data-p=leases]:before{content:"🟣"}.nav button[data-p=orders]:before{content:"📝"}.nav button[data-p=deliveries]:before{content:"📦"}
+ .nav button[data-p=leases]:before{content:"🟣"}.nav button[data-p=orders]:before{content:"📝"}.nav button[data-p=approvals]:before{content:"🔐"}.nav button[data-p=deliveries]:before{content:"📦"}
  .nav button[data-p=completed]:before{content:"✅"}.nav button#signoutBtn:before{content:"↪"}
  .main{margin-left:70px;width:calc(100% - 70px);padding:13px}.cards{grid-template-columns:repeat(2,1fr)}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.week{grid-template-columns:repeat(7,minmax(175px,1fr))}
 }
+
+/* Collapsible sidebar */
+.side,.main{transition:transform .22s ease,margin-left .22s ease,width .22s ease}
+.sidebar-toggle{position:fixed;left:12px;top:12px;z-index:80;width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;box-shadow:0 8px 24px #0005}
+.sidebar-overlay{position:fixed;inset:0;background:#0008;z-index:59;display:none}
+.app.sidebar-collapsed .side{transform:translateX(-100%)}
+.app.sidebar-collapsed .main{margin-left:0;width:100%}
+.app.sidebar-collapsed .sidebar-toggle{left:12px}
+.app:not(.sidebar-collapsed) .sidebar-toggle{left:247px}
+@media(max-width:800px){
+ .side{width:70px;z-index:60;transform:translateX(-100%)}
+ .main{margin-left:0!important;width:100%!important;padding-top:68px}
+ .app.sidebar-open .side{transform:translateX(0)}
+ .app.sidebar-open .sidebar-overlay{display:block}
+ .app .sidebar-toggle,.app:not(.sidebar-collapsed) .sidebar-toggle{left:10px;top:10px}
+}
+
 </style></head><body>
 <div id="auth" class="auth"><div class="authbox">
   <h1>Car Sales CRM</h1><p class="label">Cloud CRM — phone + computer sync</p>
@@ -92,6 +109,8 @@ select,input,textarea{color:var(--text);background:#0b1322}
 </div></div>
 
 <div id="crm" class="app hide">
+<button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Open navigation" title="Open / close menu">☰</button>
+<div id="sidebarOverlay" class="sidebar-overlay"></div>
 <aside class="side">
   <div class="brand">Car Sales CRM</div>
   <div class="nav">
@@ -100,6 +119,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
     <button data-p="customers">Customers</button>
     <button data-p="leases">Leases</button>
     <button data-p="orders">Orders</button>
+    <button id="approvalsNav" class="hide" data-p="approvals">Account Approvals</button>
     <button data-p="completed">Sold / Lost / Delivered</button>
     <div class="sep"></div>
     <button id="signoutBtn">Sign out</button>
@@ -142,6 +162,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
   <div class="top"><h1>Deliveries</h1><button class="btn" onclick="openDelivery()">+ Delivery</button></div><div id="deliverytable" class="section"></div>
 </section>
 
+<section id="approvals" class="page hide"><div class="top"><div><h1>Account Approvals</h1><div class="label">Approve new salesperson accounts before they can use the CRM.</div></div></div><div id="approvaltable" class="section"></div></section>
 <section id="completed" class="page hide"><h1>Sold / Lost / Delivered</h1><div id="completedtable" class="section"></div></section>
 </main></div>
 
@@ -150,7 +171,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
-let user=null,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[]},leadFilter='all',calFilter='all',weekOffset=0;
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',calFilter='all',weekOffset=0;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -158,21 +179,33 @@ const today=()=>localDate(new Date());
 const cust=id=>DB.customers.find(x=>x.id===id)||{};
 const fmt=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'—';
 const dateFmt=x=>x?new Date(x+'T12:00:00').toLocaleDateString([],{dateStyle:'medium'}):'—';
+/* CUSTOMER_LANGUAGE_V1 */
 function leaseDaysLeft(endDate){if(!endDate)return {days:null,label:'—'};const end=new Date(endDate+'T12:00:00'),now=new Date();now.setHours(12,0,0,0);const days=Math.ceil((end-now)/86400000);return {days,label:days<0?`Expired ${Math.abs(days)} days ago`:days===0?'Ends today':`${days} days`}}
 
 async function load(){
   for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',orders:'orders'})){
-    let {data,error}=await sb.from(t).select('*');
-    if(error)throw error; DB[k]=data||[];
+    let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=data||[]
   }
+  if(isAdmin){let {data,error}=await sb.from('crm_account_access').select('user_id,email,status,is_admin,created_at,reviewed_at').order('created_at',{ascending:true});if(error)throw error;DB.access=data||[]}else DB.access=[]
 }
-async function enter(){await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');render()}
+async function enter(){
+  let {data:access,error}=await sb.from('crm_account_access').select('user_id,email,status,is_admin').eq('user_id',user.id).maybeSingle();
+  if(error){$('#authmsg').textContent='Unable to check account approval: '+error.message;return}
+  if(!access||access.status!=='approved'){
+    isAdmin=false;$('#crm').classList.add('hide');$('#auth').classList.remove('hide');
+    $('#authmsg').innerHTML=access?.status==='rejected'?'This account was not approved. Contact the CRM administrator.<br><button id="pendingSignout" class="btn secondary" style="margin-top:10px">Sign out</button>':'Account created. Waiting for CRM administrator approval.<br><button id="pendingSignout" class="btn secondary" style="margin-top:10px">Sign out</button>';
+    $('#pendingSignout').onclick=async()=>{await sb.auth.signOut();$('#authmsg').textContent='Signed out.'};return
+  }
+  isAdmin=!!access.is_admin;$('#approvalsNav').classList.toggle('hide',!isAdmin);
+  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');render()
+}
 async function init(){
   let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();
-  sb.auth.onAuthStateChange(async(_,s)=>{user=s?.user||null;if(user)await enter()})
+  /* CRM_AUTH_CALLBACK_FIX_V1 */
+sb.auth.onAuthStateChange((_,session)=>{user=session?.user||null;if(user)setTimeout(()=>{enter().catch(err=>{$('#authmsg').textContent='Sign-in error: '+(err?.message||err)})},0)})
 }
-$('#signin').onclick=async()=>{let {error}=await sb.auth.signInWithPassword({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||''};
-$('#signup').onclick=async()=>{let {data,error}=await sb.auth.signUp({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||(data.session?'Account created.':'Check your email to confirm, then sign in.')};
+$('#signin').onclick=async()=>{const btn=$('#signin');btn.disabled=true;$('#authmsg').textContent='Signing in...';let {data,error}=await sb.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});if(error){$('#authmsg').textContent=error.message;btn.disabled=false;return}user=data?.user||data?.session?.user||user;setTimeout(()=>{enter().catch(err=>{$('#authmsg').textContent='Sign-in error: '+(err?.message||err);btn.disabled=false})},0)};
+$('#signup').onclick=async()=>{let {data,error}=await sb.auth.signUp({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||(data.session?'Account created. Waiting for administrator approval.':'Check your email to confirm. After confirmation, your account will wait for administrator approval.')};
 
 function page(id){$$('.page').forEach(x=>x.classList.add('hide'));$('#'+id).classList.remove('hide');$$('.nav button[data-p]').forEach(x=>x.classList.toggle('active',x.dataset.p===id));render()}
 $$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));
@@ -182,7 +215,7 @@ function tab(h,r){return r.length?`<table><thead><tr>${h.map(x=>`<th>${x}</th>`)
 function modal(t,b){$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
 window.closeModal=()=>$('#modal').classList.remove('show');
 
-function render(){dashboard();leads();customers();leases();orders();deliveries();completed()}
+function render(){dashboard();leads();customers();leases();orders();deliveries();approvals();completed()}
 function dashboard(){
   const active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
   const due=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today());
@@ -229,7 +262,7 @@ function dashboardShortcut(kind){
 }
 function openDueFollowupsList(){
   const rows=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
-  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${esc(x.action_type)}</td><td>${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No follow-ups are due.</div>')
+  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id),action=x.action_type==='Post-delivery thank you'?`<button class="btn secondary" onclick="openPostDeliveryThankYou('${x.id}')">Send thank-you text</button>`:esc(x.action_type);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${action}</td><td>${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No follow-ups are due.</div>')
 }
 function openTodayAppointmentsList(){
   const rows=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
@@ -262,7 +295,7 @@ $('#custsearch').oninput=customers;
 function customers(){
   let q=$('#custsearch').value.toLowerCase(),a=DB.customers.filter(x=>!x.archived&&!['Sold','Lost','Delivered'].includes(x.status));
   if(q)a=a.filter(x=>(x.name+' '+x.phone+' '+x.city).toLowerCase().includes(q));
-  $('#custtable').innerHTML=tab(['Name','Phone','City','Status'],a.map(x=>`<tr><td><button class="btn secondary" onclick="customerFile('${x.id}')">${esc(x.name)}</button></td><td>${esc(x.phone||'')}</td><td>${esc(x.city||'')}</td><td>${esc(x.status||'')}</td></tr>`))
+  $('#custtable').innerHTML=tab(['Name','Phone','City','Language','Status'],a.map(x=>`<tr><td><button class="btn secondary" onclick="customerFile('${x.id}')">${esc(x.name)}</button></td><td>${esc(x.phone||'')}</td><td>${esc(x.city||'')}</td><td>${esc(x.language||'English')}</td><td>${esc(x.status||'')}</td></tr>`))
 }
 $('#leasesearch').oninput=leases;
 function leases(){
@@ -284,6 +317,8 @@ function orders(){
     <td><button class="btn secondary" onclick="openOrder('${x.id}')">Edit</button></td>
   </tr>`))
 }
+function approvals(){if(!isAdmin||!$('#approvaltable'))return;$('#approvaltable').innerHTML=tab(['Email','Created','Status',''],DB.access.map(x=>`<tr><td><b>${esc(x.email||'No email')}</b>${x.is_admin?'<div class="label">Administrator</div>':''}</td><td>${fmt(x.created_at)}</td><td><span class="status-badge">${esc(x.status)}</span></td><td>${x.is_admin?'':x.status==='pending'?`<div class="inline-actions"><button class="btn" onclick="reviewAccount('${x.user_id}','approved')">Approve</button><button class="btn danger" onclick="reviewAccount('${x.user_id}','rejected')">Reject</button></div>`:`<button class="btn secondary" onclick="reviewAccount('${x.user_id}','${x.status==='approved'?'rejected':'approved'}')">${x.status==='approved'?'Revoke':'Approve'}</button>`}</td></tr>`))}
+window.reviewAccount=async(id,status)=>{let {error}=await sb.rpc('review_crm_account',{p_user_id:id,p_status:status});if(error)return alert(error.message);await load();render();page('approvals')}
 function deliveries(){
   $('#deliverytable').innerHTML=tab(['Customer','Vehicle','Prep','Delivery','Status',''],DB.deliveries.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>${esc(x.prep_date||'')}</td><td>${fmt(x.delivery_at)}</td><td>${esc(x.status)}</td><td><button class="btn secondary" onclick="openCalendarDelivery('${x.id}')">Edit</button></td></tr>`))
 }
@@ -310,7 +345,7 @@ function wireCustomerSearch(form){
     const q=inp.value.trim().toLowerCase();
     if(!q){box.classList.add('hide');box.innerHTML='';return}
     const matches=DB.customers.filter(c=>(`${c.name} ${c.phone||''} ${c.email||''}`).toLowerCase().includes(q)).slice(0,8);
-    box.innerHTML=matches.map(c=>`<button type="button" data-id="${c.id}"><b>${esc(c.name)}</b><div class="label">${esc(c.phone||'')} ${esc(c.email||'')}</div></button>`).join('');
+    box.innerHTML=matches.map(c=>`<button type="button" data-id="${c.id}"><b>${esc(c.name)}</b><div class="label">${esc(c.phone||'')} ${esc(c.email||'')} · ${esc(c.language||'English')}</div></button>`).join('');
     box.classList.toggle('hide',!matches.length);
     box.querySelectorAll('button').forEach(b=>b.onclick=()=>{const c=cust(b.dataset.id);hid.value=c.id;inp.value=c.name;box.classList.add('hide')})
   };
@@ -320,7 +355,7 @@ function wireCustomerSearch(form){
 window.openLead=()=>{
   modal('New Lead',`<form id="f" class="form">
     ${customerSearchField()}
-    <label>New Customer Name<input name="name"></label><label>Phone<input name="phone"></label>
+    <label>New Customer Name<input name="name"></label><label>Phone<input name="phone"></label><label>New Customer Language<select name="language"><option>English</option><option>French</option></select></label>
     <label>Vehicle<input name="vehicle"></label>
     <label>Source<select name="source"><option>Ups</option><option>Facebook Marketplace</option><option>Facebook Lead Ad</option><option>Phone</option><option>Website</option><option>Referral</option><option>Lease maturity</option></select></label>
     <label>Priority<select name="priority"><option>Normal</option><option>Hot</option><option>Low</option></select></label>
@@ -330,7 +365,7 @@ window.openLead=()=>{
   wireCustomerSearch($('#f'));
   $('#f').onsubmit=async e=>{
     e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),cid=o.customer_id;
-    if(!cid){if(!o.name)return alert('Select an existing customer or enter a new customer name');let {data,error}=await sb.from('customers').insert({owner_id:user.id,name:o.name,phone:o.phone||null,source:o.source}).select().single();if(error)return alert(error.message);cid=data.id}
+    if(!cid){if(!o.name)return alert('Select an existing customer or enter a new customer name');let {data,error}=await sb.from('customers').insert({owner_id:user.id,name:o.name,phone:o.phone||null,source:o.source,language:o.language||'English'}).select().single();if(error)return alert(error.message);cid=data.id}
     let {data,error}=await sb.from('leads').insert({owner_id:user.id,customer_id:cid,vehicle:o.vehicle||null,source:o.source,priority:o.priority,stock_number:o.stock_number||null,notes:o.notes||null}).select().single();
     if(error)return alert(error.message);
     await sb.from('lead_history').insert({owner_id:user.id,lead_id:data.id,event_type:'Lead created',note:o.notes||null});
@@ -338,7 +373,7 @@ window.openLead=()=>{
   }
 }
 window.openCustomer=()=>{
-  modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
+  modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label>Language<select name="language"><option>English</option><option>French</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openFollowup=(lid='',cid='')=>{
@@ -375,8 +410,29 @@ window.openOrder=(id='')=>{
   if(x)$('#deleteOrder').onclick=async()=>{if(!confirm('Delete this order?'))return;let {error}=await sb.from('orders').delete().eq('id',x.id);if(error)return alert(error.message);closeModal();await load();render();page('orders')}
 }
 
+window.openPostDeliveryThankYou=id=>{
+  const x=DB.followups.find(f=>f.id===id);if(!x)return;
+  const c=cust(x.customer_id),d=DB.deliveries.find(v=>v.id===x.delivery_id)||{};
+  const first=(c.name||'').trim().split(/\s+/)[0]||'there';
+  const vehicle=d.vehicle||'new vehicle';
+  const language=c.language||'English';
+  const message=language==='French'?`Bonjour ${first}, merci encore de m'avoir fait confiance pour l'achat de votre ${vehicle}! J'espère que tout se passe bien et que vous en profitez pleinement. Si vous avez des questions ou avez besoin de quoi que ce soit, n'hésitez pas à me contacter.`:`Hi ${first}, thank you again for choosing me for your ${vehicle}! I hope you're enjoying it. If you have any questions or need anything, feel free to reach out anytime.`;
+  modal('Post-delivery Thank You',`<div class="card"><b>${esc(c.name||'Customer')}</b><div class="label">${esc(c.phone||'No phone number')} · ${esc(vehicle)} · ${esc(c.language||'English')}</div></div><form id="thankyouForm" class="form section"><label class="full">Message<textarea id="thankyouText" rows="6">${esc(message)}</textarea></label><div class="full inline-actions">${c.phone?'<button type="button" class="btn" id="openThankYouSms">Open Text Message</button>':'<span class="label">Add a phone number to this customer before texting.</span>'}<button type="button" class="btn secondary" id="markThankYouSent">Mark Sent / Done</button><button type="button" class="btn secondary" id="editThankYouLater">Edit Reminder</button></div></form>`);
+  if(c.phone)$('#openThankYouSms').onclick=()=>{const body=$('#thankyouText').value;window.location.href=`sms:${c.phone}?body=${encodeURIComponent(body)}`};
+  $('#markThankYouSent').onclick=async()=>{let {error}=await sb.from('followups').update({status:'Done',notes:$('#thankyouText').value}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  $('#editThankYouLater').onclick=()=>openCalendarFollowupGeneric(id);
+}
+window.openCalendarFollowupGeneric=id=>{
+  const x=DB.followups.find(f=>f.id===id);if(!x)return;
+  const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
+  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up','Post-delivery thank you'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
+}
 window.openCalendarFollowup=id=>{
   const x=DB.followups.find(f=>f.id===id);if(!x)return;
+  if(x.action_type==='Post-delivery thank you')return openPostDeliveryThankYou(id);
   const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
   modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
@@ -407,9 +463,49 @@ window.openOrderFromLead=(lid,cid,vehicle)=>{
   openOrder();
   setTimeout(()=>{let f=$('#f');if(!f)return;f.querySelector('#customerId').value=cid;f.querySelector('#customerSearch').value=cust(cid).name;f.querySelector('[name=vehicle]').value=vehicle;f.dataset.leadId=lid},0)
 }
+window.editCustomer=id=>{
+  const c=cust(id);if(!c)return;
+  modal('Edit Customer',`<form id="f" class="form"><label>Name<input name="name" required value="${esc(c.name||'')}"></label><label>Phone<input name="phone" value="${esc(c.phone||'')}"></label><label>Email<input name="email" value="${esc(c.email||'')}"></label><label>City<input name="city" value="${esc(c.city||'')}"></label><label>Language<select name="language"><option ${(c.language||'English')==='English'?'selected':''}>English</option><option ${c.language==='French'?'selected':''}>French</option></select></label><label class="full">Notes<textarea name="notes">${esc(c.notes||'')}</textarea></label><div class="full"><button class="btn">Save Customer</button></div></form>`);
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').update({name:o.name,phone:o.phone||null,email:o.email||null,city:o.city||null,language:o.language,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render();customerFile(id)}
+}
 window.customerFile=id=>{
   let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),le=DB.leads.filter(x=>x.customer_id===id),os=DB.orders.filter(x=>x.customer_id===id);
-  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${esc(x.lease_end_date||'')}</div>`).join('')}</div>`)
+  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div><div class="label" style="margin-top:6px">Language: ${esc(c.language||'English')}</div><div style="margin-top:9px"><button class="btn secondary" onclick="editCustomer('${c.id}')">Edit Customer</button></div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${esc(x.lease_end_date||'')}</div>`).join('')}</div>`)
 }
+
+function setupSidebarToggle(){
+  const app=$('#crm'),toggle=$('#sidebarToggle'),overlay=$('#sidebarOverlay'),side=$('.side');
+  if(!app||!toggle||!overlay||!side)return;
+  const mobile=()=>window.matchMedia('(max-width:800px)').matches;
+  const sync=()=>{
+    if(mobile()){
+      const open=app.classList.contains('sidebar-open');
+      toggle.textContent=open?'×':'☰';
+      toggle.setAttribute('aria-label',open?'Close navigation':'Open navigation');
+    }else{
+      const collapsed=app.classList.contains('sidebar-collapsed');
+      toggle.textContent=collapsed?'☰':'‹';
+      toggle.setAttribute('aria-label',collapsed?'Open navigation':'Collapse navigation');
+    }
+  };
+  const closeMobile=()=>{app.classList.remove('sidebar-open');sync()};
+  toggle.onclick=()=>{
+    if(mobile()) app.classList.toggle('sidebar-open');
+    else app.classList.toggle('sidebar-collapsed');
+    sync();
+  };
+  overlay.onclick=closeMobile;
+  $('.nav button[data-p]').forEach(b=>b.addEventListener('click',()=>{if(mobile())closeMobile()}));
+  window.addEventListener('resize',()=>{if(!mobile())app.classList.remove('sidebar-open');sync()});
+  sync();
+}
+setupSidebarToggle();
+
+
+/* CRM_PWA_REFRESH_V1 */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(err=>console.error('Service worker update failed',err));
+}
+
 init();
 </script></body></html>
