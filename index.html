@@ -90,65 +90,326 @@ select,input,textarea{color:var(--text);background:#0b1322}
   <div class="inline-actions"><button id="signin" class="btn">Sign in</button><button id="signup" class="btn secondary">Create account</button></div>
   <p id="authmsg" class="label"></p>
 </div></div>
+
 <div id="crm" class="app hide">
-<aside class="side"><div class="brand">Car Sales CRM</div><div class="nav">
-<button class="active" data-p="dashboard">Dashboard</button><button data-p="leads">Leads</button><button data-p="customers">Customers</button><button data-p="leases">Leases</button><button data-p="orders">Orders</button><button data-p="completed">Sold / Lost / Delivered</button><div class="sep"></div><button id="signoutBtn">Sign out</button>
-</div></aside>
+<aside class="side">
+  <div class="brand">Car Sales CRM</div>
+  <div class="nav">
+    <button class="active" data-p="dashboard">Dashboard</button>
+    <button data-p="leads">Leads</button>
+    <button data-p="customers">Customers</button>
+    <button data-p="leases">Leases</button>
+    <button data-p="orders">Orders</button>
+    <button data-p="completed">Sold / Lost / Delivered</button>
+    <div class="sep"></div>
+    <button id="signoutBtn">Sign out</button>
+  </div>
+</aside>
+
 <main class="main">
-<section id="dashboard" class="page"><div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div><div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div><div class="filters" id="calfilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div><div id="calendar" class="week"></div><div id="metrics" class="cards"></div><div class="section"><h2>Action Needed</h2><div id="actions"></div></div></section>
-<section id="leads" class="page hide"><div class="top"><h1>Leads</h1><button class="btn" onclick="openLead()">+ New Lead</button></div><div class="filters" id="leadfilters"><button class="active" data-f="all">All</button><button data-f="hot">🔥 Hot</button><button data-f="facebook">Facebook</button><button data-f="ups">Ups</button><button data-f="overdue">Overdue</button><button data-f="nofollow">No Follow-up</button></div><input id="leadsearch" class="search" placeholder="Search leads..."><div id="pipeline" class="pipeline section"></div></section>
-<section id="customers" class="page hide"><div class="top"><h1>Customers / Contacts</h1><button class="btn" onclick="openCustomer()">+ New Customer</button></div><input id="custsearch" class="search" placeholder="Search name, phone, city..."><div id="custtable" class="section"></div></section>
-<section id="leases" class="page hide"><div class="top"><h1>Lease Customers</h1></div><input id="leasesearch" class="search" placeholder="Search customer, vehicle, VIN, stock..."><div id="leasetable" class="section"></div></section>
-<section id="orders" class="page hide"><div class="top"><div><h1>New Vehicle Orders</h1><div class="label">Customers waiting for a new vehicle that is not currently in stock.</div></div><button class="btn" onclick="openOrder()">+ New Order</button></div><input id="ordersearch" class="search" placeholder="Search customer, vehicle, trim, color, status..."><div id="ordertable" class="section"></div></section>
-<section id="deliveries" class="page hide"><div class="top"><h1>Deliveries</h1><button class="btn" onclick="openDelivery()">+ Delivery</button></div><div id="deliverytable" class="section"></div></section>
+<section id="dashboard" class="page">
+  <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
+  <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div>
+  <div class="filters" id="calfilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
+  <div id="calendar" class="week"></div>
+  <div id="metrics" class="cards"></div>
+  <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
+</section>
+
+<section id="leads" class="page hide">
+  <div class="top"><h1>Leads</h1><button class="btn" onclick="openLead()">+ New Lead</button></div>
+  <div class="filters" id="leadfilters"><button class="active" data-f="all">All</button><button data-f="hot">🔥 Hot</button><button data-f="facebook">Facebook</button><button data-f="ups">Ups</button><button data-f="overdue">Overdue</button><button data-f="nofollow">No Follow-up</button></div>
+  <input id="leadsearch" class="search" placeholder="Search leads..."><div id="pipeline" class="pipeline section"></div>
+</section>
+
+<section id="customers" class="page hide">
+  <div class="top"><h1>Customers / Contacts</h1><button class="btn" onclick="openCustomer()">+ New Customer</button></div>
+  <input id="custsearch" class="search" placeholder="Search name, phone, city..."><div id="custtable" class="section"></div>
+</section>
+
+<section id="leases" class="page hide">
+  <div class="top"><h1>Lease Customers</h1></div>
+  <input id="leasesearch" class="search" placeholder="Search customer, vehicle, VIN, stock..."><div id="leasetable" class="section"></div>
+</section>
+
+<section id="orders" class="page hide">
+  <div class="top"><div><h1>New Vehicle Orders</h1><div class="label">Customers waiting for a new vehicle that is not currently in stock.</div></div><button class="btn" onclick="openOrder()">+ New Order</button></div>
+  <input id="ordersearch" class="search" placeholder="Search customer, vehicle, trim, color, status...">
+  <div id="ordertable" class="section"></div>
+</section>
+
+<section id="deliveries" class="page hide">
+  <div class="top"><h1>Deliveries</h1><button class="btn" onclick="openDelivery()">+ Delivery</button></div><div id="deliverytable" class="section"></div>
+</section>
+
 <section id="completed" class="page hide"><h1>Sold / Lost / Delivered</h1><div id="completedtable" class="section"></div></section>
 </main></div>
+
 <div id="modal" class="modal"><div class="box"><div class="head"><h2 id="mtitle"></h2><button class="close" onclick="closeModal()">×</button></div><div id="mbody"></div></div></div>
+
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
 let user=null,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[]},leadFilter='all',calFilter='all',weekOffset=0;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[m]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-const today=()=>localDate(new Date()),cust=id=>DB.customers.find(x=>x.id===id)||{},fmt=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'—',dateFmt=x=>x?new Date(x+'T12:00:00').toLocaleDateString([],{dateStyle:'medium'}):'—';
-async function load(){for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',orders:'orders'})){let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=data||[]}}
+const today=()=>localDate(new Date());
+const cust=id=>DB.customers.find(x=>x.id===id)||{};
+const fmt=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'—';
+const dateFmt=x=>x?new Date(x+'T12:00:00').toLocaleDateString([],{dateStyle:'medium'}):'—';
+function leaseDaysLeft(endDate){if(!endDate)return {days:null,label:'—'};const end=new Date(endDate+'T12:00:00'),now=new Date();now.setHours(12,0,0,0);const days=Math.ceil((end-now)/86400000);return {days,label:days<0?`Expired ${Math.abs(days)} days ago`:days===0?'Ends today':`${days} days`}}
+
+async function load(){
+  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',orders:'orders'})){
+    let {data,error}=await sb.from(t).select('*');
+    if(error)throw error; DB[k]=data||[];
+  }
+}
 async function enter(){await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');render()}
-async function init(){let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();sb.auth.onAuthStateChange(async(_,s)=>{user=s?.user||null;if(user)await enter()})}
+async function init(){
+  let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();
+  sb.auth.onAuthStateChange(async(_,s)=>{user=s?.user||null;if(user)await enter()})
+}
 $('#signin').onclick=async()=>{let {error}=await sb.auth.signInWithPassword({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||''};
 $('#signup').onclick=async()=>{let {data,error}=await sb.auth.signUp({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||(data.session?'Account created.':'Check your email to confirm, then sign in.')};
+
 function page(id){$$('.page').forEach(x=>x.classList.add('hide'));$('#'+id).classList.remove('hide');$$('.nav button[data-p]').forEach(x=>x.classList.toggle('active',x.dataset.p===id));render()}
-$$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));$('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.add('hide');$('#auth').classList.remove('hide')};
+$$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));
+$('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.add('hide');$('#auth').classList.remove('hide')};
+
 function tab(h,r){return r.length?`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.join('')}</tbody></table>`:'<div class="card label">No records.</div>'}
-function modal(t,b){$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}window.closeModal=()=>$('#modal').classList.remove('show');
+function modal(t,b){$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
+window.closeModal=()=>$('#modal').classList.remove('show');
+
 function render(){dashboard();leads();customers();leases();orders();deliveries();completed()}
-function dashboard(){const active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status)),due=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()),hot=active.filter(x=>x.priority==='Hot'),ap=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today());$('#metrics').innerHTML=[['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');$$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));calendar();actions()}
-function weekDays(){let d=new Date(),s=new Date(d);s.setHours(12,0,0,0);s.setDate(d.getDate()-d.getDay()+weekOffset*7);return Array.from({length:7},(_,i)=>{let x=new Date(s);x.setDate(s.getDate()+i);return x})}
-function calendar(){const ds=weekDays();$('#weekLabel').textContent=`${ds[0].toLocaleDateString([],{month:'short',day:'numeric'})} – ${ds[6].toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}`;$('#calendar').innerHTML=ds.map(d=>{let k=localDate(d),ev=[];DB.followups.filter(x=>localDate(x.scheduled_at)===k).forEach(x=>{let a=x.action_type==='Appointment';if(calFilter!=='all'&&calFilter!==(a?'appointments':'followups'))return;let cl=x.status==='Done'?'done':k<today()?'past':k===today()?'today':'';ev.push(`<button class="event ${cl}" onclick="openCalendarFollowup('${x.id}')">${esc(x.action_type)}<br><b>${esc(cust(x.customer_id).name)}</b></button>`)});DB.deliveries.filter(x=>x.delivery_at&&localDate(x.delivery_at)===k).forEach(x=>{if(!['all','deliveries'].includes(calFilter))return;let cl=x.status==='Delivered'?'done':k<today()?'past':k===today()?'today':'';ev.push(`<button class="event ${cl}" onclick="openCalendarDelivery('${x.id}')">Delivery<br><b>${esc(cust(x.customer_id).name)}</b></button>`)});return `<div class="day"><div class="dayhead">${d.toLocaleDateString([],{weekday:'short'})} ${d.getMonth()+1}/${d.getDate()}</div>${ev.join('')||'<div class="label" style="padding:10px;text-align:center">No events</div>'}</div>`}).join('')}
-$('#prevWeek').onclick=()=>{weekOffset--;calendar()};$('#nextWeek').onclick=()=>{weekOffset++;calendar()};$('#thisWeek').onclick=()=>{weekOffset=0;calendar()};$('#calfilters').onclick=e=>{if(e.target.dataset.f){calFilter=e.target.dataset.f;$$('#calfilters button').forEach(b=>b.classList.toggle('active',b===e.target));calendar()}};
-function dashboardShortcut(kind){if(kind==='active'){leadFilter='all';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='all'));page('leads');return}if(kind==='hot'){leadFilter='hot';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='hot'));page('leads');return}if(kind==='followups'){openDueFollowupsList();return}if(kind==='appointments'){openTodayAppointmentsList()}}
-function openDueFollowupsList(){const rows=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${esc(x.action_type)}</td><td>${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No follow-ups are due.</div>')}
-function openTodayAppointmentsList(){const rows=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));modal('Appointments Today',rows.length?tab(['Customer','Phone','Time','Notes','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.notes||'')}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No appointments scheduled for today.</div>')}
+function dashboard(){
+  const active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
+  const due=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today());
+  const hot=active.filter(x=>x.priority==='Hot');
+  const ap=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today());
+  $('#metrics').innerHTML=[
+    ['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']
+  ].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');
+  $$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));
+  calendar();actions()
+}
+function weekDays(){
+  let d=new Date(),s=new Date(d);s.setHours(12,0,0,0);s.setDate(d.getDate()-d.getDay()+weekOffset*7);
+  return Array.from({length:7},(_,i)=>{let x=new Date(s);x.setDate(s.getDate()+i);return x})
+}
+function calendar(){
+  const ds=weekDays();
+  $('#weekLabel').textContent=`${ds[0].toLocaleDateString([],{month:'short',day:'numeric'})} – ${ds[6].toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}`;
+  $('#calendar').innerHTML=ds.map(d=>{
+    let k=localDate(d),ev=[];
+    DB.followups.filter(x=>localDate(x.scheduled_at)===k).forEach(x=>{
+      let a=x.action_type==='Appointment';if(calFilter!=='all'&&calFilter!==(a?'appointments':'followups'))return;
+      let cl=x.status==='Done'?'done':k<today()?'past':k===today()?'today':'';
+      ev.push(`<button class="event ${cl}" onclick="openCalendarFollowup('${x.id}')">${esc(x.action_type)}<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
+    });
+    DB.deliveries.filter(x=>x.delivery_at&&localDate(x.delivery_at)===k).forEach(x=>{
+      if(!['all','deliveries'].includes(calFilter))return;
+      let cl=x.status==='Delivered'?'done':k<today()?'past':k===today()?'today':'';
+      ev.push(`<button class="event ${cl}" onclick="openCalendarDelivery('${x.id}')">Delivery<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
+    });
+    return `<div class="day"><div class="dayhead">${d.toLocaleDateString([],{weekday:'short'})} ${d.getMonth()+1}/${d.getDate()}</div>${ev.join('')||'<div class="label" style="padding:10px;text-align:center">No events</div>'}</div>`
+  }).join('')
+}
+$('#prevWeek').onclick=()=>{weekOffset--;calendar()};
+$('#nextWeek').onclick=()=>{weekOffset++;calendar()};
+$('#thisWeek').onclick=()=>{weekOffset=0;calendar()};
+$('#calfilters').onclick=e=>{if(e.target.dataset.f){calFilter=e.target.dataset.f;$$('#calfilters button').forEach(b=>b.classList.toggle('active',b===e.target));calendar()}};
+
+function dashboardShortcut(kind){
+  if(kind==='active'){leadFilter='all';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='all'));page('leads');return}
+  if(kind==='hot'){leadFilter='hot';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='hot'));page('leads');return}
+  if(kind==='followups'){openDueFollowupsList();return}
+  if(kind==='appointments'){openTodayAppointmentsList()}
+}
+function openDueFollowupsList(){
+  const rows=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${esc(x.action_type)}</td><td>${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No follow-ups are due.</div>')
+}
+function openTodayAppointmentsList(){
+  const rows=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+  modal('Appointments Today',rows.length?tab(['Customer','Phone','Time','Notes','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.notes||'')}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No appointments scheduled for today.</div>')
+}
 window.followupStatus=async(id,status)=>{const {error}=await sb.from('followups').update({status}).eq('id',id);if(error)return alert(error.message);await load();render()};
-function actions(){let a=[];DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).forEach(x=>a.push({t:`${x.action_type} — ${cust(x.customer_id).name}`,s:fmt(x.scheduled_at),fn:`openCalendarFollowup('${x.id}')`}));DB.deliveries.filter(x=>x.status!=='Delivered'&&x.delivery_at&&localDate(x.delivery_at)<=today()).forEach(x=>a.push({t:`Delivery — ${cust(x.customer_id).name}`,s:x.status,fn:`openCalendarDelivery('${x.id}')`}));$('#actions').innerHTML=a.length?a.map(x=>`<div class="card" style="margin-top:7px;cursor:pointer" onclick="${x.fn}"><b>${esc(x.t)}</b><div class="label">${esc(x.s)}</div></div>`).join(''):'<div class="card label">Nothing urgent.</div>'}
-$('#leadfilters').onclick=e=>{if(e.target.dataset.f){leadFilter=e.target.dataset.f;$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b===e.target));leads()}};$('#leadsearch').oninput=leads;
-function leads(){let q=$('#leadsearch').value.toLowerCase(),a=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));if(q)a=a.filter(x=>(cust(x.customer_id).name+' '+x.vehicle+' '+x.source).toLowerCase().includes(q));if(leadFilter==='hot')a=a.filter(x=>x.priority==='Hot');if(leadFilter==='facebook')a=a.filter(x=>String(x.source).toLowerCase().includes('facebook'));if(leadFilter==='ups')a=a.filter(x=>String(x.source).toLowerCase().includes('up'));if(leadFilter==='overdue')a=a.filter(x=>DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'&&localDate(f.scheduled_at)<today()));if(leadFilter==='nofollow')a=a.filter(x=>!DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'));let st=['New','Contacted','Appointment','Showed','Negotiating'];$('#pipeline').innerHTML=st.map(s=>{let z=a.filter(x=>x.status===s);return `<div class="col"><b>${s} (${z.length})</b>${z.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')"><span class="pill">Lead #${x.lead_number}</span> ${x.priority==='Hot'?'<span class="pill hot">🔥 Hot</span>':''}<b style="display:block;margin-top:5px">${esc(cust(x.customer_id).name)}</b><div class="label">${esc(x.vehicle||'')} · ${esc(x.source||'')}</div></div>`).join('')}</div>`}).join('')}
-$('#custsearch').oninput=customers;function customers(){let q=$('#custsearch').value.toLowerCase(),a=DB.customers.filter(x=>!x.archived&&!['Sold','Lost','Delivered'].includes(x.status));if(q)a=a.filter(x=>(x.name+' '+x.phone+' '+x.city).toLowerCase().includes(q));$('#custtable').innerHTML=tab(['Name','Phone','City','Status'],a.map(x=>`<tr><td><button class="btn secondary" onclick="customerFile('${x.id}')">${esc(x.name)}</button></td><td>${esc(x.phone||'')}</td><td>${esc(x.city||'')}</td><td>${esc(x.status||'')}</td></tr>`))}
-$('#leasesearch').oninput=leases;function leases(){let q=$('#leasesearch').value.toLowerCase(),a=[...DB.leases].sort((x,y)=>(x.lease_end_date||'').localeCompare(y.lease_end_date||''));if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+x.vin+' '+x.stock_number).toLowerCase().includes(q));$('#leasetable').innerHTML=tab(['Customer','Phone','Vehicle','Stock','Lease End'],a.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(cust(x.customer_id).phone||'')}</td><td>${esc(x.vehicle)}</td><td>${esc(x.stock_number||'')}</td><td>${esc(x.lease_end_date||'')}</td></tr>`))}
-$('#ordersearch').oninput=orders;function orders(){let q=$('#ordersearch').value.toLowerCase(),a=[...DB.orders].sort((x,y)=>String(x.estimated_arrival||'9999').localeCompare(String(y.estimated_arrival||'9999')));if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+(x.trim||'')+' '+(x.color||'')+' '+x.status).toLowerCase().includes(q));$('#ordertable').innerHTML=tab(['Customer','Vehicle','Color','Ordered','Wait / ETA','Status',''],a.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}<div class="label">${esc(cust(x.customer_id).phone||'')}</div></td><td><b>${esc(x.vehicle)}</b><div class="label">${esc(x.trim||'')}</div></td><td>${esc(x.color||'—')}</td><td>${dateFmt(x.order_date)}</td><td>${esc(x.expected_wait||'—')}${x.estimated_arrival?`<div class="label">ETA ${dateFmt(x.estimated_arrival)}</div>`:''}</td><td><span class="status-badge">${esc(x.status)}</span></td><td><button class="btn secondary" onclick="openOrder('${x.id}')">Edit</button></td></tr>`))}
-function deliveries(){$('#deliverytable').innerHTML=tab(['Customer','Vehicle','Prep','Delivery','Status',''],DB.deliveries.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>${esc(x.prep_date||'')}</td><td>${fmt(x.delivery_at)}</td><td>${esc(x.status)}</td><td><button class="btn secondary" onclick="openCalendarDelivery('${x.id}')">Edit</button></td></tr>`))}
-function completed(){let r=DB.leads.filter(x=>['Sold','Lost'].includes(x.status)).map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle||'')}</td><td>${x.status}</td><td>Lead #${x.lead_number}</td></tr>`).concat(DB.deliveries.filter(x=>x.status==='Delivered').map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>Delivered</td><td>${fmt(x.delivery_at)}</td></tr>`));$('#completedtable').innerHTML=tab(['Customer','Vehicle','Outcome','Reference'],r)}
-function customerSearchField(currentId=''){const current=cust(currentId);return `<label class="full">Find Existing Customer<div class="customer-suggest"><input id="customerSearch" autocomplete="off" placeholder="Type name, phone or email..." value="${esc(current.name||'')}"><input type="hidden" name="customer_id" id="customerId" value="${esc(currentId)}"><div id="customerSuggest" class="suggest-list hide"></div></div></label>`}
-function wireCustomerSearch(form){const inp=form.querySelector('#customerSearch'),hid=form.querySelector('#customerId'),box=form.querySelector('#customerSuggest');if(!inp)return;const draw=()=>{const q=inp.value.trim().toLowerCase();if(!q){box.classList.add('hide');box.innerHTML='';return}const matches=DB.customers.filter(c=>(`${c.name} ${c.phone||''} ${c.email||''}`).toLowerCase().includes(q)).slice(0,8);box.innerHTML=matches.map(c=>`<button type="button" data-id="${c.id}"><b>${esc(c.name)}</b><div class="label">${esc(c.phone||'')} ${esc(c.email||'')}</div></button>`).join('');box.classList.toggle('hide',!matches.length);box.querySelectorAll('button').forEach(b=>b.onclick=()=>{const c=cust(b.dataset.id);hid.value=c.id;inp.value=c.name;box.classList.add('hide')})};inp.oninput=()=>{hid.value='';draw()};inp.onfocus=draw}
-window.openLead=()=>{modal('New Lead',`<form id="f" class="form">${customerSearchField()}<label>New Customer Name<input name="name"></label><label>Phone<input name="phone"></label><label>Vehicle<input name="vehicle"></label><label>Source<select name="source"><option>Ups</option><option>Facebook Marketplace</option><option>Facebook Lead Ad</option><option>Phone</option><option>Website</option><option>Referral</option><option>Lease maturity</option></select></label><label>Priority<select name="priority"><option>Normal</option><option>Hot</option><option>Low</option></select></label><label>Stock #<input name="stock_number"></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Create Lead</button></div></form>`);wireCustomerSearch($('#f'));$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),cid=o.customer_id;if(!cid){if(!o.name)return alert('Select an existing customer or enter a new customer name');let {data,error}=await sb.from('customers').insert({owner_id:user.id,name:o.name,phone:o.phone||null,source:o.source}).select().single();if(error)return alert(error.message);cid=data.id}let {data,error}=await sb.from('leads').insert({owner_id:user.id,customer_id:cid,vehicle:o.vehicle||null,source:o.source,priority:o.priority,stock_number:o.stock_number||null,notes:o.notes||null}).select().single();if(error)return alert(error.message);await sb.from('lead_history').insert({owner_id:user.id,lead_id:data.id,event_type:'Lead created',note:o.notes||null});closeModal();await load();render();openLeadFile(data.id)}}
-window.openCustomer=()=>{modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}}
-window.openFollowup=(lid='',cid='')=>{modal('Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type"><option>Call</option><option>Text</option><option>Email</option><option>Appointment</option><option>General follow-up</option></select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" required></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);wireCustomerSearch($('#f'));$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}}
-window.openDelivery=(lid='',cid='',vehicle='')=>{modal('Schedule Delivery',`<form id="f" class="form">${customerSearchField(cid)}<label>Vehicle<input name="vehicle" value="${esc(vehicle)}"></label><label>Stock #<input name="stock_number"></label><label>Prep Date<input type="date" name="prep_date"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at"></label><label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);wireCustomerSearch($('#f'));$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('deliveries').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null});if(error)return alert(error.message);closeModal();await load();render()}}
-window.openOrder=(id='')=>{const x=id?DB.orders.find(o=>o.id===id):null;modal(x?'Edit New Vehicle Order':'New Vehicle Order',`<form id="f" class="form">${customerSearchField(x?.customer_id||'')}<label>Vehicle<input name="vehicle" required value="${esc(x?.vehicle||'')}" placeholder="e.g. 2027 RAV4"></label><label>Trim<input name="trim" value="${esc(x?.trim||'')}" placeholder="e.g. XLE AWD"></label><label>Color<input name="color" value="${esc(x?.color||'')}" placeholder="e.g. Blueprint"></label><label>Order Date<input type="date" name="order_date" required value="${esc(x?.order_date||today())}"></label><label>Expected Wait<input name="expected_wait" value="${esc(x?.expected_wait||'')}" placeholder="e.g. 4–6 months"></label><label>Estimated Arrival<input type="date" name="estimated_arrival" value="${esc(x?.estimated_arrival||'')}"></label><label>Status<select name="status">${['Ordered','Allocated','In Transit','Arrived','Cancelled'].map(s=>`<option ${x?.status===s?'selected':''}>${s}</option>`).join('')}</select></label><label class="full">Notes<textarea name="notes">${esc(x?.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">${x?'Save Changes':'Create Order'}</button>${x?'<button type="button" id="deleteOrder" class="btn danger">Delete Order</button>':''}</div></form>`);wireCustomerSearch($('#f'));$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');const payload={owner_id:user.id,customer_id:o.customer_id,lead_id:x?.lead_id||e.target.dataset.leadId||null,vehicle:o.vehicle,trim:o.trim||null,color:o.color||null,order_date:o.order_date,expected_wait:o.expected_wait||null,estimated_arrival:o.estimated_arrival||null,status:o.status,notes:o.notes||null,updated_at:new Date().toISOString()};let error;if(x)({error}=await sb.from('orders').update(payload).eq('id',x.id));else({error}=await sb.from('orders').insert(payload));if(error)return alert(error.message);closeModal();await load();render();page('orders')};if(x)$('#deleteOrder').onclick=async()=>{if(!confirm('Delete this order?'))return;let {error}=await sb.from('orders').delete().eq('id',x.id);if(error)return alert(error.message);closeModal();await load();render();page('orders')}}
-window.openCalendarFollowup=id=>{const x=DB.followups.find(f=>f.id===id);if(!x)return;const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);wireCustomerSearch($('#f'));$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};$('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}}
-window.openCalendarDelivery=id=>{const x=DB.deliveries.find(d=>d.id===id);if(!x)return;let local='';if(x.delivery_at){const d=new Date(x.delivery_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());local=d.toISOString().slice(0,16)}modal('Edit Delivery',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Vehicle<input name="vehicle" value="${esc(x.vehicle||'')}"></label><label>Stock #<input name="stock_number" value="${esc(x.stock_number||'')}"></label><label>Prep Date<input type="date" name="prep_date" value="${esc(x.prep_date||'')}"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at" value="${local}"></label><label>Status<select name="status"><option ${x.status==='In Prep'?'selected':''}>In Prep</option><option ${x.status==='Ready'?'selected':''}>Ready</option><option ${x.status==='Delivered'?'selected':''}>Delivered</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);wireCustomerSearch($('#f'));$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('deliveries').update({customer_id:o.customer_id,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};$('#delEvt').onclick=async()=>{if(!confirm('Delete this delivery?'))return;let {error}=await sb.from('deliveries').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}}
-window.openLeadFile=async id=>{if(!id)return;let l=DB.leads.find(x=>x.id===id);if(!l)return;let c=cust(l.customer_id),h=DB.history.filter(x=>x.lead_id===id).sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at)),f=DB.followups.filter(x=>x.lead_id===id&&x.status!=='Done');modal(`Lead #${l.lead_number} — ${c.name}`,`<div class="card"><b style="font-size:18px">${esc(l.vehicle||'No vehicle')}</b><div class="label">${esc(c.phone||'')} · ${esc(l.source||'')}</div><div style="margin-top:9px"><select id="ls"><option>New</option><option>Contacted</option><option>Appointment</option><option>Showed</option><option>Negotiating</option><option>Sold</option><option>Lost</option></select> <select id="lp"><option>Normal</option><option>Hot</option><option>Low</option></select></div><div class="inline-actions" style="margin-top:9px">${c.phone?`<a class="btn secondary" href="tel:${c.phone}">Call</a><a class="btn secondary" href="sms:${c.phone}">Text</a>`:''}<button class="btn secondary" id="fu">Next Action</button><button class="btn secondary" id="ord">New Vehicle Order</button><button class="btn secondary" id="del">Schedule Delivery</button></div></div><div class="section"><h2>Upcoming</h2>${f.map(x=>`<div class="hist" onclick="openCalendarFollowup('${x.id}')" style="cursor:pointer"><b>${esc(x.action_type)}</b> · ${fmt(x.scheduled_at)}<div>${esc(x.notes||'')}</div></div>`).join('')||'<div class="label">None scheduled.</div>'}</div><div class="section"><h2>Add Note</h2><form id="nf"><textarea name="note" class="search" required></textarea><button class="btn" style="margin-top:7px">Add Note</button></form></div><div class="section"><h2>History</h2>${h.map(x=>`<div class="hist"><span class="label">${fmt(x.occurred_at)}</span><br><b>${esc(x.event_type)}</b><div>${esc(x.note||'')}</div></div>`).join('')||'<div class="label">No history.</div>'}</div>`);$('#ls').value=l.status;$('#lp').value=l.priority;$('#ls').onchange=async e=>{let old=l.status,st=e.target.value;await sb.from('leads').update({status:st}).eq('id',id);await sb.from('customers').update({status:st}).eq('id',l.customer_id);await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Status changed',note:`${old} → ${st}`});await load();render();openLeadFile(id)};$('#lp').onchange=async e=>{await sb.from('leads').update({priority:e.target.value}).eq('id',id);await load();render();openLeadFile(id)};$('#fu').onclick=()=>openFollowup(id,l.customer_id);$('#ord').onclick=()=>openOrderFromLead(id,l.customer_id,l.vehicle||'');$('#del').onclick=()=>openDelivery(id,l.customer_id,l.vehicle||'');$('#nf').onsubmit=async e=>{e.preventDefault();let note=new FormData(e.target).get('note');await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Note',note});await load();render();openLeadFile(id)}}
-window.openOrderFromLead=(lid,cid,vehicle)=>{openOrder();setTimeout(()=>{let f=$('#f');if(!f)return;f.querySelector('#customerId').value=cid;f.querySelector('#customerSearch').value=cust(cid).name;f.querySelector('[name=vehicle]').value=vehicle;f.dataset.leadId=lid},0)}
-window.customerFile=id=>{let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),le=DB.leads.filter(x=>x.customer_id===id),os=DB.orders.filter(x=>x.customer_id===id);modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${esc(x.lease_end_date||'')}</div>`).join('')}</div>`)}
+
+function actions(){
+  let a=[];
+  DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).forEach(x=>a.push({t:`${x.action_type} — ${cust(x.customer_id).name}`,s:fmt(x.scheduled_at),fn:`openCalendarFollowup('${x.id}')`}));
+  DB.deliveries.filter(x=>x.status!=='Delivered'&&x.delivery_at&&localDate(x.delivery_at)<=today()).forEach(x=>a.push({t:`Delivery — ${cust(x.customer_id).name}`,s:x.status,fn:`openCalendarDelivery('${x.id}')`}));
+  $('#actions').innerHTML=a.length?a.map(x=>`<div class="card" style="margin-top:7px;cursor:pointer" onclick="${x.fn}"><b>${esc(x.t)}</b><div class="label">${esc(x.s)}</div></div>`).join(''):'<div class="card label">Nothing urgent.</div>'
+}
+
+$('#leadfilters').onclick=e=>{if(e.target.dataset.f){leadFilter=e.target.dataset.f;$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b===e.target));leads()}};
+$('#leadsearch').oninput=leads;
+function leads(){
+  let q=$('#leadsearch').value.toLowerCase(),a=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
+  if(q)a=a.filter(x=>(cust(x.customer_id).name+' '+x.vehicle+' '+x.source).toLowerCase().includes(q));
+  if(leadFilter==='hot')a=a.filter(x=>x.priority==='Hot');
+  if(leadFilter==='facebook')a=a.filter(x=>String(x.source).toLowerCase().includes('facebook'));
+  if(leadFilter==='ups')a=a.filter(x=>String(x.source).toLowerCase().includes('up'));
+  if(leadFilter==='overdue')a=a.filter(x=>DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'&&localDate(f.scheduled_at)<today()));
+  if(leadFilter==='nofollow')a=a.filter(x=>!DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'));
+  let st=['New','Contacted','Appointment','Showed','Negotiating'];
+  $('#pipeline').innerHTML=st.map(s=>{let z=a.filter(x=>x.status===s);return `<div class="col"><b>${s} (${z.length})</b>${z.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')"><span class="pill">Lead #${x.lead_number}</span> ${x.priority==='Hot'?'<span class="pill hot">🔥 Hot</span>':''}<b style="display:block;margin-top:5px">${esc(cust(x.customer_id).name)}</b><div class="label">${esc(x.vehicle||'')} · ${esc(x.source||'')}</div></div>`).join('')}</div>`}).join('')
+}
+
+$('#custsearch').oninput=customers;
+function customers(){
+  let q=$('#custsearch').value.toLowerCase(),a=DB.customers.filter(x=>!x.archived&&!['Sold','Lost','Delivered'].includes(x.status));
+  if(q)a=a.filter(x=>(x.name+' '+x.phone+' '+x.city).toLowerCase().includes(q));
+  $('#custtable').innerHTML=tab(['Name','Phone','City','Status'],a.map(x=>`<tr><td><button class="btn secondary" onclick="customerFile('${x.id}')">${esc(x.name)}</button></td><td>${esc(x.phone||'')}</td><td>${esc(x.city||'')}</td><td>${esc(x.status||'')}</td></tr>`))
+}
+$('#leasesearch').oninput=leases;
+function leases(){
+  let q=$('#leasesearch').value.toLowerCase(),a=[...DB.leases].sort((x,y)=>(x.lease_end_date||'').localeCompare(y.lease_end_date||''));
+  if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+x.vin+' '+x.stock_number).toLowerCase().includes(q));
+  $('#leasetable').innerHTML=tab(['Customer','Phone','Vehicle','Stock','Lease End','Days Left'],a.map(x=>{const left=leaseDaysLeft(x.lease_end_date),style=left.days!==null&&left.days<=90?'color:#fca5a5;font-weight:800':left.days!==null&&left.days<=180?'color:#fbbf24;font-weight:800':'';return `<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(cust(x.customer_id).phone||'')}</td><td>${esc(x.vehicle)}</td><td>${esc(x.stock_number||'')}</td><td>${esc(x.lease_end_date||'')}</td><td style="${style}">${esc(left.label)}</td></tr>`}))
+}
+$('#ordersearch').oninput=orders;
+function orders(){
+  let q=$('#ordersearch').value.toLowerCase(),a=[...DB.orders].sort((x,y)=>String(x.estimated_arrival||'9999').localeCompare(String(y.estimated_arrival||'9999')));
+  if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+(x.trim||'')+' '+(x.color||'')+' '+x.status).toLowerCase().includes(q));
+  $('#ordertable').innerHTML=tab(['Customer','Vehicle','Color','Ordered','Wait / ETA','Status',''],a.map(x=>`<tr>
+    <td>${esc(cust(x.customer_id).name)}<div class="label">${esc(cust(x.customer_id).phone||'')}</div></td>
+    <td><b>${esc(x.vehicle)}</b><div class="label">${esc(x.trim||'')}</div></td>
+    <td>${esc(x.color||'—')}</td>
+    <td>${dateFmt(x.order_date)}</td>
+    <td>${esc(x.expected_wait||'—')}${x.estimated_arrival?`<div class="label">ETA ${dateFmt(x.estimated_arrival)}</div>`:''}</td>
+    <td><span class="status-badge">${esc(x.status)}</span></td>
+    <td><button class="btn secondary" onclick="openOrder('${x.id}')">Edit</button></td>
+  </tr>`))
+}
+function deliveries(){
+  $('#deliverytable').innerHTML=tab(['Customer','Vehicle','Prep','Delivery','Status',''],DB.deliveries.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>${esc(x.prep_date||'')}</td><td>${fmt(x.delivery_at)}</td><td>${esc(x.status)}</td><td><button class="btn secondary" onclick="openCalendarDelivery('${x.id}')">Edit</button></td></tr>`))
+}
+function completed(){
+  let r=DB.leads.filter(x=>['Sold','Lost'].includes(x.status)).map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle||'')}</td><td>${x.status}</td><td>Lead #${x.lead_number}</td></tr>`)
+    .concat(DB.deliveries.filter(x=>x.status==='Delivered').map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>Delivered</td><td>${fmt(x.delivery_at)}</td></tr>`));
+  $('#completedtable').innerHTML=tab(['Customer','Vehicle','Outcome','Reference'],r)
+}
+
+function customerSearchField(currentId=''){
+  const current=cust(currentId);
+  return `<label class="full">Find Existing Customer
+    <div class="customer-suggest">
+      <input id="customerSearch" autocomplete="off" placeholder="Type name, phone or email..." value="${esc(current.name||'')}">
+      <input type="hidden" name="customer_id" id="customerId" value="${esc(currentId)}">
+      <div id="customerSuggest" class="suggest-list hide"></div>
+    </div>
+  </label>`
+}
+function wireCustomerSearch(form){
+  const inp=form.querySelector('#customerSearch'),hid=form.querySelector('#customerId'),box=form.querySelector('#customerSuggest');
+  if(!inp)return;
+  const draw=()=>{
+    const q=inp.value.trim().toLowerCase();
+    if(!q){box.classList.add('hide');box.innerHTML='';return}
+    const matches=DB.customers.filter(c=>(`${c.name} ${c.phone||''} ${c.email||''}`).toLowerCase().includes(q)).slice(0,8);
+    box.innerHTML=matches.map(c=>`<button type="button" data-id="${c.id}"><b>${esc(c.name)}</b><div class="label">${esc(c.phone||'')} ${esc(c.email||'')}</div></button>`).join('');
+    box.classList.toggle('hide',!matches.length);
+    box.querySelectorAll('button').forEach(b=>b.onclick=()=>{const c=cust(b.dataset.id);hid.value=c.id;inp.value=c.name;box.classList.add('hide')})
+  };
+  inp.oninput=()=>{hid.value='';draw()};inp.onfocus=draw
+}
+
+window.openLead=()=>{
+  modal('New Lead',`<form id="f" class="form">
+    ${customerSearchField()}
+    <label>New Customer Name<input name="name"></label><label>Phone<input name="phone"></label>
+    <label>Vehicle<input name="vehicle"></label>
+    <label>Source<select name="source"><option>Ups</option><option>Facebook Marketplace</option><option>Facebook Lead Ad</option><option>Phone</option><option>Website</option><option>Referral</option><option>Lease maturity</option></select></label>
+    <label>Priority<select name="priority"><option>Normal</option><option>Hot</option><option>Low</option></select></label>
+    <label>Stock #<input name="stock_number"></label><label class="full">Notes<textarea name="notes"></textarea></label>
+    <div class="full"><button class="btn">Create Lead</button></div>
+  </form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{
+    e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),cid=o.customer_id;
+    if(!cid){if(!o.name)return alert('Select an existing customer or enter a new customer name');let {data,error}=await sb.from('customers').insert({owner_id:user.id,name:o.name,phone:o.phone||null,source:o.source}).select().single();if(error)return alert(error.message);cid=data.id}
+    let {data,error}=await sb.from('leads').insert({owner_id:user.id,customer_id:cid,vehicle:o.vehicle||null,source:o.source,priority:o.priority,stock_number:o.stock_number||null,notes:o.notes||null}).select().single();
+    if(error)return alert(error.message);
+    await sb.from('lead_history').insert({owner_id:user.id,lead_id:data.id,event_type:'Lead created',note:o.notes||null});
+    closeModal();await load();render();openLeadFile(data.id)
+  }
+}
+window.openCustomer=()=>{
+  modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
+}
+window.openFollowup=(lid='',cid='')=>{
+  modal('Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type"><option>Call</option><option>Text</option><option>Email</option><option>Appointment</option><option>General follow-up</option></select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" required></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
+}
+window.openDelivery=(lid='',cid='',vehicle='')=>{
+  modal('Schedule Delivery',`<form id="f" class="form">${customerSearchField(cid)}<label>Vehicle<input name="vehicle" value="${esc(vehicle)}"></label><label>Stock #<input name="stock_number"></label><label>Prep Date<input type="date" name="prep_date"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at"></label><label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('deliveries').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null});if(error)return alert(error.message);closeModal();await load();render()}
+}
+window.openOrder=(id='')=>{
+  const x=id?DB.orders.find(o=>o.id===id):null;
+  modal(x?'Edit New Vehicle Order':'New Vehicle Order',`<form id="f" class="form">
+    ${customerSearchField(x?.customer_id||'')}
+    <label>Vehicle<input name="vehicle" required value="${esc(x?.vehicle||'')}" placeholder="e.g. 2027 RAV4"></label>
+    <label>Trim<input name="trim" value="${esc(x?.trim||'')}" placeholder="e.g. XLE AWD"></label>
+    <label>Color<input name="color" value="${esc(x?.color||'')}" placeholder="e.g. Blueprint"></label>
+    <label>Order Date<input type="date" name="order_date" required value="${esc(x?.order_date||today())}"></label>
+    <label>Expected Wait<input name="expected_wait" value="${esc(x?.expected_wait||'')}" placeholder="e.g. 4–6 months"></label>
+    <label>Estimated Arrival<input type="date" name="estimated_arrival" value="${esc(x?.estimated_arrival||'')}"></label>
+    <label>Status<select name="status">${['Ordered','Allocated','In Transit','Arrived','Cancelled'].map(s=>`<option ${x?.status===s?'selected':''}>${s}</option>`).join('')}</select></label>
+    <label class="full">Notes<textarea name="notes">${esc(x?.notes||'')}</textarea></label>
+    <div class="full inline-actions"><button class="btn">${x?'Save Changes':'Create Order'}</button>${x?'<button type="button" id="deleteOrder" class="btn danger">Delete Order</button>':''}</div>
+  </form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{
+    e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');
+    const payload={owner_id:user.id,customer_id:o.customer_id,lead_id:x?.lead_id||e.target.dataset.leadId||null,vehicle:o.vehicle,trim:o.trim||null,color:o.color||null,order_date:o.order_date,expected_wait:o.expected_wait||null,estimated_arrival:o.estimated_arrival||null,status:o.status,notes:o.notes||null,updated_at:new Date().toISOString()};
+    let error;if(x)({error}=await sb.from('orders').update(payload).eq('id',x.id));else({error}=await sb.from('orders').insert(payload));
+    if(error)return alert(error.message);closeModal();await load();render();page('orders')
+  };
+  if(x)$('#deleteOrder').onclick=async()=>{if(!confirm('Delete this order?'))return;let {error}=await sb.from('orders').delete().eq('id',x.id);if(error)return alert(error.message);closeModal();await load();render();page('orders')}
+}
+
+window.openCalendarFollowup=id=>{
+  const x=DB.followups.find(f=>f.id===id);if(!x)return;
+  const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
+  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
+}
+window.openCalendarDelivery=id=>{
+  const x=DB.deliveries.find(d=>d.id===id);if(!x)return;
+  let local='';if(x.delivery_at){const d=new Date(x.delivery_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());local=d.toISOString().slice(0,16)}
+  modal('Edit Delivery',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Vehicle<input name="vehicle" value="${esc(x.vehicle||'')}"></label><label>Stock #<input name="stock_number" value="${esc(x.stock_number||'')}"></label><label>Prep Date<input type="date" name="prep_date" value="${esc(x.prep_date||'')}"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at" value="${local}"></label><label>Status<select name="status"><option ${x.status==='In Prep'?'selected':''}>In Prep</option><option ${x.status==='Ready'?'selected':''}>Ready</option><option ${x.status==='Delivered'?'selected':''}>Delivered</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  wireCustomerSearch($('#f'));
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('deliveries').update({customer_id:o.customer_id,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  $('#delEvt').onclick=async()=>{if(!confirm('Delete this delivery?'))return;let {error}=await sb.from('deliveries').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
+}
+
+window.openLeadFile=async id=>{
+  if(!id)return;let l=DB.leads.find(x=>x.id===id);if(!l)return;let c=cust(l.customer_id);
+  let h=DB.history.filter(x=>x.lead_id===id).sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
+  let f=DB.followups.filter(x=>x.lead_id===id&&x.status!=='Done');
+  modal(`Lead #${l.lead_number} — ${c.name}`,`<div class="card"><b style="font-size:18px">${esc(l.vehicle||'No vehicle')}</b><div class="label">${esc(c.phone||'')} · ${esc(l.source||'')}</div><div style="margin-top:9px"><select id="ls"><option>New</option><option>Contacted</option><option>Appointment</option><option>Showed</option><option>Negotiating</option><option>Sold</option><option>Lost</option></select> <select id="lp"><option>Normal</option><option>Hot</option><option>Low</option></select></div><div class="inline-actions" style="margin-top:9px">${c.phone?`<a class="btn secondary" href="tel:${c.phone}">Call</a><a class="btn secondary" href="sms:${c.phone}">Text</a>`:''}<button class="btn secondary" id="fu">Next Action</button><button class="btn secondary" id="ord">New Vehicle Order</button><button class="btn secondary" id="del">Schedule Delivery</button></div></div><div class="section"><h2>Upcoming</h2>${f.map(x=>`<div class="hist" onclick="openCalendarFollowup('${x.id}')" style="cursor:pointer"><b>${esc(x.action_type)}</b> · ${fmt(x.scheduled_at)}<div>${esc(x.notes||'')}</div></div>`).join('')||'<div class="label">None scheduled.</div>'}</div><div class="section"><h2>Add Note</h2><form id="nf"><textarea name="note" class="search" required></textarea><button class="btn" style="margin-top:7px">Add Note</button></form></div><div class="section"><h2>History</h2>${h.map(x=>`<div class="hist"><span class="label">${fmt(x.occurred_at)}</span><br><b>${esc(x.event_type)}</b><div>${esc(x.note||'')}</div></div>`).join('')||'<div class="label">No history.</div>'}</div>`);
+  $('#ls').value=l.status;$('#lp').value=l.priority;
+  $('#ls').onchange=async e=>{let old=l.status,st=e.target.value;await sb.from('leads').update({status:st}).eq('id',id);await sb.from('customers').update({status:st}).eq('id',l.customer_id);await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Status changed',note:`${old} → ${st}`});await load();render();openLeadFile(id)};
+  $('#lp').onchange=async e=>{await sb.from('leads').update({priority:e.target.value}).eq('id',id);await load();render();openLeadFile(id)};
+  $('#fu').onclick=()=>openFollowup(id,l.customer_id);$('#ord').onclick=()=>openOrderFromLead(id,l.customer_id,l.vehicle||'');$('#del').onclick=()=>openDelivery(id,l.customer_id,l.vehicle||'');
+  $('#nf').onsubmit=async e=>{e.preventDefault();let note=new FormData(e.target).get('note');await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Note',note});await load();render();openLeadFile(id)}
+}
+window.openOrderFromLead=(lid,cid,vehicle)=>{
+  openOrder();
+  setTimeout(()=>{let f=$('#f');if(!f)return;f.querySelector('#customerId').value=cid;f.querySelector('#customerSearch').value=cust(cid).name;f.querySelector('[name=vehicle]').value=vehicle;f.dataset.leadId=lid},0)
+}
+window.customerFile=id=>{
+  let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),le=DB.leads.filter(x=>x.customer_id===id),os=DB.orders.filter(x=>x.customer_id===id);
+  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${esc(x.lease_end_date||'')}</div>`).join('')}</div>`)
+}
 init();
 </script></body></html>
