@@ -177,7 +177,10 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <header class="appbar"><div class="appbar-brand">Car Sales CRM</div><div class="appbar-user"><span>🔔</span><span id="userBadge" class="user-avatar">J</span><span id="userEmail">Sales</span></div></header>
 
 <section id="dashboard" class="page hide">
-  <div class="top"><div><h1>Dashboard</h1><div class="label">Your sales overview and urgent follow-ups</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
+  <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
+  <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div>
+  <div class="filters" id="weekCalFilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
+  <div id="weekCalendar" class="week"></div>
   <div id="metrics" class="cards"></div>
   <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
 </section>
@@ -234,7 +237,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',calType='all',calStatus='all',monthOffset=0,calendarSelected='';
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',calType='all',calStatus='all',monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -376,8 +379,34 @@ function dashboard(){
     ['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']
   ].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');
   $$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));
-  actions()
+  weekCalendar();actions()
 }
+function weekDays(){
+  const now=new Date(),start=new Date(now);start.setHours(12,0,0,0);start.setDate(now.getDate()-now.getDay()+weekOffset*7);
+  return Array.from({length:7},(_,i)=>{const date=new Date(start);date.setDate(start.getDate()+i);return date})
+}
+function weekCalendar(){
+  const days=weekDays();
+  $('#weekLabel').textContent=`${days[0].toLocaleDateString([],{month:'short',day:'numeric'})} – ${days[6].toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}`;
+  $('#weekCalendar').innerHTML=days.map(day=>{
+    const date=localDate(day),events=[];
+    DB.followups.filter(x=>localDate(x.scheduled_at)===date).forEach(x=>{
+      const appointment=x.action_type==='Appointment';if(weekCalFilter!=='all'&&weekCalFilter!==(appointment?'appointments':'followups'))return;
+      const style=x.status==='Done'?'done':date<today()?'past':date===today()?'today':'';
+      events.push(`<button class="event ${style}" onclick="openMonthCalendarItem('followup','${x.id}')">${esc(x.action_type)}<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
+    });
+    DB.deliveries.filter(x=>x.delivery_at&&localDate(x.delivery_at)===date).forEach(x=>{
+      if(!['all','deliveries'].includes(weekCalFilter))return;
+      const style=x.status==='Delivered'?'done':date<today()?'past':date===today()?'today':'';
+      events.push(`<button class="event ${style}" onclick="openMonthCalendarItem('delivery','${x.id}')">Delivery<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
+    });
+    return `<div class="day"><div class="dayhead">${day.toLocaleDateString([],{weekday:'short'})} ${day.getMonth()+1}/${day.getDate()}</div>${events.join('')||'<div class="label" style="padding:10px;text-align:center">No events</div>'}</div>`
+  }).join('')
+}
+$('#prevWeek').onclick=()=>{weekOffset--;weekCalendar()};
+$('#nextWeek').onclick=()=>{weekOffset++;weekCalendar()};
+$('#thisWeek').onclick=()=>{weekOffset=0;weekCalendar()};
+$('#weekCalFilters').onclick=e=>{if(e.target.dataset.f){weekCalFilter=e.target.dataset.f;$$('#weekCalFilters button').forEach(button=>button.classList.toggle('active',button===e.target));weekCalendar()}};
 function calendarEventType(item,kind){
   if(kind==='delivery')return'delivery';
   if(item.action_type==='Appointment')return'appointment';
