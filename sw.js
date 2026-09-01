@@ -1,4 +1,4 @@
-const VERSION='crm-live-v8';
+const VERSION='crm-live-v9';
 self.addEventListener('install',event=>{self.skipWaiting()});
 self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{
