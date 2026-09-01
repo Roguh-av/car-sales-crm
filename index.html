@@ -110,6 +110,8 @@ select,input,textarea{color:var(--text);background:#0b1322}
 .authbox input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin:5px 0 11px}
 .inline-actions{display:flex;gap:7px;flex-wrap:wrap}
 .status-badge{padding:4px 8px;border-radius:999px;background:#1e293b;font-size:11px}
+.status-badge.sold{background:#1e3a8a;color:#dbeafe}.status-badge.in-prep{background:#78350f;color:#fef3c7}.status-badge.ready{background:#164e63;color:#cffafe}.status-badge.delivered{background:#14532d;color:#dcfce7}.status-badge.lost{background:#7f1d1d;color:#fee2e2}
+.deal-table tbody tr{transition:background .15s ease}.deal-table tbody tr:hover{background:#172235}.deal-customer b,.deal-vehicle b{display:block}.deal-customer .label,.deal-vehicle .label{margin-top:3px}.deal-empty{padding:18px}
 .customer-suggest{position:relative}
 .suggest-list{position:absolute;z-index:5;left:0;right:0;top:100%;background:#0b1322;border:1px solid var(--line);border-radius:8px;max-height:220px;overflow:auto}
 .suggest-list button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--text);padding:9px}
@@ -127,6 +129,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
  .month-title{min-height:43px}.month-weekdays div{font-size:10px;padding:7px 1px}.month-day{min-height:52px;padding:4px;text-align:center}.month-date{width:27px;height:27px;padding:0}
  .month-event{display:inline-block;width:7px;height:7px;min-height:0;margin:3px 1px 0;padding:0;border-radius:50%;font-size:0;vertical-align:top}.month-event .month-event-open,.month-event .calendar-check{display:none}.month-more{display:none}.mobile-agenda{display:block}
  .top h1{font-size:23px}.top .btn{padding:10px 12px}
+ .deal-table,.deal-table tbody,.deal-table tr,.deal-table td{display:block;width:100%}.deal-table thead{display:none}.deal-table{background:transparent}.deal-table tbody{display:grid;gap:10px}.deal-table tr{padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.deal-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0}.deal-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.deal-table td:last-child{display:block;padding-top:10px}.deal-table td:last-child:before{display:none}.deal-table td:last-child .btn{width:100%;text-align:center}
 }
 
 /* Collapsible sidebar */
@@ -167,7 +170,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
     <button data-p="leases">Leases</button>
     <button data-p="orders">Orders</button>
     <button id="approvalsNav" class="hide" data-p="approvals">Account Approvals</button>
-    <button data-p="completed">Sold / Lost / Delivered</button>
+    <button data-p="completed">Deal History</button>
     <div class="sep"></div>
     <button id="signoutBtn">Sign out</button>
   </div>
@@ -229,7 +232,12 @@ select,input,textarea{color:var(--text);background:#0b1322}
 </section>
 
 <section id="approvals" class="page hide"><div class="top"><div><h1>Account Approvals</h1><div class="label">Approve new salesperson accounts before they can use the CRM.</div></div></div><div id="approvaltable" class="section"></div></section>
-<section id="completed" class="page hide"><h1>Sold / Lost / Delivered</h1><div id="completedtable" class="section"></div></section>
+<section id="completed" class="page hide">
+  <div class="top"><div><h1>Deal History</h1><div class="label">One row per vehicle deal, from sold through delivery.</div></div></div>
+  <div class="filters" id="dealFilters"><button class="active" data-f="all">All</button><button data-f="Sold">Sold</button><button data-f="In Prep">In Prep</button><button data-f="Ready">Ready</button><button data-f="Delivered">Delivered</button><button data-f="Lost">Lost</button></div>
+  <input id="dealSearch" class="search" placeholder="Search customer, vehicle, stock or lead number...">
+  <div id="completedtable" class="section"></div>
+</section>
 </main></div>
 
 <div id="modal" class="modal"><div class="box"><div class="head"><h2 id="mtitle"></h2><button class="close" onclick="closeModal()">×</button></div><div id="mbody"></div></div></div>
@@ -237,7 +245,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',calType='all',calStatus='all',monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all';
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[],access:[]},leadFilter='all',dealFilter='all',calType='all',calStatus='all',monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -529,11 +537,75 @@ window.reviewAccount=async(id,status)=>{let {error}=await sb.rpc('review_crm_acc
 function deliveries(){
   $('#deliverytable').innerHTML=tab(['Customer','Vehicle','Prep','Delivery','Status',''],DB.deliveries.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>${esc(x.prep_date||'')}</td><td>${fmt(x.delivery_at)}</td><td>${esc(x.status)}</td><td><button class="btn secondary" onclick="openCalendarDelivery('${x.id}')">Edit</button></td></tr>`))
 }
-function completed(){
-  let r=DB.leads.filter(x=>['Sold','Lost'].includes(x.status)).map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle||'')}</td><td>${x.status}</td><td>Lead #${x.lead_number}</td></tr>`)
-    .concat(DB.deliveries.filter(x=>x.status==='Delivered').map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>Delivered</td><td>${fmt(x.delivery_at)}</td></tr>`));
-  $('#completedtable').innerHTML=tab(['Customer','Vehicle','Outcome','Reference'],r)
+function leadStatusDate(leadId,status){
+  const needle=status.toLowerCase();
+  const matches=DB.history.filter(x=>x.lead_id===leadId&&(
+    String(x.event_type||'').toLowerCase()===needle||
+    (String(x.event_type||'').toLowerCase()==='status changed'&&String(x.note||'').toLowerCase().includes(`→ ${needle}`))
+  )).sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
+  return matches[0]?.occurred_at||null
 }
+function stageRank(status){return ({'Delivered':4,'Ready':3,'In Prep':2,'Sold':1,'Lost':0})[status]??0}
+function dealRows(){
+  const groups=new Map();
+  DB.deliveries.forEach(delivery=>{
+    const key=delivery.lead_id?`lead:${delivery.lead_id}`:`delivery:${delivery.id}`;
+    if(!groups.has(key))groups.set(key,[]);groups.get(key).push(delivery)
+  });
+  const deals=[];
+  groups.forEach(deliveries=>{
+    const delivery=[...deliveries].sort((a,b)=>stageRank(b.status)-stageRank(a.status)||new Date(b.delivery_at||b.created_at||0)-new Date(a.delivery_at||a.created_at||0))[0];
+    const lead=delivery.lead_id?DB.leads.find(x=>x.id===delivery.lead_id):null;
+    const finalStage=lead?.status==='Lost'?'Lost':delivery.status||lead?.status||'Sold';
+    const closedStatus=lead?.status==='Lost'?'Lost':'Sold';
+    const closedAt=lead?leadStatusDate(lead.id,closedStatus):null;
+    deals.push({
+      key:lead?`lead:${lead.id}`:`delivery:${delivery.id}`,
+      customerId:delivery.customer_id||lead?.customer_id,
+      leadId:lead?.id||null,deliveryId:delivery.id,
+      leadNumber:lead?.lead_number||null,
+      vehicle:delivery.vehicle||lead?.vehicle||'',stock:delivery.stock_number||lead?.stock_number||'',
+      stage:finalStage,closedAt,deliveryAt:delivery.delivery_at||null,
+      sortAt:delivery.delivery_at||closedAt||delivery.created_at||lead?.created_at||''
+    })
+  });
+  DB.leads.filter(x=>['Sold','Lost'].includes(x.status)&&!groups.has(`lead:${x.id}`)).forEach(lead=>{
+    const closedAt=leadStatusDate(lead.id,lead.status);
+    deals.push({key:`lead:${lead.id}`,customerId:lead.customer_id,leadId:lead.id,deliveryId:null,leadNumber:lead.lead_number,vehicle:lead.vehicle||'',stock:lead.stock_number||'',stage:lead.status,closedAt,deliveryAt:null,sortAt:closedAt||lead.created_at||''})
+  });
+  return deals.sort((a,b)=>new Date(b.sortAt||0)-new Date(a.sortAt||0))
+}
+function completed(){
+  const all=dealRows(),q=($('#dealSearch')?.value||'').trim().toLowerCase();
+  $$('#dealFilters button').forEach(button=>{
+    const count=button.dataset.f==='all'?all.length:all.filter(x=>x.stage===button.dataset.f).length;
+    button.textContent=`${button.dataset.f==='all'?'All':button.dataset.f} (${count})`;
+    button.classList.toggle('active',button.dataset.f===dealFilter)
+  });
+  let deals=dealFilter==='all'?all:all.filter(x=>x.stage===dealFilter);
+  if(q)deals=deals.filter(x=>{
+    const customer=cust(x.customerId);
+    return `${customer.name||''} ${customer.phone||''} ${x.vehicle} ${x.stock} ${x.leadNumber||''} ${x.stage}`.toLowerCase().includes(q)
+  });
+  if(!deals.length){$('#completedtable').innerHTML='<div class="card label deal-empty">No matching deals.</div>';return}
+  const rows=deals.map(x=>{
+    const customer=cust(x.customerId),stageClass=String(x.stage).toLowerCase().replace(/\s+/g,'-');
+    const reference=x.leadNumber?`Lead #${x.leadNumber}`:'Delivery record';
+    const action=x.leadId?`openLeadFile('${x.leadId}')`:`openCalendarDelivery('${x.deliveryId}')`;
+    return `<tr>
+      <td data-label="Customer" class="deal-customer"><b>${esc(customer.name||'Customer')}</b><div class="label">${esc(customer.phone||'')}</div></td>
+      <td data-label="Vehicle" class="deal-vehicle"><b>${esc(x.vehicle||'Vehicle not entered')}</b>${x.stock?`<div class="label">Stock #${esc(x.stock)}</div>`:''}</td>
+      <td data-label="Current stage"><span class="status-badge ${stageClass}">${esc(x.stage)}</span></td>
+      <td data-label="Sold / Lost">${fmt(x.closedAt)}</td>
+      <td data-label="Delivery">${fmt(x.deliveryAt)}</td>
+      <td data-label="Reference">${esc(reference)}</td>
+      <td><button class="btn secondary" onclick="${action}">View deal</button></td>
+    </tr>`
+  });
+  $('#completedtable').innerHTML=`<table class="deal-table"><thead><tr>${['Customer','Vehicle','Current stage','Sold / Lost','Delivery','Reference',''].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`
+}
+$('#dealSearch').oninput=completed;
+$('#dealFilters').onclick=e=>{if(!e.target.dataset.f)return;dealFilter=e.target.dataset.f;completed()};
 
 function customerSearchField(currentId=''){
   const current=cust(currentId);
