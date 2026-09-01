@@ -1,415 +1,193 @@
 <!doctype html>
-<html><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1220">
-<link rel="manifest" href="manifest.json">
-<title>Car Sales CRM</title>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220"><meta name="description" content="Private car sales CRM for leads, appointments, deliveries and follow-ups."><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-192.png"><link rel="manifest" href="manifest.json"><title>Car Sales CRM</title>
 <style>
-:root{
-  --bg:#090f1a;--panel:#0f1726;--card:#121c2d;--card2:#172235;--text:#f8fafc;--muted:#94a3b8;
-  --line:#243147;--nav:#070c14;--accent:#3b82f6;--accent2:#1d4ed8;--good:#16a34a;--warn:#d97706;--bad:#dc2626
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-.hide{display:none!important}
-.app{display:flex;min-height:100vh}
-.side{position:fixed;inset:0 auto 0 0;width:235px;background:var(--nav);padding:18px 12px;color:white;border-right:1px solid var(--line);overflow:auto}
-.brand{font-size:20px;font-weight:850;padding:0 10px 18px}
-.nav button{width:100%;border:0;background:none;color:#cbd5e1;padding:11px;text-align:left;border-radius:9px;margin:2px 0}
-.nav button:hover,.nav button.active{background:#172235;color:white}
-.nav .sep{height:1px;background:var(--line);margin:10px 4px}
-.main{margin-left:235px;width:calc(100% - 235px);padding:20px}
-.top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-h1{margin:0;font-size:25px}h2{font-size:17px;margin:0 0 10px}
-.label{font-size:12px;color:var(--muted)}
-.btn{border:0;background:var(--accent);color:white;padding:10px 13px;border-radius:9px;font-weight:750;text-decoration:none;display:inline-block}
-.btn:hover{background:var(--accent2)}
-.secondary{background:#1e293b;color:#dbeafe;border:1px solid #334155}
-.danger{background:#7f1d1d}.danger:hover{background:#991b1b}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px}
-.metric{font-size:27px;font-weight:850}
-.card.clickable{cursor:pointer}.card.clickable:hover{border-color:#3b82f6}
-.section{margin-top:18px}
-.search{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:#0b1322;color:var(--text)}
-.filters{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
-.filters button{border:1px solid var(--line);background:var(--card);color:#cbd5e1;padding:7px 10px;border-radius:999px}
-.filters button.active{background:var(--accent);color:white;border-color:var(--accent)}
-.pipeline{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:9px;overflow:auto}
-.col{background:#0d1626;border:1px solid var(--line);border-radius:10px;padding:9px;min-height:250px}
-.lead{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px;margin-top:8px;cursor:pointer}
-.pill{font-size:11px;background:#1e293b;border-radius:999px;padding:4px 7px}
-.hot{background:#3f1515;color:#fecaca}
-.weekhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:10px 0}
-.weeknav{display:flex;gap:6px}
-.week{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:auto}
-.day{background:#0d1626;min-height:220px;padding:8px}
-.dayhead{text-align:center;font-size:12px;font-weight:800;border-bottom:1px solid var(--line);padding-bottom:6px}
-.event{width:100%;border:0;color:white;background:#0e7490;border-radius:7px;padding:7px;text-align:left;margin-top:6px;font-size:11px}
-.event.past{background:#7f1d1d}.event.today{background:#1d4ed8}.event.done{background:#166534}.event.order{background:#7c3aed}
-table{width:100%;border-collapse:collapse;background:var(--card)}
-th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
-th{color:var(--muted);background:#0d1626}
-select,input,textarea{color:var(--text);background:#0b1322}
-.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:15px;z-index:50}
-.modal.show{display:flex}
-.box{width:min(760px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px}
-.head{display:flex;justify-content:space-between;align-items:start;gap:10px}.close{border:0;background:none;color:white;font-size:24px}
-.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.form label{font-size:12px;color:var(--muted);font-weight:700}
-.form input,.form select,.form textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin-top:4px}
-.form input[type="date"],.form input[type="datetime-local"]{color-scheme:dark}
-.full{grid-column:1/-1}
-.hist{background:#0b1322;border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:8px}
-.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
-.authbox{width:min(420px,100%);background:var(--panel);padding:22px;border:1px solid var(--line);border-radius:13px}
-.authbox input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin:5px 0 11px}
-.inline-actions{display:flex;gap:7px;flex-wrap:wrap}
-.status-badge{padding:4px 8px;border-radius:999px;background:#1e293b;font-size:11px}
-.customer-suggest{position:relative}
-.suggest-list{position:absolute;z-index:5;left:0;right:0;top:100%;background:#0b1322;border:1px solid var(--line);border-radius:8px;max-height:220px;overflow:auto}
-.suggest-list button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--text);padding:9px}
-.suggest-list button:hover{background:#172235}
-@media(max-width:800px){
- .side{width:70px;padding:10px 6px}.brand{font-size:0;text-align:center}.brand:after{content:"🚗";font-size:23px}
- .nav button{font-size:0;text-align:center;padding:12px 5px}.nav button:before{font-size:19px}
- .nav button[data-p=dashboard]:before{content:"🏠"}.nav button[data-p=leads]:before{content:"🔥"}.nav button[data-p=customers]:before{content:"👥"}
- .nav button[data-p=leases]:before{content:"🟣"}.nav button[data-p=orders]:before{content:"📝"}.nav button[data-p=deliveries]:before{content:"📦"}
- .nav button[data-p=completed]:before{content:"✅"}.nav button#signoutBtn:before{content:"↪"}
- .main{margin-left:70px;width:calc(100% - 70px);padding:13px}.cards{grid-template-columns:repeat(2,1fr)}
- .form{grid-template-columns:1fr}.full{grid-column:auto}.week{grid-template-columns:repeat(7,minmax(175px,1fr))}
-}
+:root{--bg:#0b1220;--panel:#0f172a;--card:#111c2f;--card2:#162238;--text:#f8fafc;--muted:#94a3b8;--line:#24324a;--nav:#070d18;--accent:#3b82f6;--accent2:#1d4ed8;--input:#0d1728;--shadow:0 8px 24px #0004}
+*{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}.hide{display:none!important}
+.app{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:225px;background:linear-gradient(180deg,#070d18,#0b1323);padding:18px 12px;color:white;border-right:1px solid #18243a}.brand{font-size:20px;font-weight:800;padding:0 10px 18px}.nav button,.nav a{display:block;box-sizing:border-box;width:100%;border:0;background:none;color:#a8b4c7;padding:11px;text-align:left;border-radius:9px;cursor:pointer;text-decoration:none;font:inherit}.nav button:hover,.nav a:hover{background:#111c2f;color:white}.nav button.active{background:#18243a;color:white}
+.main{margin-left:225px;width:calc(100% - 225px);min-width:0;padding:20px;overflow-x:hidden}.top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}h1{margin:0;font-size:25px}h2{font-size:17px}.label{font-size:12px;color:var(--muted)}.btn{border:1px solid transparent;background:var(--accent);color:white;padding:10px 13px;border-radius:9px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px #0003}.btn:hover{background:var(--accent2)}.secondary{background:#15284a;color:#bfdbfe;border-color:#24467a}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px;box-shadow:var(--shadow)}.metric{font-size:27px;font-weight:800}.card.clickable{cursor:pointer;transition:border-color .15s,transform .15s}.card.clickable:hover{border-color:#3b82f6;transform:translateY(-1px)}.card.clickable:focus{outline:3px solid #2563eb66;outline-offset:2px}.section{margin-top:20px}.search{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--input);color:var(--text);outline:none}.search:focus{border-color:var(--accent)}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.filters button{border:1px solid var(--line);background:var(--card);color:var(--muted);padding:7px 10px;border-radius:999px;cursor:pointer}.filters button:hover{color:white;border-color:#3b82f6}.filters button.active{background:var(--accent);border-color:var(--accent);color:white}
+.pipeline{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:9px;overflow:auto}.col{background:#0d1728;border:1px solid #1b2940;border-radius:10px;padding:9px;min-height:250px}.lead{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px;margin-top:8px;cursor:pointer;box-shadow:0 4px 14px #0003}.lead:hover{border-color:#3b82f6}.pill{font-size:11px;background:#182b50;color:#bfdbfe;border-radius:999px;padding:4px 7px}.hot{background:#451a1a;color:#fecaca}
+.week{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:auto;box-shadow:var(--shadow)}.day{background:var(--card);min-height:220px;padding:8px}.dayhead{text-align:center;font-size:12px;font-weight:800;border-bottom:1px solid var(--line);padding-bottom:6px}.event{width:100%;border:1px solid #155e75;color:white;background:#0e7490;border-radius:7px;padding:7px;text-align:left;margin-top:6px;font-size:11px;cursor:pointer}.event.future{background:#0e7490;border-color:#155e75}.event.past{background:#7f1d1d;border-color:#991b1b}.event.today{background:#1d4ed8;border-color:#2563eb}.event.done{background:#166534;border-color:#15803d}.calendarbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.calendarbar strong{font-size:15px}.calendarlegend{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 12px}.calendarlegend span{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:11px}.caldot{width:9px;height:9px;border-radius:50%;display:inline-block}.caldot.past{background:#991b1b}.caldot.today{background:#2563eb}.caldot.future{background:#0e7490}.caldot.done{background:#15803d}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{color:#b7c3d4;background:#0d1728}tr:hover td{background:#132039}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:15px;z-index:50}.modal.show{display:flex}.box{width:min(720px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px;box-shadow:0 20px 50px #0008}.head{display:flex;justify-content:space-between}.close{border:0;background:none;color:white;font-size:24px;cursor:pointer}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form label{font-size:12px;color:var(--muted);font-weight:700}.form input,.form select,.form textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;margin-top:4px;background:var(--input);color:var(--text)}.form input:focus,.form select:focus,.form textarea:focus{outline:none;border-color:var(--accent)}select option{background:#0f172a;color:white}.full{grid-column:1/-1}.hist{background:#0d1728;border:1px solid var(--line);border-radius:9px;padding:10px;margin-top:8px}
+.auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at top,#172554 0,#0b1220 38%,#060b13 100%)}.authbox{width:min(420px,100%);background:#0f172aeF;padding:22px;border:1px solid #253451;border-radius:13px;box-shadow:0 20px 60px #0008}.authbox input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;margin:5px 0 11px;background:var(--input);color:var(--text)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#09111f}::-webkit-scrollbar-thumb{background:#263752;border-radius:999px}
+@media(max-width:800px){.side{width:68px;padding:10px 6px}.brand{font-size:0;text-align:center}.brand:after{content:"🚗";font-size:23px}.nav button,.nav a{font-size:0;text-align:center}.nav button:before,.nav a:before{font-size:19px}.nav button[data-p=dashboard]:before{content:"🏠"}.nav button[data-p=followups]:before{content:"📅"}.nav button[data-p=leads]:before{content:"🔥"}.nav button[data-p=customers]:before{content:"👥"}.nav button[data-p=leases]:before{content:"🟣"}.nav a[data-inventory]:before{content:"🚙"}.nav button[data-p=reports]:before{content:"📊"}.nav button[data-p=templates]:before{content:"💬"}.nav button[data-p=completed]:before{content:"✅"}.main{margin-left:68px;width:calc(100% - 68px);padding:13px}.cards{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr}.full{grid-column:auto}.week{grid-template-columns:repeat(7,minmax(175px,1fr))}}
+
+.attention{border-left:3px solid #f59e0b}.danger{border-left:3px solid #ef4444}.good{border-left:3px solid #22c55e}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.statsbar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.followgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.followpanel{min-width:0;overflow:auto}.followpanel h2{display:flex;justify-content:space-between;align-items:center}.status-select{padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--input);color:var(--text)}.money{font-variant-numeric:tabular-nums}.mini{font-size:11px}.tag{display:inline-block;padding:3px 7px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:11px}.customer-picker{position:relative}.picker-results{position:absolute;z-index:20;left:0;right:0;top:100%;max-height:220px;overflow:auto;background:#0b1424;border:1px solid var(--line);border-radius:8px;box-shadow:0 14px 30px #0008}.picker-item{display:block;width:100%;text-align:left;padding:9px;border:0;border-bottom:1px solid var(--line);background:#0b1424;color:var(--text);cursor:pointer}.picker-item:hover{background:#14223a}.notice{padding:10px;border:1px solid #2a3d5e;border-radius:9px;background:#0c1a2d;color:#cbd5e1}.kpirow{display:flex;gap:12px;flex-wrap:wrap}.kpirow .tag{font-size:12px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.dangerbtn{background:#7f1d1d}.dangerbtn:hover{background:#991b1b}.form input[type="date"]{cursor:pointer}.form input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.9;cursor:pointer}.datehint{display:block;margin-top:4px;font-size:11px;color:var(--muted);font-weight:500}
+.datetime-field>label{display:block;font-size:12px;color:var(--muted);font-weight:700}.datetime-trigger{width:100%;min-height:42px;margin-top:4px;padding:9px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:1px solid var(--line);border-radius:8px;background:var(--input);color:var(--text);cursor:pointer}.datetime-trigger:hover,.datetime-trigger:focus{outline:none;border-color:var(--accent)}.datetime-trigger.empty .datetime-value{color:var(--muted)}.datetime-icon{font-size:18px}.date-picker-modal{z-index:80;padding:10px}.date-picker-box{width:min(430px,100%);padding:18px}.picker-calendar-head{display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center;margin:10px 0}.picker-month{text-align:center;font-size:18px;font-weight:800}.picker-nav{height:42px;border:1px solid var(--line);border-radius:9px;background:#15284a;color:#dbeafe;font-size:22px;cursor:pointer}.picker-nav:hover{border-color:var(--accent)}.picker-weekdays,.picker-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.picker-weekdays span{text-align:center;color:var(--muted);font-size:11px;font-weight:800;padding:5px 0}.picker-blank{aspect-ratio:1}.picker-day{aspect-ratio:1;border:1px solid transparent;border-radius:10px;background:#101b2e;color:var(--text);font-weight:700;cursor:pointer}.picker-day:hover{border-color:var(--accent);background:#172b4d}.picker-day.today{border-color:#60a5fa}.picker-day.selected{background:var(--accent);border-color:var(--accent);color:white}.picker-time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;margin-top:16px}.picker-time-row label{font-size:12px;color:var(--muted);font-weight:700}.picker-time-row input{width:100%;padding:10px;margin-top:4px;border:1px solid var(--line);border-radius:8px;background:var(--input);color:var(--text);color-scheme:dark}.picker-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}@media(max-width:800px){.grid2,.statsbar,.followgrid{grid-template-columns:1fr}.toolbar .btn{flex:1 1 auto}}@media(max-width:430px){.date-picker-box{padding:14px}.picker-days{gap:3px}.picker-day{border-radius:8px}.picker-time-row{grid-template-columns:1fr}.picker-actions .btn{flex:1}}
+.template-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}.template-card{display:flex;flex-direction:column;min-width:0}.template-title{font-size:14px;padding-right:8px}.template-message{white-space:pre-wrap;line-height:1.45;color:#dbe4f0;background:#0d1728;border:1px solid var(--line);border-radius:8px;padding:10px;margin:10px 0;flex:1}.template-card .toolbar{margin-top:auto}.template-count{font-size:12px;color:var(--muted);margin-top:3px}@media(max-width:430px){.template-grid{grid-template-columns:1fr}}
+.app-setup{display:flex;justify-content:space-between;align-items:center;gap:14px;border-left:3px solid #3b82f6}.app-setup-copy{min-width:220px}.app-status{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}.status-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:11px}.status-chip.ready{border-color:#166534;background:#123523;color:#bbf7d0}.status-chip.warn{border-color:#92400e;background:#3b2412;color:#fde68a}.status-chip.blocked{border-color:#991b1b;background:#3f1717;color:#fecaca}@media(max-width:650px){.app-setup{align-items:flex-start;flex-direction:column}.app-setup .toolbar{width:100%}.app-setup .btn{flex:1 1 auto}}
+.customer-mobile-list{display:none}.customer-table-desktop{max-width:100%;overflow-x:auto}.customer-mobile-card{padding:13px}.customer-mobile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.customer-mobile-name{border:0;background:none;color:#bfdbfe;padding:0;text-align:left;font-weight:800;font-size:16px;cursor:pointer}.customer-mobile-name:hover{color:white}.customer-mobile-details{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.customer-mobile-details b{display:block;margin-top:2px;font-size:14px;overflow-wrap:anywhere}.customer-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.customer-actions .btn{text-align:center;text-decoration:none;white-space:nowrap}@media(max-width:800px){.customer-table-desktop{display:none}.customer-mobile-list{display:grid;gap:10px}.customer-mobile-details{grid-template-columns:1fr 1fr}}@media(max-width:390px){.customer-mobile-details{grid-template-columns:1fr}.customer-actions{grid-template-columns:1fr 1fr}}
+.morning-plan{border:1px solid #2b4f80;background:linear-gradient(145deg,#101f35,#111c2f)}.morning-plan-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.morning-plan-head h2{margin:0 0 3px;font-size:19px}.morning-total{flex:0 0 auto;background:#1d4ed8;color:white;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}.morning-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:13px}.morning-group{min-width:0;background:#0d1728;border:1px solid var(--line);border-radius:10px;padding:11px}.morning-group-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.morning-count{display:inline-flex;min-width:24px;height:24px;align-items:center;justify-content:center;border-radius:999px;background:#182b50;color:#bfdbfe;font-size:11px;font-weight:800}.morning-item{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:9px 0;border-top:1px solid #1d2b42}.morning-item-copy{min-width:0}.morning-item-copy b,.morning-item-copy span{display:block;overflow-wrap:anywhere}.morning-item-copy b{font-size:13px}.morning-item-copy span{margin-top:2px;color:var(--muted);font-size:11px}.morning-open{flex:0 0 auto;border:1px solid #24467a;background:#15284a;color:#bfdbfe;border-radius:8px;padding:6px 8px;font-size:11px;font-weight:800;cursor:pointer;text-decoration:none}.morning-open:hover{background:#1d4ed8;color:white}.morning-empty{padding:12px 0 4px;color:#86efac;font-size:12px}.morning-more{width:100%;margin-top:8px;border:0;background:none;color:#93c5fd;font-size:11px;font-weight:800;cursor:pointer;text-align:left}.morning-more:hover{color:white}@media(max-width:1050px){.morning-grid{grid-template-columns:1fr}}@media(max-width:500px){.morning-plan-head{flex-direction:column}.morning-total{align-self:flex-start}.morning-item{align-items:flex-start}}
+.lease-mobile-list{display:none}.lease-table-desktop{max-width:100%;overflow-x:auto}.lease-mobile-card{padding:13px}.lease-mobile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.lease-mobile-head b{font-size:16px;overflow-wrap:anywhere}.lease-mobile-details{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}.lease-mobile-details>div{min-width:0}.lease-mobile-details .wide{grid-column:1/-1}.lease-mobile-details b{display:block;margin-top:2px;font-size:13px;overflow-wrap:anywhere;white-space:pre-wrap}.lease-mobile-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.lease-mobile-actions .btn{text-align:center;text-decoration:none;white-space:nowrap}@media(max-width:800px){.lease-table-desktop{display:none}.lease-mobile-list{display:grid;gap:10px}}@media(max-width:390px){.lease-mobile-details{grid-template-columns:1fr}.lease-mobile-details .wide{grid-column:auto}}
 </style></head><body>
-<div id="auth" class="auth"><div class="authbox">
-  <h1>Car Sales CRM</h1><p class="label">Cloud CRM — phone + computer sync</p>
-  <label>Email</label><input id="email" type="email">
-  <label>Password</label><input id="password" type="password">
-  <div class="inline-actions"><button id="signin" class="btn">Sign in</button><button id="signup" class="btn secondary">Create account</button></div>
-  <p id="authmsg" class="label"></p>
-</div></div>
-
-<div id="crm" class="app hide">
-<aside class="side">
-  <div class="brand">Car Sales CRM</div>
-  <div class="nav">
-    <button class="active" data-p="dashboard">Dashboard</button>
-    <button data-p="leads">Leads</button>
-    <button data-p="customers">Customers</button>
-    <button data-p="leases">Leases</button>
-    <button data-p="orders">Orders</button>
-    <button data-p="completed">Sold / Lost / Delivered</button>
-    <div class="sep"></div>
-    <button id="signoutBtn">Sign out</button>
-  </div>
-</aside>
-
+<div id="auth" class="auth"><div class="authbox"><h1>Car Sales CRM</h1><p class="label">Cloud CRM — phone + computer sync</p><label>Email</label><input id="email" type="email"><label>Password</label><input id="password" type="password" minlength="8"><p class="label">New accounts require 8+ characters with uppercase, lowercase, a number and a symbol.</p><div style="display:flex;gap:8px;margin-top:11px"><button id="signin" class="btn">Sign in</button><button id="signup" class="btn secondary">Create account</button></div><p id="authmsg" class="label"></p></div></div>
+<div id="crm" class="app hide"><aside class="side"><div class="brand">Car Sales CRM</div><div class="nav"><button class="active" data-p="dashboard">Dashboard</button><button data-p="followups">Follow-Ups</button><button data-p="leads">Leads</button><button data-p="customers">Customers</button><button data-p="leases">Leases</button><a data-inventory href="https://www.ileperrottoyota.com/en/used-inventory" target="_blank" rel="noopener noreferrer">Used Inventory ↗</a><button data-p="reports">Reports</button><button data-p="templates">Templates</button><button data-p="completed">Sold / Lost / Delivered</button><button id="signoutBtn">Sign out</button></div></aside>
 <main class="main">
-<section id="dashboard" class="page">
-  <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><button class="btn" onclick="openLead()">+ New Lead</button></div>
-  <div class="weekhead"><div class="weeknav"><button class="btn secondary" id="prevWeek">← Previous</button><button class="btn secondary" id="thisWeek">This week</button><button class="btn secondary" id="nextWeek">Next →</button></div><div id="weekLabel" class="label"></div></div>
-  <div class="filters" id="calfilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
-  <div id="calendar" class="week"></div>
-  <div id="metrics" class="cards"></div>
-  <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
-</section>
-
-<section id="leads" class="page hide">
-  <div class="top"><h1>Leads</h1><button class="btn" onclick="openLead()">+ New Lead</button></div>
-  <div class="filters" id="leadfilters"><button class="active" data-f="all">All</button><button data-f="hot">🔥 Hot</button><button data-f="facebook">Facebook</button><button data-f="ups">Ups</button><button data-f="overdue">Overdue</button><button data-f="nofollow">No Follow-up</button></div>
-  <input id="leadsearch" class="search" placeholder="Search leads..."><div id="pipeline" class="pipeline section"></div>
-</section>
-
-<section id="customers" class="page hide">
-  <div class="top"><h1>Customers / Contacts</h1><button class="btn" onclick="openCustomer()">+ New Customer</button></div>
-  <input id="custsearch" class="search" placeholder="Search name, phone, city..."><div id="custtable" class="section"></div>
-</section>
-
-<section id="leases" class="page hide">
-  <div class="top"><h1>Lease Customers</h1></div>
-  <input id="leasesearch" class="search" placeholder="Search customer, vehicle, VIN, stock..."><div id="leasetable" class="section"></div>
-</section>
-
-<section id="orders" class="page hide">
-  <div class="top"><div><h1>New Vehicle Orders</h1><div class="label">Customers waiting for a new vehicle that is not currently in stock.</div></div><button class="btn" onclick="openOrder()">+ New Order</button></div>
-  <input id="ordersearch" class="search" placeholder="Search customer, vehicle, trim, color, status...">
-  <div id="ordertable" class="section"></div>
-</section>
-
-<section id="deliveries" class="page hide">
-  <div class="top"><h1>Deliveries</h1><button class="btn" onclick="openDelivery()">+ Delivery</button></div><div id="deliverytable" class="section"></div>
-</section>
-
+<section id="dashboard" class="page"><div class="top"><div><h1>Sales Dashboard</h1><div class="label">What needs your attention today</div></div><div class="toolbar"><button class="btn secondary" onclick="openFollowup()">+ Follow-up</button><button class="btn" onclick="openLead()">+ New Lead</button></div></div><div id="metrics" class="cards"></div><div id="morningPlan" class="card morning-plan section"></div><div id="attention" class="section"></div><div id="appSetup" class="card app-setup section"><div class="app-setup-copy"><b>Phone App &amp; Reminders</b><div class="label">Appointments and deliveries: 1 day and 1 hour before.</div><div id="appStatus" class="app-status"></div><div id="appSetupMsg" class="label" style="margin-top:7px"></div></div><div class="toolbar"><button id="installAppBtn" class="btn secondary" type="button">Install App</button><button id="enableNotificationsBtn" class="btn" type="button">Enable Notifications</button><button id="testNotificationBtn" class="btn secondary" type="button">Test</button><button id="disableNotificationsBtn" class="btn secondary hide" type="button">Disable</button></div></div><div class="calendarbar section"><div class="toolbar"><button class="btn secondary" onclick="changeWeek(-1)">← Previous Week</button><button class="btn secondary" onclick="goThisWeek()">This Week</button><button class="btn secondary" onclick="changeWeek(1)">Next Week →</button></div><strong id="calendarRange"></strong></div><div class="filters" id="calfilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button><button data-f="followups_deliveries">Follow-ups + Deliveries</button><button data-f="appointments_deliveries">Appointments + Deliveries</button></div><div class="calendarlegend"><span><i class="caldot past"></i>Past Due</span><span><i class="caldot today"></i>Today</span><span><i class="caldot future"></i>Future</span><span><i class="caldot done"></i>Done</span></div><div id="calendar" class="week"></div></section>
+<section id="followups" class="page hide"><div class="top"><div><h1>Follow-Ups</h1><div class="label">Overdue, today, upcoming and completed customer actions</div></div><button class="btn" onclick="openFollowup()">+ New Follow-Up</button></div><input id="fusearch" class="search section" placeholder="Search customer, phone, action or notes..."><div id="fustats" class="cards"></div><div class="followgrid"><div id="fuoverdue" class="card followpanel danger"></div><div id="futoday" class="card followpanel attention"></div><div id="fuupcoming" class="card followpanel"></div><div id="fucompleted" class="card followpanel good"></div></div></section>
+<section id="leads" class="page hide"><div class="top"><h1>Leads</h1><button class="btn" onclick="openLead()">+ New Lead</button></div><div class="filters" id="leadfilters"><button class="active" data-f="all">All</button><button data-f="hot">🔥 Hot</button><button data-f="facebook">Facebook</button><button data-f="ups">Ups</button><button data-f="overdue">Overdue</button><button data-f="nofollow">No Follow-up</button></div><input id="leadsearch" class="search" placeholder="Search customer, phone, vehicle, stock or source..."><div id="pipeline" class="pipeline section"></div></section>
+<section id="customers" class="page hide"><div class="top"><h1>Customers / Contacts</h1><button class="btn" onclick="openCustomer()">+ New Customer</button></div><input id="custsearch" class="search" placeholder="Search name, phone, email or city..."><div id="custtable" class="section"></div></section>
+<section id="leases" class="page hide"><div class="top"><h1>Lease Customers</h1></div><input id="leasesearch" class="search" placeholder="Search customer, vehicle, VIN, stock..."><div id="leasetable" class="section"></div></section>
+<section id="reports" class="page hide"><div class="top"><div><h1>Sales Reports</h1><div class="label">Performance and CRM backups</div></div><button class="btn" onclick="exportBackup('all')">Export Complete Backup</button></div><div id="reportcards" class="cards"></div><div class="grid2 section"><div><h2>Lead Sources</h2><div id="sourcereport"></div></div><div><h2>Monthly Sales</h2><div id="salesreport"></div></div></div><div class="card section"><h2>CSV Exports</h2><p class="label">Each export contains only the records visible to your signed-in account.</p><div class="toolbar"><button class="btn secondary" onclick="exportBackup('customers')">Customers</button><button class="btn secondary" onclick="exportBackup('leads')">Leads</button><button class="btn secondary" onclick="exportBackup('followups')">Follow-Ups</button><button class="btn secondary" onclick="exportBackup('leases')">Leases</button><button class="btn secondary" onclick="exportBackup('deliveries')">Deliveries</button></div><div id="exportmsg" class="label" style="margin-top:9px"></div></div></section>
+<section id="templates" class="page hide"><div class="top"><div><h1>Message Templates</h1><div id="templatecount" class="template-count"></div></div><button class="btn" onclick="openTemplate()">+ Template</button></div><input id="templatesearch" class="search section" placeholder="Search English, French, appointment, delivery, lease..."><div class="notice section"><b>Using placeholders:</b> Replace items in square brackets—such as [First Name], [Vehicle], [Date], [Time] and [Your Name]—before sending.</div><div id="templatemsg" class="label" style="min-height:18px;margin-top:9px"></div><div id="templatetable" class="section"></div></section>
 <section id="completed" class="page hide"><h1>Sold / Lost / Delivered</h1><div id="completedtable" class="section"></div></section>
 </main></div>
-
 <div id="modal" class="modal"><div class="box"><div class="head"><h2 id="mtitle"></h2><button class="close" onclick="closeModal()">×</button></div><div id="mbody"></div></div></div>
-
+<div id="datePicker" class="modal date-picker-modal" role="dialog" aria-modal="true" aria-labelledby="datePickerTitle" aria-hidden="true"><div class="box date-picker-box"><div class="head"><h2 id="datePickerTitle">Choose date and time</h2><button id="datePickerClose" class="close" type="button" aria-label="Close calendar">×</button></div><div class="picker-calendar-head"><button id="pickerPrev" class="picker-nav" type="button" aria-label="Previous month">‹</button><div id="pickerMonth" class="picker-month"></div><button id="pickerNext" class="picker-nav" type="button" aria-label="Next month">›</button></div><div class="picker-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div id="pickerDays" class="picker-days"></div><div class="picker-time-row"><button id="pickerToday" class="btn secondary" type="button">Today</button><label>Time<input id="pickerTime" type="time" step="300"></label></div><div class="picker-actions"><button id="datePickerCancel" class="btn secondary" type="button">Cancel</button><button id="datePickerSet" class="btn" type="button">Set Date &amp; Time</button></div></div></div>
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
-let user=null,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],orders:[]},leadFilter='all',calFilter='all',weekOffset=0;
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-const today=()=>localDate(new Date());
-const cust=id=>DB.customers.find(x=>x.id===id)||{};
-const fmt=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'—';
-const dateFmt=x=>x?new Date(x+'T12:00:00').toLocaleDateString([],{dateStyle:'medium'}):'—';
-function leaseDaysLeft(endDate){if(!endDate)return {days:null,label:'—'};const end=new Date(endDate+'T12:00:00'),now=new Date();now.setHours(12,0,0,0);const days=Math.ceil((end-now)/86400000);return {days,label:days<0?`Expired ${Math.abs(days)} days ago`:days===0?'Ends today':`${days} days`}}
-
-async function load(){
-  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',orders:'orders'})){
-    let {data,error}=await sb.from(t).select('*');
-    if(error)throw error; DB[k]=data||[];
-  }
-}
-async function enter(){await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');render()}
-async function init(){
-  let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();
-  sb.auth.onAuthStateChange(async(_,s)=>{user=s?.user||null;if(user)await enter()})
-}
+const VAPID_PUBLIC_KEY='BGMy4hOa8sv7_vxGy57h8eVij9V1jtpSuQgNF_0C_-i_mlNP1a6pl0RgO_QMBTErP9wj4hRyisV9izxGrvKLQRc';
+let user=null,leadFilter='all',calFilter='all',weekOffset=0;
+let deferredInstallPrompt=null,serviceWorkerRegistration=null;
+let DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],templates:[]};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const dk=x=>{if(!x)return'';let d=new Date(x),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`},today=()=>dk(new Date()),cust=id=>DB.customers.find(x=>x.id===id)||{},fmt=x=>x?new Date(x).toLocaleString([],{dateStyle:'medium',timeStyle:'short'}):'—',money=n=>n==null||n===''?'—':new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(n);
+const localDT=x=>{if(!x)return'';let d=new Date(x),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`};
+async function load(){for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',templates:'message_templates'})){let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=data||[]}}
+async function enter(){await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');render();let requested=new URLSearchParams(location.search).get('page');if(requested&&$('#'+requested))page(requested);restorePushSubscription()}
+async function init(){await setupPWA();let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();sb.auth.onAuthStateChange(async(_,s)=>{user=s?.user||null;if(user)await enter()})}
 $('#signin').onclick=async()=>{let {error}=await sb.auth.signInWithPassword({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||''};
-$('#signup').onclick=async()=>{let {data,error}=await sb.auth.signUp({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||(data.session?'Account created.':'Check your email to confirm, then sign in.')};
-
-function page(id){$$('.page').forEach(x=>x.classList.add('hide'));$('#'+id).classList.remove('hide');$$('.nav button[data-p]').forEach(x=>x.classList.toggle('active',x.dataset.p===id));render()}
-$$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));
-$('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.add('hide');$('#auth').classList.remove('hide')};
-
+function passwordIssue(p){if(p.length<8)return'Use at least 8 characters.';if(!/[a-z]/.test(p)||!/[A-Z]/.test(p)||!/[0-9]/.test(p)||!/[!@#$%^&*()_+\-=\[\]{};'\:"|<>?,./`~]/.test(p))return'Include uppercase, lowercase, a number and a symbol.';return''}
+$('#signup').onclick=async()=>{let p=$('#password').value,issue=passwordIssue(p);if(issue){$('#authmsg').textContent=issue;return}let {data,error}=await sb.auth.signUp({email:$('#email').value,password:p});$('#authmsg').textContent=error?.message||(data.session?'Account created.':'Check your email to confirm, then sign in.')};
+function page(id){$$('.page').forEach(x=>x.classList.add('hide'));$('#'+id).classList.remove('hide');$$('.nav button[data-p]').forEach(x=>x.classList.toggle('active',x.dataset.p===id));render()} window.page=page; $$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));$('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.add('hide');$('#auth').classList.remove('hide')};
+let pushSubscriptionActive=null;
+const isInstalled=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function setAppSetupMessage(message,isError=false){let el=$('#appSetupMsg');if(!el)return;el.textContent=message;el.style.color=isError?'#fecaca':''}
+function base64UrlToBytes(value){let padding='='.repeat((4-value.length%4)%4),base64=(value+padding).replace(/-/g,'+').replace(/_/g,'/'),raw=atob(base64);return Uint8Array.from([...raw].map(ch=>ch.charCodeAt(0)))}
+async function setupPWA(){
+  if(!('serviceWorker' in navigator))return;
+  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;renderAppSetup()});
+  window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;setAppSetupMessage('App installed. You can open it from your home screen.');renderAppSetup()});
+  try{serviceWorkerRegistration=await navigator.serviceWorker.register('./sw.js',{scope:'./'});await serviceWorkerRegistration.update()}catch(error){console.error('App setup failed',error)}
+}
+async function savePushSubscription(subscription){
+  if(!user)throw new Error('Sign in before enabling notifications.');
+  let details=subscription.toJSON(),keys=details.keys||{},payload={owner_id:user.id,endpoint:subscription.endpoint,p256dh:keys.p256dh,auth:keys.auth,user_agent:navigator.userAgent,updated_at:new Date().toISOString(),last_seen_at:new Date().toISOString()};
+  if(!payload.p256dh||!payload.auth)throw new Error('The phone did not provide valid notification keys.');
+  let {error}=await sb.from('push_subscriptions').upsert(payload,{onConflict:'endpoint'});
+  if(error)throw error;
+}
+async function restorePushSubscription(){
+  if(!user||!('serviceWorker' in navigator)||!('PushManager' in window)){pushSubscriptionActive=false;renderAppSetup();return}
+  try{let registration=serviceWorkerRegistration||await navigator.serviceWorker.ready,subscription=await registration.pushManager.getSubscription();pushSubscriptionActive=!!subscription;if(subscription)await savePushSubscription(subscription)}catch(error){pushSubscriptionActive=false;console.error('Could not refresh notification subscription',error)}
+  renderAppSetup();
+}
+async function enableNotifications(){
+  if(!window.isSecureContext){setAppSetupMessage('Notifications require the secure Netlify website.',true);return}
+  if(!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)){setAppSetupMessage('This browser does not support app notifications. Use Chrome on Android.',true);return}
+  try{
+    let permission=await Notification.requestPermission();
+    if(permission!=='granted'){pushSubscriptionActive=false;setAppSetupMessage(permission==='denied'?'Notifications are blocked. Open the website settings in Chrome and allow Notifications.':'Notification permission was not enabled.',true);renderAppSetup();return}
+    let registration=serviceWorkerRegistration||await navigator.serviceWorker.ready,subscription=await registration.pushManager.getSubscription();
+    if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64UrlToBytes(VAPID_PUBLIC_KEY)});
+    await savePushSubscription(subscription);pushSubscriptionActive=true;setAppSetupMessage('Notifications are on for this phone.');renderAppSetup();
+  }catch(error){pushSubscriptionActive=false;setAppSetupMessage(error?.message||'Could not enable notifications.',true);renderAppSetup()}
+}
+async function disableNotifications(){
+  try{
+    let registration=serviceWorkerRegistration||await navigator.serviceWorker.ready,subscription=await registration.pushManager.getSubscription();
+    if(subscription){let {error}=await sb.from('push_subscriptions').delete().eq('endpoint',subscription.endpoint);if(error)throw error;await subscription.unsubscribe()}
+    pushSubscriptionActive=false;setAppSetupMessage('Notifications are off on this phone.');renderAppSetup();
+  }catch(error){setAppSetupMessage(error?.message||'Could not disable notifications.',true)}
+}
+async function testNotification(){
+  if(Notification.permission!=='granted'||!pushSubscriptionActive){await enableNotifications();if(Notification.permission!=='granted'||!pushSubscriptionActive)return}
+  try{let registration=serviceWorkerRegistration||await navigator.serviceWorker.ready;await registration.showNotification('CRM notifications are ready',{body:'You will be reminded 1 day and 1 hour before appointments and deliveries.',icon:'./icons/icon-192.png',badge:'./icons/badge-96.png',tag:'crm-notification-test',data:{url:'./'}});setAppSetupMessage('Test sent — check your notification tray.')}catch(error){setAppSetupMessage(error?.message||'The test notification could not be shown.',true)}
+}
+async function installCRM(){
+  if(isInstalled()){setAppSetupMessage('The CRM is already installed on this phone.');return}
+  if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;renderAppSetup();return}
+  setAppSetupMessage('In Chrome, tap the ⋮ menu, then “Add to Home screen” or “Install app”.');
+}
+function renderAppSetup(){
+  let status=$('#appStatus');if(!status)return;
+  let supported='Notification' in window&&'serviceWorker' in navigator&&'PushManager' in window,permission=supported?Notification.permission:'unsupported',notificationsOn=permission==='granted'&&pushSubscriptionActive===true;
+  let appClass=isInstalled()?'ready':'warn',noticeClass=notificationsOn?'ready':permission==='denied'?'blocked':'warn',noticeLabel=notificationsOn?'Notifications on':permission==='denied'?'Notifications blocked':permission==='granted'?'Finish notification setup':'Notifications off';
+  status.innerHTML=`<span class="status-chip ${appClass}">${isInstalled()?'✓ App installed':'○ Browser version'}</span><span class="status-chip ${noticeClass}">${notificationsOn?'✓':'○'} ${noticeLabel}</span>`;
+  $('#installAppBtn').classList.toggle('hide',isInstalled());
+  $('#enableNotificationsBtn').classList.toggle('hide',notificationsOn||!supported);
+  $('#testNotificationBtn').classList.toggle('hide',!notificationsOn);
+  $('#disableNotificationsBtn').classList.toggle('hide',!notificationsOn);
+}
+$('#installAppBtn').onclick=installCRM;$('#enableNotificationsBtn').onclick=enableNotifications;$('#testNotificationBtn').onclick=testNotification;$('#disableNotificationsBtn').onclick=disableNotifications;
 function tab(h,r){return r.length?`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.join('')}</tbody></table>`:'<div class="card label">No records.</div>'}
-function modal(t,b){$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
-window.closeModal=()=>$('#modal').classList.remove('show');
-
-function render(){dashboard();leads();customers();leases();orders();deliveries();completed()}
-function dashboard(){
-  const active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
-  const due=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today());
-  const hot=active.filter(x=>x.priority==='Hot');
-  const ap=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today());
-  $('#metrics').innerHTML=[
-    ['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']
-  ].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');
-  $$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));
-  calendar();actions()
-}
-function weekDays(){
-  let d=new Date(),s=new Date(d);s.setHours(12,0,0,0);s.setDate(d.getDate()-d.getDay()+weekOffset*7);
-  return Array.from({length:7},(_,i)=>{let x=new Date(s);x.setDate(s.getDate()+i);return x})
-}
-function calendar(){
-  const ds=weekDays();
-  $('#weekLabel').textContent=`${ds[0].toLocaleDateString([],{month:'short',day:'numeric'})} – ${ds[6].toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}`;
-  $('#calendar').innerHTML=ds.map(d=>{
-    let k=localDate(d),ev=[];
-    DB.followups.filter(x=>localDate(x.scheduled_at)===k).forEach(x=>{
-      let a=x.action_type==='Appointment';if(calFilter!=='all'&&calFilter!==(a?'appointments':'followups'))return;
-      let cl=x.status==='Done'?'done':k<today()?'past':k===today()?'today':'';
-      ev.push(`<button class="event ${cl}" onclick="openCalendarFollowup('${x.id}')">${esc(x.action_type)}<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
-    });
-    DB.deliveries.filter(x=>x.delivery_at&&localDate(x.delivery_at)===k).forEach(x=>{
-      if(!['all','deliveries'].includes(calFilter))return;
-      let cl=x.status==='Delivered'?'done':k<today()?'past':k===today()?'today':'';
-      ev.push(`<button class="event ${cl}" onclick="openCalendarDelivery('${x.id}')">Delivery<br><b>${esc(cust(x.customer_id).name)}</b></button>`)
-    });
-    return `<div class="day"><div class="dayhead">${d.toLocaleDateString([],{weekday:'short'})} ${d.getMonth()+1}/${d.getDate()}</div>${ev.join('')||'<div class="label" style="padding:10px;text-align:center">No events</div>'}</div>`
-  }).join('')
-}
-$('#prevWeek').onclick=()=>{weekOffset--;calendar()};
-$('#nextWeek').onclick=()=>{weekOffset++;calendar()};
-$('#thisWeek').onclick=()=>{weekOffset=0;calendar()};
+const formatLocalDT=v=>{if(!v)return'Choose date and time';let [ds,ts='00:00']=v.split('T'),[y,m,d]=ds.split('-').map(Number),[h,mi]=ts.split(':').map(Number),date=new Date(y,m-1,d,h,mi);return date.toLocaleString([],{weekday:'short',month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})};
+function dateTimeField(name,value='',label='Date / Time'){let local=value?localDT(value):'';return `<div class="datetime-field"><label>${esc(label)}</label><input type="hidden" name="${esc(name)}" value="${esc(local)}"><button type="button" class="datetime-trigger ${local?'':'empty'}" aria-label="${esc(label)}: ${esc(formatLocalDT(local))}"><span class="datetime-value">${esc(formatLocalDT(local))}</span><span class="datetime-icon" aria-hidden="true">📅</span></button><span class="datehint">Tap to open the month calendar</span></div>`}
+let pickerTarget=null,pickerView=null,pickerSelectedDate='';
+function defaultSchedule(){let d=new Date(Date.now()+30*60000);d.setMinutes(Math.ceil(d.getMinutes()/15)*15,0,0);return d}
+function openDateTimePicker(target){pickerTarget=target;let base;if(target.value){let [ds,ts='09:00']=target.value.split('T'),[y,m,d]=ds.split('-').map(Number),[h,mi]=ts.split(':').map(Number);base=new Date(y,m-1,d,h,mi)}else base=defaultSchedule();pickerSelectedDate=dk(base);pickerView=new Date(base.getFullYear(),base.getMonth(),1);$('#pickerTime').value=`${String(base.getHours()).padStart(2,'0')}:${String(base.getMinutes()).padStart(2,'0')}`;renderDateTimePicker();$('#datePicker').classList.add('show');$('#datePicker').setAttribute('aria-hidden','false')}
+function closeDateTimePicker(){$('#datePicker').classList.remove('show');$('#datePicker').setAttribute('aria-hidden','true');pickerTarget=null}
+function renderDateTimePicker(){let y=pickerView.getFullYear(),m=pickerView.getMonth(),first=new Date(y,m,1),count=new Date(y,m+1,0).getDate(),cells=[];$('#pickerMonth').textContent=first.toLocaleDateString([],{month:'long',year:'numeric'});for(let i=0;i<first.getDay();i++)cells.push('<span class="picker-blank"></span>');for(let day=1;day<=count;day++){let d=new Date(y,m,day,12),key=dk(d),cl=['picker-day'];if(key===today())cl.push('today');if(key===pickerSelectedDate)cl.push('selected');cells.push(`<button type="button" class="${cl.join(' ')}" data-date="${key}" aria-label="${esc(d.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric',year:'numeric'}))}" aria-pressed="${key===pickerSelectedDate}">${day}</button>`)}$('#pickerDays').innerHTML=cells.join('');$$('#pickerDays [data-date]').forEach(b=>b.onclick=()=>{pickerSelectedDate=b.dataset.date;renderDateTimePicker()})}
+function wireDatePickers(root=$('#mbody')){root.querySelectorAll('.datetime-trigger').forEach(btn=>{btn.onclick=()=>openDateTimePicker(btn.closest('.datetime-field').querySelector('input[type=hidden]'))});root.querySelectorAll('input[type=date]').forEach(el=>{el.title='Click to choose from calendar';el.addEventListener('click',()=>{if(typeof el.showPicker==='function'){try{el.showPicker()}catch(_){}}});if(!el.nextElementSibling||!el.nextElementSibling.classList?.contains('datehint')){let h=document.createElement('span');h.className='datehint';h.textContent='📅 Click to choose a date from the calendar';el.insertAdjacentElement('afterend',h)}})}
+$('#pickerPrev').onclick=()=>{pickerView=new Date(pickerView.getFullYear(),pickerView.getMonth()-1,1);renderDateTimePicker()};$('#pickerNext').onclick=()=>{pickerView=new Date(pickerView.getFullYear(),pickerView.getMonth()+1,1);renderDateTimePicker()};$('#pickerToday').onclick=()=>{let d=new Date();pickerSelectedDate=dk(d);pickerView=new Date(d.getFullYear(),d.getMonth(),1);renderDateTimePicker()};$('#datePickerClose').onclick=$('#datePickerCancel').onclick=closeDateTimePicker;$('#datePicker').onclick=e=>{if(e.target===$('#datePicker'))closeDateTimePicker()};$('#datePickerSet').onclick=()=>{let time=$('#pickerTime').value;if(!pickerTarget||!pickerSelectedDate)return;if(!time)return alert('Choose a time');pickerTarget.value=`${pickerSelectedDate}T${time}`;let btn=pickerTarget.closest('.datetime-field').querySelector('.datetime-trigger');btn.classList.remove('empty');btn.querySelector('.datetime-value').textContent=formatLocalDT(pickerTarget.value);btn.setAttribute('aria-label',`${pickerTarget.closest('.datetime-field').querySelector('label').textContent}: ${formatLocalDT(pickerTarget.value)}`);pickerTarget.dispatchEvent(new Event('change',{bubbles:true}));closeDateTimePicker()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#datePicker').classList.contains('show'))closeDateTimePicker()});
+function modal(t,b){$('#mtitle').textContent=t;$('#mbody').innerHTML=b;wireDatePickers();$('#modal').classList.add('show')} window.closeModal=()=>$('#modal').classList.remove('show');
+function render(){dashboard();followupBoard();leads();customers();leases();reports();templates();completed();renderAppSetup()}
+function dashboard(){let active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status)),due=DB.followups.filter(x=>x.status!=='Done'&&dk(x.scheduled_at)<=today()),hot=active.filter(x=>x.priority==='Hot'),ap=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&dk(x.scheduled_at)===today());$('#metrics').innerHTML=[['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');$$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));let soon=DB.leases.filter(x=>x.lease_end_date&&Math.ceil((new Date(x.lease_end_date)-new Date())/86400000)>=0&&Math.ceil((new Date(x.lease_end_date)-new Date())/86400000)<=180),over=DB.followups.filter(x=>x.status!=='Done'&&new Date(x.scheduled_at)<new Date());$('#attention').innerHTML=`<div class="grid2"><div class="card ${over.length?'danger':'good'}"><b>${over.length} overdue follow-up${over.length===1?'':'s'}</b><div class="label">${over.length?'Needs attention now':'You are caught up'}</div></div><div class="card ${soon.length?'attention':'good'}"><b>${soon.length} lease${soon.length===1?'':'s'} ending in 6 months</b><div class="label">Use lease maturity leads before they expire</div></div></div>`;morningPlan();calendar()}
+function dashboardShortcut(k){if(k==='active'||k==='hot'){leadFilter=k==='hot'?'hot':'all';page('leads')}else if(k==='followups')page('followups');else openTodayAppointments()}
+function days(){let d=new Date();d.setHours(12,0,0,0);let s=new Date(d);s.setDate(d.getDate()-d.getDay()+weekOffset*7);return Array.from({length:7},(_,i)=>{let x=new Date(s);x.setDate(s.getDate()+i);return x})}
+function calendarAllows(type){return calFilter==='all'||calFilter===type||(calFilter==='followups_deliveries'&&['followups','deliveries'].includes(type))||(calFilter==='appointments_deliveries'&&['appointments','deliveries'].includes(type))}
+function calendar(){let week=days(),dateLabel=d=>d.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});$('#calendarRange').textContent=`${dateLabel(week[0])} – ${dateLabel(week[6])}`;$('#calendar').innerHTML=week.map(d=>{let k=dk(d),ev=[];DB.followups.filter(x=>dk(x.scheduled_at)===k).forEach(x=>{let type=x.action_type==='Appointment'?'appointments':'followups';if(!calendarAllows(type))return;let cl=x.status==='Done'?'done':k<today()?'past':k===today()?'today':'future';ev.push(`<button class="event ${cl}" onclick="editFollowup('${x.id}')">${esc(x.action_type)}<br><b>${esc(cust(x.customer_id).name)}</b><br><span class="mini">${new Date(x.scheduled_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</span></button>`)});DB.deliveries.filter(x=>x.delivery_at&&dk(x.delivery_at)===k).forEach(x=>{if(!calendarAllows('deliveries'))return;let cl=x.status==='Delivered'?'done':k<today()?'past':k===today()?'today':'future';ev.push(`<button class="event ${cl}" onclick="editDelivery('${x.id}')">Delivery<br><b>${esc(cust(x.customer_id).name)}</b></button>`)});return `<div class="day"><div class="dayhead">${d.toLocaleDateString([],{weekday:'short'})} ${d.getMonth()+1}/${d.getDate()}</div>${ev.join('')||'<div class="label" style="padding:10px;text-align:center">No events</div>'}</div>`}).join('')}
+window.changeWeek=n=>{weekOffset+=Number(n)||0;calendar()};window.goThisWeek=()=>{weekOffset=0;calendar()};
 $('#calfilters').onclick=e=>{if(e.target.dataset.f){calFilter=e.target.dataset.f;$$('#calfilters button').forEach(b=>b.classList.toggle('active',b===e.target));calendar()}};
-
-function dashboardShortcut(kind){
-  if(kind==='active'){leadFilter='all';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='all'));page('leads');return}
-  if(kind==='hot'){leadFilter='hot';$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b.dataset.f==='hot'));page('leads');return}
-  if(kind==='followups'){openDueFollowupsList();return}
-  if(kind==='appointments'){openTodayAppointmentsList()}
+function morningPlan(){
+  let now=new Date(),todayKey=today(),tomorrowDate=new Date();tomorrowDate.setDate(tomorrowDate.getDate()+1);let tomorrowKey=dk(tomorrowDate);
+  let active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
+  let overdue=DB.followups.filter(x=>x.status!=='Done'&&new Date(x.scheduled_at)<now).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+  let todaySchedule=DB.followups.filter(x=>x.status!=='Done'&&dk(x.scheduled_at)===todayKey&&new Date(x.scheduled_at)>=now).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+  let deliverySchedule=DB.deliveries.filter(x=>x.status!=='Delivered'&&x.delivery_at&&[todayKey,tomorrowKey].includes(dk(x.delivery_at))).sort((a,b)=>new Date(a.delivery_at)-new Date(b.delivery_at));
+  let noNext=active.filter(x=>!DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done')).sort((a,b)=>(a.priority==='Hot'?-1:1)-(b.priority==='Hot'?-1:1)||new Date(a.created_at)-new Date(b.created_at));
+  let total=overdue.length+todaySchedule.length+deliverySchedule.length+noNext.length,limit=6;
+  let followupRow=x=>{let c=cust(x.customer_id),time=new Date(x.scheduled_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});return `<div class="morning-item"><div class="morning-item-copy"><b>${esc(x.action_type)} — ${esc(c.name||'Customer')}</b><span>${dk(x.scheduled_at)===todayKey?`Today at ${time}`:fmt(x.scheduled_at)}${x.notes?` · ${esc(x.notes)}`:''}</span></div><button class="morning-open" onclick="editFollowup('${x.id}')">Open</button></div>`};
+  let deliveryRow=x=>{let c=cust(x.customer_id),day=dk(x.delivery_at)===todayKey?'Today':'Tomorrow',time=new Date(x.delivery_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});return `<div class="morning-item"><div class="morning-item-copy"><b>Delivery — ${esc(c.name||'Customer')}</b><span>${day} at ${time} · ${esc(x.vehicle||'Vehicle')} · ${esc(x.status)}</span></div><button class="morning-open" onclick="editDelivery('${x.id}')">Open</button></div>`};
+  let leadRow=x=>{let c=cust(x.customer_id);return `<div class="morning-item"><div class="morning-item-copy"><b>${x.priority==='Hot'?'🔥 ':''}${esc(c.name||'Customer')}</b><span>${esc(x.vehicle||'No vehicle')} · No next action scheduled</span></div><button class="morning-open" onclick="openLeadFile('${x.id}')">Open</button></div>`};
+  let more=(count,label,action)=>count>limit?`<button class="morning-more" onclick="${action}">View all ${count} ${label} →</button>`:'';
+  let group=(title,count,rows,empty,extra='')=>`<div class="morning-group"><div class="morning-group-title"><b>${title}</b><span class="morning-count">${count}</span></div>${rows.length?rows.slice(0,limit).join(''):`<div class="morning-empty">✓ ${empty}</div>`}${extra}</div>`;
+  let scheduleRows=[...todaySchedule.map(followupRow),...deliverySchedule.map(deliveryRow)];
+  $('#morningPlan').innerHTML=`<div class="morning-plan-head"><div><h2>Morning Sales Plan</h2><div class="label">${new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})} · Work from left to right</div></div><span class="morning-total">${total} priority item${total===1?'':'s'}</span></div><div class="morning-grid">${group('1. Catch up first',overdue.length,overdue.map(followupRow),'No overdue work',more(overdue.length,'overdue','page(\'followups\')'))}${group('2. Today & tomorrow',todaySchedule.length+deliverySchedule.length,scheduleRows,'Your immediate schedule is clear')}${group('3. Protect the pipeline',noNext.length,noNext.map(leadRow),'Every active lead has a next action',more(noNext.length,'leads','openNoFollowups()'))}</div>`;
 }
-function openDueFollowupsList(){
-  const rows=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
-  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${esc(x.action_type)}</td><td>${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No follow-ups are due.</div>')
-}
-function openTodayAppointmentsList(){
-  const rows=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
-  modal('Appointments Today',rows.length?tab(['Customer','Phone','Time','Notes','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.notes||'')}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No appointments scheduled for today.</div>')
-}
-window.followupStatus=async(id,status)=>{const {error}=await sb.from('followups').update({status}).eq('id',id);if(error)return alert(error.message);await load();render()};
-
-function actions(){
-  let a=[];
-  DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).forEach(x=>a.push({t:`${x.action_type} — ${cust(x.customer_id).name}`,s:fmt(x.scheduled_at),fn:`openCalendarFollowup('${x.id}')`}));
-  DB.deliveries.filter(x=>x.status!=='Delivered'&&x.delivery_at&&localDate(x.delivery_at)<=today()).forEach(x=>a.push({t:`Delivery — ${cust(x.customer_id).name}`,s:x.status,fn:`openCalendarDelivery('${x.id}')`}));
-  $('#actions').innerHTML=a.length?a.map(x=>`<div class="card" style="margin-top:7px;cursor:pointer" onclick="${x.fn}"><b>${esc(x.t)}</b><div class="label">${esc(x.s)}</div></div>`).join(''):'<div class="card label">Nothing urgent.</div>'
-}
-
-$('#leadfilters').onclick=e=>{if(e.target.dataset.f){leadFilter=e.target.dataset.f;$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b===e.target));leads()}};
-$('#leadsearch').oninput=leads;
-function leads(){
-  let q=$('#leadsearch').value.toLowerCase(),a=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
-  if(q)a=a.filter(x=>(cust(x.customer_id).name+' '+x.vehicle+' '+x.source).toLowerCase().includes(q));
-  if(leadFilter==='hot')a=a.filter(x=>x.priority==='Hot');
-  if(leadFilter==='facebook')a=a.filter(x=>String(x.source).toLowerCase().includes('facebook'));
-  if(leadFilter==='ups')a=a.filter(x=>String(x.source).toLowerCase().includes('up'));
-  if(leadFilter==='overdue')a=a.filter(x=>DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'&&localDate(f.scheduled_at)<today()));
-  if(leadFilter==='nofollow')a=a.filter(x=>!DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'));
-  let st=['New','Contacted','Appointment','Showed','Negotiating'];
-  $('#pipeline').innerHTML=st.map(s=>{let z=a.filter(x=>x.status===s);return `<div class="col"><b>${s} (${z.length})</b>${z.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')"><span class="pill">Lead #${x.lead_number}</span> ${x.priority==='Hot'?'<span class="pill hot">🔥 Hot</span>':''}<b style="display:block;margin-top:5px">${esc(cust(x.customer_id).name)}</b><div class="label">${esc(x.vehicle||'')} · ${esc(x.source||'')}</div></div>`).join('')}</div>`}).join('')
-}
-
-$('#custsearch').oninput=customers;
-function customers(){
-  let q=$('#custsearch').value.toLowerCase(),a=DB.customers.filter(x=>!x.archived&&!['Sold','Lost','Delivered'].includes(x.status));
-  if(q)a=a.filter(x=>(x.name+' '+x.phone+' '+x.city).toLowerCase().includes(q));
-  $('#custtable').innerHTML=tab(['Name','Phone','City','Status'],a.map(x=>`<tr><td><button class="btn secondary" onclick="customerFile('${x.id}')">${esc(x.name)}</button></td><td>${esc(x.phone||'')}</td><td>${esc(x.city||'')}</td><td>${esc(x.status||'')}</td></tr>`))
-}
-$('#leasesearch').oninput=leases;
-function leases(){
+window.openNoFollowups=()=>{leadFilter='nofollow';page('leads')};
+function openDue(){let r=DB.followups.filter(x=>x.status!=='Done'&&dk(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));modal('Follow-ups Due',tab(['Customer','Action','Time','Status',''],r.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.action_type)}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.status)}</td><td><button class="btn secondary" onclick="editFollowup('${x.id}')">Edit</button></td></tr>`)))}
+function openTodayAppointments(){let r=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&dk(x.scheduled_at)===today());modal('Appointments Today',tab(['Customer','Time','Notes',''],r.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.notes||'')}</td><td><button class="btn secondary" onclick="editFollowup('${x.id}')">Edit</button></td></tr>`)))}
+$('#fusearch').oninput=followupBoard;
+function followupBoard(){let q=$('#fusearch').value.trim().toLowerCase(),a=[...DB.followups];if(q)a=a.filter(x=>{let c=cust(x.customer_id);return(c.name+' '+c.phone+' '+x.action_type+' '+(x.notes||'')).toLowerCase().includes(q)});a.sort((x,y)=>new Date(x.scheduled_at)-new Date(y.scheduled_at));let groups={overdue:a.filter(x=>x.status!=='Done'&&dk(x.scheduled_at)<today()),today:a.filter(x=>x.status!=='Done'&&dk(x.scheduled_at)===today()),upcoming:a.filter(x=>x.status!=='Done'&&dk(x.scheduled_at)>today()),completed:a.filter(x=>x.status==='Done').sort((x,y)=>new Date(y.scheduled_at)-new Date(x.scheduled_at))};$('#fustats').innerHTML=[['Overdue',groups.overdue.length],['Today',groups.today.length],['Upcoming',groups.upcoming.length],['Completed',groups.completed.length]].map(x=>`<div class="card"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');followupPanel('#fuoverdue','Overdue',groups.overdue);followupPanel('#futoday','Today',groups.today);followupPanel('#fuupcoming','Upcoming',groups.upcoming);followupPanel('#fucompleted','Completed',groups.completed)}
+function followupPanel(sel,title,a){let rows=a.map(x=>{let c=cust(x.customer_id);return `<tr><td><button class="btn secondary" onclick="customerFile('${c.id}')">${esc(c.name||'Unknown')}</button><div class="label">${esc(c.phone||'')}</div></td><td><b>${esc(x.action_type)}</b><div class="label">${fmt(x.scheduled_at)}</div><div class="mini">${esc(x.notes||'')}</div></td><td><select class="status-select" onchange="setFollowupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td><td><button class="btn secondary" onclick="editFollowup('${x.id}')">Edit</button></td></tr>`});$(sel).innerHTML=`<h2>${title}<span class="pill">${a.length}</span></h2>${tab(['Customer','Action','Status',''],rows)}`}
+window.setFollowupStatus=async(id,status)=>{let x=DB.followups.find(f=>f.id===id);if(!x)return;let {error}=await sb.from('followups').update({status}).eq('id',id);if(error){alert(error.message);render();return}if(x.lead_id)await sb.from('lead_history').insert({lead_id:x.lead_id,event_type:'Follow-up status changed',note:`${x.status} → ${status}`});await load();render()};
+$('#leadfilters').onclick=e=>{if(e.target.dataset.f){leadFilter=e.target.dataset.f;$$('#leadfilters button').forEach(b=>b.classList.toggle('active',b===e.target));leads()}};$('#leadsearch').oninput=leads;
+function leads(){let q=$('#leadsearch').value.toLowerCase(),a=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));if(q)a=a.filter(x=>(cust(x.customer_id).name+' '+cust(x.customer_id).phone+' '+x.vehicle+' '+x.stock_number+' '+x.source).toLowerCase().includes(q));if(leadFilter==='hot')a=a.filter(x=>x.priority==='Hot');if(leadFilter==='facebook')a=a.filter(x=>String(x.source).toLowerCase().includes('facebook'));if(leadFilter==='ups')a=a.filter(x=>String(x.source).toLowerCase().includes('up'));if(leadFilter==='overdue')a=a.filter(x=>DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'&&dk(f.scheduled_at)<today()));if(leadFilter==='nofollow')a=a.filter(x=>!DB.followups.some(f=>f.lead_id===x.id&&f.status!=='Done'));let st=['New','Contacted','Appointment','Showed','Negotiating'];$('#pipeline').innerHTML=st.map(s=>{let z=a.filter(x=>x.status===s);return `<div class="col"><b>${s} (${z.length})</b>${z.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')"><span class="pill">Lead #${x.lead_number}</span> ${x.priority==='Hot'?'<span class="pill hot">🔥 Hot</span>':''}<b style="display:block;margin-top:5px">${esc(cust(x.customer_id).name)}</b><div class="label">${esc(x.vehicle||'')} · ${esc(x.source||'')}</div></div>`).join('')}</div>`}).join('')}
+$('#custsearch').oninput=customers;function customers(){let q=$('#custsearch').value.toLowerCase(),a=DB.customers.filter(x=>!x.archived&&!['Sold','Lost','Delivered'].includes(x.status));if(q)a=a.filter(x=>(x.name+' '+x.phone+' '+x.email+' '+x.city).toLowerCase().includes(q));if(!a.length){$('#custtable').innerHTML='<div class="card label">No records.</div>';return}let rows=a.map(x=>`<tr><td><button class="btn secondary" onclick="customerFile('${x.id}')">${esc(x.name)}</button></td><td>${esc(x.phone||'')}</td><td>${esc(x.city||'')}</td><td>${esc(x.status||'Active')}</td><td>${x.phone?`<a class="btn secondary" href="tel:${esc(x.phone)}">Call</a> <a class="btn secondary" href="sms:${esc(x.phone)}">Text</a>`:''}</td></tr>`),cards=a.map(x=>`<article class="card customer-mobile-card"><div class="customer-mobile-head"><button class="customer-mobile-name" onclick="customerFile('${x.id}')">${esc(x.name)}</button><span class="tag">${esc(x.status||'Active')}</span></div><div class="customer-mobile-details"><div><span class="label">Phone</span><b>${esc(x.phone||'—')}</b></div><div><span class="label">City</span><b>${esc(x.city||'—')}</b></div></div>${x.phone?`<div class="customer-actions"><a class="btn secondary" href="tel:${esc(x.phone)}">Call</a><a class="btn secondary" href="sms:${esc(x.phone)}">Text</a></div>`:''}</article>`);$('#custtable').innerHTML=`<div class="customer-table-desktop">${tab(['Name','Phone','City','Status','Quick'],rows)}</div><div class="customer-mobile-list">${cards.join('')}</div>`}
+$('#leasesearch').oninput=leases;function leases(){
   let q=$('#leasesearch').value.toLowerCase(),a=[...DB.leases].sort((x,y)=>(x.lease_end_date||'').localeCompare(y.lease_end_date||''));
-  if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+x.vin+' '+x.stock_number).toLowerCase().includes(q));
-  $('#leasetable').innerHTML=tab(['Customer','Phone','Vehicle','Stock','Lease End','Days Left'],a.map(x=>{const left=leaseDaysLeft(x.lease_end_date),style=left.days!==null&&left.days<=90?'color:#fca5a5;font-weight:800':left.days!==null&&left.days<=180?'color:#fbbf24;font-weight:800':'';return `<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(cust(x.customer_id).phone||'')}</td><td>${esc(x.vehicle)}</td><td>${esc(x.stock_number||'')}</td><td>${esc(x.lease_end_date||'')}</td><td style="${style}">${esc(left.label)}</td></tr>`}))
+  if(q)a=a.filter(x=>{let c=cust(x.customer_id);return(`${c.name||''} ${c.phone||''} ${x.vehicle||''} ${x.vin||''} ${x.stock_number||''} ${x.transaction_number||''} ${x.sales_rep||''}`).toLowerCase().includes(q)});
+  if(!a.length){$('#leasetable').innerHTML='<div class="card label">No records.</div>';return}
+  let alertFor=x=>{if(!x.lease_end_date)return{days:null,html:''};let days=Math.ceil((new Date(`${x.lease_end_date}T12:00:00`)-new Date())/86400000);return{days,html:days>=0&&days<=180?`<span class="pill hot">${days} days</span>`:''}};
+  let rows=a.map(x=>{let c=cust(x.customer_id),alert=alertFor(x);return `<tr><td>${esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${esc(x.vehicle)}</td><td>${esc(x.stock_number||'')}</td><td>${esc(x.delivery_date||'')}</td><td>${x.term_months?`${esc(x.term_months)} months`:'—'}</td><td>${esc(x.lease_end_date||'')}</td><td>${alert.html}</td></tr>`});
+  let cards=a.map(x=>{let c=cust(x.customer_id),alert=alertFor(x),details=[['Phone',c.phone||'—',''],['Vehicle',x.vehicle||'—',''],['Stock #',x.stock_number||'—',''],['Lease start',x.delivery_date||'—',''],['Term',x.term_months?`${x.term_months} months`:'—',''],['Lease end',x.lease_end_date||'—',''],['VIN',x.vin||'—','wide'],['Transaction #',x.transaction_number||'—',''],['Payment mode',x.payment_mode||'—',''],['Sales rep',x.sales_rep||'—',''],['Notes',x.notes||'—','wide']];return `<article class="card lease-mobile-card"><div class="lease-mobile-head"><b>${esc(c.name||'Customer')}</b>${alert.html||'<span class="tag">Lease</span>'}</div><div class="lease-mobile-details">${details.map(d=>`<div class="${d[2]}"><span class="label">${d[0]}</span><b>${esc(d[1])}</b></div>`).join('')}</div>${c.phone?`<div class="lease-mobile-actions"><a class="btn secondary" href="tel:${esc(c.phone)}">Call</a><a class="btn secondary" href="sms:${esc(c.phone)}">Text</a></div>`:''}</article>`});
+  $('#leasetable').innerHTML=`<div class="lease-table-desktop">${tab(['Customer','Phone','Vehicle','Stock','Lease Start','Term','Lease End','Alert'],rows)}</div><div class="lease-mobile-list">${cards.join('')}</div>`;
 }
-$('#ordersearch').oninput=orders;
-function orders(){
-  let q=$('#ordersearch').value.toLowerCase(),a=[...DB.orders].sort((x,y)=>String(x.estimated_arrival||'9999').localeCompare(String(y.estimated_arrival||'9999')));
-  if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+(x.trim||'')+' '+(x.color||'')+' '+x.status).toLowerCase().includes(q));
-  $('#ordertable').innerHTML=tab(['Customer','Vehicle','Color','Ordered','Wait / ETA','Status',''],a.map(x=>`<tr>
-    <td>${esc(cust(x.customer_id).name)}<div class="label">${esc(cust(x.customer_id).phone||'')}</div></td>
-    <td><b>${esc(x.vehicle)}</b><div class="label">${esc(x.trim||'')}</div></td>
-    <td>${esc(x.color||'—')}</td>
-    <td>${dateFmt(x.order_date)}</td>
-    <td>${esc(x.expected_wait||'—')}${x.estimated_arrival?`<div class="label">ETA ${dateFmt(x.estimated_arrival)}</div>`:''}</td>
-    <td><span class="status-badge">${esc(x.status)}</span></td>
-    <td><button class="btn secondary" onclick="openOrder('${x.id}')">Edit</button></td>
-  </tr>`))
-}
-function deliveries(){
-  $('#deliverytable').innerHTML=tab(['Customer','Vehicle','Prep','Delivery','Status',''],DB.deliveries.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>${esc(x.prep_date||'')}</td><td>${fmt(x.delivery_at)}</td><td>${esc(x.status)}</td><td><button class="btn secondary" onclick="openCalendarDelivery('${x.id}')">Edit</button></td></tr>`))
-}
-function completed(){
-  let r=DB.leads.filter(x=>['Sold','Lost'].includes(x.status)).map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle||'')}</td><td>${x.status}</td><td>Lead #${x.lead_number}</td></tr>`)
-    .concat(DB.deliveries.filter(x=>x.status==='Delivered').map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>Delivered</td><td>${fmt(x.delivery_at)}</td></tr>`));
-  $('#completedtable').innerHTML=tab(['Customer','Vehicle','Outcome','Reference'],r)
-}
-
-function customerSearchField(currentId=''){
-  const current=cust(currentId);
-  return `<label class="full">Find Existing Customer
-    <div class="customer-suggest">
-      <input id="customerSearch" autocomplete="off" placeholder="Type name, phone or email..." value="${esc(current.name||'')}">
-      <input type="hidden" name="customer_id" id="customerId" value="${esc(currentId)}">
-      <div id="customerSuggest" class="suggest-list hide"></div>
-    </div>
-  </label>`
-}
-function wireCustomerSearch(form){
-  const inp=form.querySelector('#customerSearch'),hid=form.querySelector('#customerId'),box=form.querySelector('#customerSuggest');
-  if(!inp)return;
-  const draw=()=>{
-    const q=inp.value.trim().toLowerCase();
-    if(!q){box.classList.add('hide');box.innerHTML='';return}
-    const matches=DB.customers.filter(c=>(`${c.name} ${c.phone||''} ${c.email||''}`).toLowerCase().includes(q)).slice(0,8);
-    box.innerHTML=matches.map(c=>`<button type="button" data-id="${c.id}"><b>${esc(c.name)}</b><div class="label">${esc(c.phone||'')} ${esc(c.email||'')}</div></button>`).join('');
-    box.classList.toggle('hide',!matches.length);
-    box.querySelectorAll('button').forEach(b=>b.onclick=()=>{const c=cust(b.dataset.id);hid.value=c.id;inp.value=c.name;box.classList.add('hide')})
-  };
-  inp.oninput=()=>{hid.value='';draw()};inp.onfocus=draw
-}
-
-window.openLead=()=>{
-  modal('New Lead',`<form id="f" class="form">
-    ${customerSearchField()}
-    <label>New Customer Name<input name="name"></label><label>Phone<input name="phone"></label>
-    <label>Vehicle<input name="vehicle"></label>
-    <label>Source<select name="source"><option>Ups</option><option>Facebook Marketplace</option><option>Facebook Lead Ad</option><option>Phone</option><option>Website</option><option>Referral</option><option>Lease maturity</option></select></label>
-    <label>Priority<select name="priority"><option>Normal</option><option>Hot</option><option>Low</option></select></label>
-    <label>Stock #<input name="stock_number"></label><label class="full">Notes<textarea name="notes"></textarea></label>
-    <div class="full"><button class="btn">Create Lead</button></div>
-  </form>`);
-  wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{
-    e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),cid=o.customer_id;
-    if(!cid){if(!o.name)return alert('Select an existing customer or enter a new customer name');let {data,error}=await sb.from('customers').insert({owner_id:user.id,name:o.name,phone:o.phone||null,source:o.source}).select().single();if(error)return alert(error.message);cid=data.id}
-    let {data,error}=await sb.from('leads').insert({owner_id:user.id,customer_id:cid,vehicle:o.vehicle||null,source:o.source,priority:o.priority,stock_number:o.stock_number||null,notes:o.notes||null}).select().single();
-    if(error)return alert(error.message);
-    await sb.from('lead_history').insert({owner_id:user.id,lead_id:data.id,event_type:'Lead created',note:o.notes||null});
-    closeModal();await load();render();openLeadFile(data.id)
-  }
-}
-window.openCustomer=()=>{
-  modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
-}
-window.openFollowup=(lid='',cid='')=>{
-  modal('Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type"><option>Call</option><option>Text</option><option>Email</option><option>Appointment</option><option>General follow-up</option></select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" required></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
-  wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
-}
-window.openDelivery=(lid='',cid='',vehicle='')=>{
-  modal('Schedule Delivery',`<form id="f" class="form">${customerSearchField(cid)}<label>Vehicle<input name="vehicle" value="${esc(vehicle)}"></label><label>Stock #<input name="stock_number"></label><label>Prep Date<input type="date" name="prep_date"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at"></label><label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
-  wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('deliveries').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null});if(error)return alert(error.message);closeModal();await load();render()}
-}
-window.openOrder=(id='')=>{
-  const x=id?DB.orders.find(o=>o.id===id):null;
-  modal(x?'Edit New Vehicle Order':'New Vehicle Order',`<form id="f" class="form">
-    ${customerSearchField(x?.customer_id||'')}
-    <label>Vehicle<input name="vehicle" required value="${esc(x?.vehicle||'')}" placeholder="e.g. 2027 RAV4"></label>
-    <label>Trim<input name="trim" value="${esc(x?.trim||'')}" placeholder="e.g. XLE AWD"></label>
-    <label>Color<input name="color" value="${esc(x?.color||'')}" placeholder="e.g. Blueprint"></label>
-    <label>Order Date<input type="date" name="order_date" required value="${esc(x?.order_date||today())}"></label>
-    <label>Expected Wait<input name="expected_wait" value="${esc(x?.expected_wait||'')}" placeholder="e.g. 4–6 months"></label>
-    <label>Estimated Arrival<input type="date" name="estimated_arrival" value="${esc(x?.estimated_arrival||'')}"></label>
-    <label>Status<select name="status">${['Ordered','Allocated','In Transit','Arrived','Cancelled'].map(s=>`<option ${x?.status===s?'selected':''}>${s}</option>`).join('')}</select></label>
-    <label class="full">Notes<textarea name="notes">${esc(x?.notes||'')}</textarea></label>
-    <div class="full inline-actions"><button class="btn">${x?'Save Changes':'Create Order'}</button>${x?'<button type="button" id="deleteOrder" class="btn danger">Delete Order</button>':''}</div>
-  </form>`);
-  wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{
-    e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');
-    const payload={owner_id:user.id,customer_id:o.customer_id,lead_id:x?.lead_id||e.target.dataset.leadId||null,vehicle:o.vehicle,trim:o.trim||null,color:o.color||null,order_date:o.order_date,expected_wait:o.expected_wait||null,estimated_arrival:o.estimated_arrival||null,status:o.status,notes:o.notes||null,updated_at:new Date().toISOString()};
-    let error;if(x)({error}=await sb.from('orders').update(payload).eq('id',x.id));else({error}=await sb.from('orders').insert(payload));
-    if(error)return alert(error.message);closeModal();await load();render();page('orders')
-  };
-  if(x)$('#deleteOrder').onclick=async()=>{if(!confirm('Delete this order?'))return;let {error}=await sb.from('orders').delete().eq('id',x.id);if(error)return alert(error.message);closeModal();await load();render();page('orders')}
-}
-
-window.openCalendarFollowup=id=>{
-  const x=DB.followups.find(f=>f.id===id);if(!x)return;
-  const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
-  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label><label>Date / Time<input type="datetime-local" name="scheduled_at" value="${local.toISOString().slice(0,16)}" required></label><label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
-  wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
-  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
-}
-window.openCalendarDelivery=id=>{
-  const x=DB.deliveries.find(d=>d.id===id);if(!x)return;
-  let local='';if(x.delivery_at){const d=new Date(x.delivery_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());local=d.toISOString().slice(0,16)}
-  modal('Edit Delivery',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Vehicle<input name="vehicle" value="${esc(x.vehicle||'')}"></label><label>Stock #<input name="stock_number" value="${esc(x.stock_number||'')}"></label><label>Prep Date<input type="date" name="prep_date" value="${esc(x.prep_date||'')}"></label><label>Delivery Date / Time<input type="datetime-local" name="delivery_at" value="${local}"></label><label>Status<select name="status"><option ${x.status==='In Prep'?'selected':''}>In Prep</option><option ${x.status==='Ready'?'selected':''}>Ready</option><option ${x.status==='Delivered'?'selected':''}>Delivered</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
-  wireCustomerSearch($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('deliveries').update({customer_id:o.customer_id,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
-  $('#delEvt').onclick=async()=>{if(!confirm('Delete this delivery?'))return;let {error}=await sb.from('deliveries').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
-}
-
-window.openLeadFile=async id=>{
-  if(!id)return;let l=DB.leads.find(x=>x.id===id);if(!l)return;let c=cust(l.customer_id);
-  let h=DB.history.filter(x=>x.lead_id===id).sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
-  let f=DB.followups.filter(x=>x.lead_id===id&&x.status!=='Done');
-  modal(`Lead #${l.lead_number} — ${c.name}`,`<div class="card"><b style="font-size:18px">${esc(l.vehicle||'No vehicle')}</b><div class="label">${esc(c.phone||'')} · ${esc(l.source||'')}</div><div style="margin-top:9px"><select id="ls"><option>New</option><option>Contacted</option><option>Appointment</option><option>Showed</option><option>Negotiating</option><option>Sold</option><option>Lost</option></select> <select id="lp"><option>Normal</option><option>Hot</option><option>Low</option></select></div><div class="inline-actions" style="margin-top:9px">${c.phone?`<a class="btn secondary" href="tel:${c.phone}">Call</a><a class="btn secondary" href="sms:${c.phone}">Text</a>`:''}<button class="btn secondary" id="fu">Next Action</button><button class="btn secondary" id="ord">New Vehicle Order</button><button class="btn secondary" id="del">Schedule Delivery</button></div></div><div class="section"><h2>Upcoming</h2>${f.map(x=>`<div class="hist" onclick="openCalendarFollowup('${x.id}')" style="cursor:pointer"><b>${esc(x.action_type)}</b> · ${fmt(x.scheduled_at)}<div>${esc(x.notes||'')}</div></div>`).join('')||'<div class="label">None scheduled.</div>'}</div><div class="section"><h2>Add Note</h2><form id="nf"><textarea name="note" class="search" required></textarea><button class="btn" style="margin-top:7px">Add Note</button></form></div><div class="section"><h2>History</h2>${h.map(x=>`<div class="hist"><span class="label">${fmt(x.occurred_at)}</span><br><b>${esc(x.event_type)}</b><div>${esc(x.note||'')}</div></div>`).join('')||'<div class="label">No history.</div>'}</div>`);
-  $('#ls').value=l.status;$('#lp').value=l.priority;
-  $('#ls').onchange=async e=>{let old=l.status,st=e.target.value;await sb.from('leads').update({status:st}).eq('id',id);await sb.from('customers').update({status:st}).eq('id',l.customer_id);await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Status changed',note:`${old} → ${st}`});await load();render();openLeadFile(id)};
-  $('#lp').onchange=async e=>{await sb.from('leads').update({priority:e.target.value}).eq('id',id);await load();render();openLeadFile(id)};
-  $('#fu').onclick=()=>openFollowup(id,l.customer_id);$('#ord').onclick=()=>openOrderFromLead(id,l.customer_id,l.vehicle||'');$('#del').onclick=()=>openDelivery(id,l.customer_id,l.vehicle||'');
-  $('#nf').onsubmit=async e=>{e.preventDefault();let note=new FormData(e.target).get('note');await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Note',note});await load();render();openLeadFile(id)}
-}
-window.openOrderFromLead=(lid,cid,vehicle)=>{
-  openOrder();
-  setTimeout(()=>{let f=$('#f');if(!f)return;f.querySelector('#customerId').value=cid;f.querySelector('#customerSearch').value=cust(cid).name;f.querySelector('[name=vehicle]').value=vehicle;f.dataset.leadId=lid},0)
-}
-window.customerFile=id=>{
-  let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),le=DB.leads.filter(x=>x.customer_id===id),os=DB.orders.filter(x=>x.customer_id===id);
-  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${esc(x.lease_end_date||'')}</div>`).join('')}</div>`)
-}
+function deliveries(){$('#deliverytable').innerHTML=tab(['Customer','Vehicle','Prep','Delivery','Status',''],DB.deliveries.map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>${esc(x.prep_date||'')}</td><td>${fmt(x.delivery_at)}</td><td>${esc(x.status)}</td><td><button class="btn secondary" onclick="editDelivery('${x.id}')">Edit</button></td></tr>`))}
+function reports(){let sold=DB.leads.filter(x=>x.status==='Sold'),gross=sold.reduce((s,x)=>s+Number(x.gross_profit||0),0),avg=sold.length?gross/sold.length:0;$('#reportcards').innerHTML=[['Sold Deals',sold.length],['Total Gross',money(gross)],['Avg Gross',money(avg)],['Active Leads',DB.leads.filter(x=>!['Sold','Lost'].includes(x.status)).length]].map(x=>`<div class="card"><div class="metric money">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');let src={};DB.leads.forEach(x=>src[x.source||'Unknown']=(src[x.source||'Unknown']||0)+1);$('#sourcereport').innerHTML=tab(['Source','Leads'],Object.entries(src).sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<tr><td>${esc(s)}</td><td>${n}</td></tr>`));let mon={};sold.forEach(x=>{let k=(x.sold_at||x.updated_at||x.created_at||'').slice(0,7);if(k){mon[k]??={n:0,g:0};mon[k].n++;mon[k].g+=Number(x.gross_profit||0)}});$('#salesreport').innerHTML=tab(['Month','Deals','Gross'],Object.entries(mon).sort().reverse().map(([m,v])=>`<tr><td>${m}</td><td>${v.n}</td><td>${money(v.g)}</td></tr>`))}
+function exportRows(kind){let decorate=(x,type)=>{let r={record_type:type,...x},c=x.customer_id?cust(x.customer_id):null;if(c?.id){r.customer_name=c.name||'';r.customer_phone=c.phone||'';r.customer_email=c.email||''}return r};if(kind==='all')return Object.entries(DB).flatMap(([type,rows])=>rows.map(x=>decorate(x,type)));return (DB[kind]||[]).map(x=>decorate(x,kind))}
+function csvValue(v){let s=v==null?'':typeof v==='object'?JSON.stringify(v):String(v);if(/^[=+\-@]/.test(s))s="'"+s;return `"${s.replace(/"/g,'""')}"`}
+window.exportBackup=kind=>{let rows=exportRows(kind);if(!rows.length){alert('No records to export.');return}let headers=[...new Set(rows.flatMap(x=>Object.keys(x)))],csv='\uFEFF'+headers.map(csvValue).join(',')+'\r\n'+rows.map(x=>headers.map(h=>csvValue(x[h])).join(',')).join('\r\n'),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a'),stamp=today();a.href=url;a.download=`car_sales_crm_${kind}_backup_${stamp}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);let m=$('#exportmsg');if(m)m.textContent=`Downloaded ${rows.length} ${kind==='all'?'CRM records':kind} on ${stamp}.`};
+$('#templatesearch').oninput=templates;function templates(){let q=$('#templatesearch').value.trim().toLowerCase(),all=[...DB.templates].sort((a,b)=>a.title.localeCompare(b.title)),a=q?all.filter(x=>(x.title+' '+x.channel+' '+x.body).toLowerCase().includes(q)):all;$('#templatecount').textContent=`${a.length}${q?' of '+all.length:''} saved template${a.length===1?'':'s'}`;$('#templatetable').innerHTML=a.length?`<div class="template-grid">${a.map(x=>`<div class="card template-card"><div class="top"><b class="template-title">${esc(x.title)}</b><span class="tag">${esc(x.channel)}</span></div><div class="template-message">${esc(x.body)}</div><div class="toolbar"><button class="btn" onclick="copyTemplate('${x.id}')">Copy Message</button><button class="btn secondary" onclick="editTemplate('${x.id}')">Edit</button></div></div>`).join('')}</div>`:'<div class="card label">No matching templates.</div>'}
+function templateNotice(message){let el=$('#templatemsg');el.textContent=message;clearTimeout(templateNotice.timer);templateNotice.timer=setTimeout(()=>{if(el.textContent===message)el.textContent=''},2500)}
+window.copyTemplate=async id=>{let x=DB.templates.find(t=>t.id===id);if(!x)return;try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(x.body);else{let area=document.createElement('textarea');area.value=x.body;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();if(!document.execCommand('copy'))throw new Error('Copy failed');area.remove()}templateNotice('Message copied — replace the placeholders before sending.')}catch(_){templateNotice('Could not copy automatically. Tap Edit to select the message text.')}}
+function completed(){let r=DB.leads.filter(x=>['Sold','Lost'].includes(x.status)).map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle||'')}</td><td>${x.status}</td><td>${x.status==='Sold'?money(x.gross_profit):esc(x.lost_reason||'')}</td><td><button class="btn secondary" onclick="openLeadFile('${x.id}')">Open</button></td></tr>`).concat(DB.deliveries.filter(x=>x.status==='Delivered').map(x=>`<tr><td>${esc(cust(x.customer_id).name)}</td><td>${esc(x.vehicle)}</td><td>Delivered</td><td>${fmt(x.delivery_at)}</td><td><button class="btn secondary" onclick="editDelivery('${x.id}')">Open</button></td></tr>`));$('#completedtable').innerHTML=tab(['Customer','Vehicle','Outcome','Gross / Reason',''],r)}
+function picker(value=''){return `<div class="customer-picker full"><label>Search Existing Customer<input id="customerSearch" autocomplete="off" placeholder="Type name, phone or email..."></label><input type="hidden" name="customer_id" value="${esc(value)}"><div id="pickerResults" class="picker-results hide"></div><div id="pickedCustomer" class="notice ${value?'':'hide'}"></div></div>`}
+function wirePicker(cid=''){let input=$('#customerSearch'),hidden=$('#f [name=customer_id]'),results=$('#pickerResults'),picked=$('#pickedCustomer');function choose(c){hidden.value=c.id;input.value='';picked.classList.remove('hide');picked.innerHTML=`Selected: <b>${esc(c.name)}</b> · ${esc(c.phone||'')}`;results.classList.add('hide')}if(cid){let c=cust(cid);if(c.id)choose(c)}input.oninput=()=>{let q=input.value.trim().toLowerCase();if(!q){results.classList.add('hide');return}let a=DB.customers.filter(c=>(c.name+' '+c.phone+' '+c.email).toLowerCase().includes(q)).slice(0,12);results.innerHTML=a.map(c=>`<button type="button" class="picker-item" data-id="${c.id}"><b>${esc(c.name)}</b><br><span class="label">${esc(c.phone||'')} ${esc(c.email||'')}</span></button>`).join('')||'<div class="picker-item label">No match — enter a new customer below.</div>';results.classList.remove('hide');$$('#pickerResults [data-id]').forEach(b=>b.onclick=()=>choose(cust(b.dataset.id)))} }
+async function duplicateCheck(o){let p=(o.phone||'').replace(/\D/g,''),e=(o.email||'').trim().toLowerCase(),n=(o.name||'').trim().toLowerCase();return DB.customers.find(c=>(p&&String(c.phone||'').replace(/\D/g,'')===p)||(e&&String(c.email||'').toLowerCase()===e)||(n&&String(c.name||'').trim().toLowerCase()===n))}
+window.openLead=()=>{modal('New Lead',`<form id="f" class="form">${picker()}<label>New Customer Name<input name="name"></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>Vehicle<input name="vehicle"></label><label>Source<select name="source"><option>Ups</option><option>Facebook Marketplace</option><option>Facebook Lead Ad</option><option>Phone</option><option>Website</option><option>Referral</option><option>Lease maturity</option></select></label><label>Priority<select name="priority"><option>Normal</option><option>Hot</option><option>Low</option></select></label><label>Stock #<input name="stock_number"></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Create Lead</button></div></form>`);wirePicker();$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),cid=o.customer_id;if(!cid){if(!o.name)return alert('Search for an existing customer or enter a new customer name.');let dup=await duplicateCheck(o);if(dup&&!confirm(`Possible duplicate: ${dup.name} ${dup.phone||''}. Use this existing customer?`)){}else if(dup)cid=dup.id;if(!cid){let {data,error}=await sb.from('customers').insert({name:o.name,phone:o.phone||null,email:o.email||null,source:o.source}).select().single();if(error)return alert(error.message);cid=data.id}}let {data,error}=await sb.from('leads').insert({customer_id:cid,vehicle:o.vehicle||null,source:o.source,priority:o.priority,stock_number:o.stock_number||null,notes:o.notes||null}).select().single();if(error)return alert(error.message);await sb.from('lead_history').insert({lead_id:data.id,event_type:'Lead created',note:o.notes||null});closeModal();await load();render();openLeadFile(data.id)}}
+window.openCustomer=()=>{modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),dup=await duplicateCheck(o);if(dup)return alert(`Possible duplicate already exists: ${dup.name} ${dup.phone||''}`);let {error}=await sb.from('customers').insert(o);if(error)return alert(error.message);closeModal();await load();render()}}
+window.openFollowup=(lid='',cid='')=>followupForm(null,lid,cid);window.editFollowup=id=>followupForm(DB.followups.find(x=>x.id===id));function followupForm(x,lid='',cid=''){x=x||{};modal(x.id?'Edit Calendar Item':'Next Action',`<form id="f" class="form">${picker(x.customer_id||cid)}<label>Action<select name="action_type"><option>Call</option><option>Text</option><option>Email</option><option>Appointment</option><option>General follow-up</option></select></label>${dateTimeField('scheduled_at',x.scheduled_at,'Date / Time')}<label>Status<select name="status"><option>Open</option><option>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full toolbar"><button class="btn">${x.id?'Save Changes':'Schedule'}</button>${x.id?'<button type="button" id="deleteEvent" class="btn dangerbtn">Delete</button>':''}</div></form>`);wirePicker(x.customer_id||cid);$('#f [name=action_type]').value=x.action_type||'Call';$('#f [name=status]').value=x.status||'Open';$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!o.scheduled_at)return alert('Choose a date and time');let payload={customer_id:o.customer_id,lead_id:x.lead_id||lid||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null};let q=x.id?sb.from('followups').update(payload).eq('id',x.id):sb.from('followups').insert(payload);let {error}=await q;if(error)return alert(error.message);if(payload.lead_id)await sb.from('lead_history').insert({lead_id:payload.lead_id,event_type:x.id?'Calendar item edited':o.action_type,note:o.notes||null});closeModal();await load();render()};if(x.id)$('#deleteEvent').onclick=async()=>{if(confirm('Delete this calendar item?')){await sb.from('followups').delete().eq('id',x.id);closeModal();await load();render()}}}
+window.openDelivery=(lid='',cid='',vehicle='')=>deliveryForm(null,lid,cid,vehicle);window.editDelivery=id=>deliveryForm(DB.deliveries.find(x=>x.id===id));function deliveryForm(x,lid='',cid='',vehicle=''){x=x||{};modal(x.id?'Edit Delivery':'Schedule Delivery',`<form id="f" class="form">${picker(x.customer_id||cid)}<label>Vehicle<input name="vehicle" value="${esc(x.vehicle||vehicle)}"></label><label>Stock #<input name="stock_number" value="${esc(x.stock_number||'')}"></label><label>Prep Date<input type="date" name="prep_date" value="${esc(x.prep_date||'')}"></label>${dateTimeField('delivery_at',x.delivery_at,'Delivery Date / Time')}<label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full"><button class="btn">Save</button></div></form>`);wirePicker(x.customer_id||cid);$('#f [name=status]').value=x.status||'In Prep';$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),payload={customer_id:o.customer_id,lead_id:x.lead_id||lid||null,vehicle:o.vehicle,stock_number:o.stock_number||null,prep_date:o.prep_date||null,delivery_at:o.delivery_at?new Date(o.delivery_at).toISOString():null,status:o.status,notes:o.notes||null};let {error}=x.id?await sb.from('deliveries').update(payload).eq('id',x.id):await sb.from('deliveries').insert(payload);if(error)return alert(error.message);closeModal();await load();render()}}
+window.openLeadFile=async id=>{let l=DB.leads.find(x=>x.id===id);if(!l)return;let c=cust(l.customer_id),h=DB.history.filter(x=>x.lead_id===id).sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at)),f=DB.followups.filter(x=>x.lead_id===id&&x.status!=='Done');modal(`Lead #${l.lead_number} — ${c.name}`,`<div class="card"><div class="top"><div><b style="font-size:18px">${esc(l.vehicle||'No vehicle')}</b><div class="label">${esc(c.phone||'')} · ${esc(l.source||'')}</div></div><button class="btn secondary" id="editLead">Edit Lead</button></div><div class="kpirow" style="margin-top:10px"><span class="tag">${esc(l.status)}</span><span class="tag">${esc(l.priority)}</span><span class="tag">Stock ${esc(l.stock_number||'—')}</span>${l.gross_profit!=null?`<span class="tag">Gross ${money(l.gross_profit)}</span>`:''}</div><div class="toolbar" style="margin-top:10px">${c.phone?`<a class="btn secondary" href="tel:${c.phone}">Call</a><a class="btn secondary" href="sms:${c.phone}">Text</a>`:''}<button class="btn secondary" id="fu">Next Action</button><button class="btn secondary" id="del">Schedule Delivery</button></div></div><div class="section"><h2>Upcoming</h2>${f.map(x=>`<div class="hist"><b>${esc(x.action_type)}</b> · ${fmt(x.scheduled_at)} <button class="btn secondary" onclick="editFollowup('${x.id}')">Edit</button><div>${esc(x.notes||'')}</div></div>`).join('')||'<div class="label">None scheduled.</div>'}</div><div class="section"><h2>Add Note</h2><form id="nf"><textarea name="note" class="search" required></textarea><button class="btn" style="margin-top:7px">Add Note</button></form></div><div class="section"><h2>History</h2>${h.map(x=>`<div class="hist"><span class="label">${fmt(x.occurred_at)}</span><br><b>${esc(x.event_type)}</b><div>${esc(x.note||'')}</div></div>`).join('')||'<div class="label">No history.</div>'}</div>`);$('#editLead').onclick=()=>editLead(id);$('#fu').onclick=()=>openFollowup(id,l.customer_id);$('#del').onclick=()=>openDelivery(id,l.customer_id,l.vehicle||'');$('#nf').onsubmit=async e=>{e.preventDefault();let note=new FormData(e.target).get('note');await sb.from('lead_history').insert({lead_id:id,event_type:'Note',note});await load();render();openLeadFile(id)}}
+window.editLead=id=>{let l=DB.leads.find(x=>x.id===id),c=cust(l.customer_id);modal(`Edit Lead #${l.lead_number}`,`<form id="f" class="form">${picker(l.customer_id)}<label>Vehicle<input name="vehicle" value="${esc(l.vehicle||'')}"></label><label>Stock #<input name="stock_number" value="${esc(l.stock_number||'')}"></label><label>Source<select name="source"><option>Ups</option><option>Facebook Marketplace</option><option>Facebook Lead Ad</option><option>Phone</option><option>Website</option><option>Referral</option><option>Lease maturity</option></select></label><label>Status<select name="status"><option>New</option><option>Contacted</option><option>Appointment</option><option>Showed</option><option>Negotiating</option><option>Sold</option><option>Lost</option></select></label><label>Priority<select name="priority"><option>Normal</option><option>Hot</option><option>Low</option></select></label><label>Sale Price<input type="number" step="0.01" name="sale_price" value="${l.sale_price??''}"></label><label>Gross Profit<input type="number" step="0.01" name="gross_profit" value="${l.gross_profit??''}"></label><label>Lost Reason<input name="lost_reason" value="${esc(l.lost_reason||'')}"></label><label class="full">Notes<textarea name="notes">${esc(l.notes||'')}</textarea></label><div class="full"><button class="btn">Save Changes</button></div></form>`);wirePicker(l.customer_id);$('#f [name=source]').value=l.source||'Ups';$('#f [name=status]').value=l.status;$('#f [name=priority]').value=l.priority;$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target)),old=l.status,p={customer_id:o.customer_id,vehicle:o.vehicle||null,stock_number:o.stock_number||null,source:o.source,status:o.status,priority:o.priority,sale_price:o.sale_price||null,gross_profit:o.gross_profit||null,lost_reason:o.lost_reason||null,notes:o.notes||null};if(o.status==='Sold'&&!l.sold_at)p.sold_at=new Date().toISOString();let {error}=await sb.from('leads').update(p).eq('id',id);if(error)return alert(error.message);if(old!==o.status)await sb.from('lead_history').insert({lead_id:id,event_type:'Status changed',note:`${old} → ${o.status}`});closeModal();await load();render();openLeadFile(id)}}
+window.customerFile=id=>{let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),le=DB.leads.filter(x=>x.customer_id===id),fu=DB.followups.filter(x=>x.customer_id===id);modal(c.name,`<div class="card"><div class="toolbar">${c.phone?`<a class="btn secondary" href="tel:${c.phone}">Call</a><a class="btn secondary" href="sms:${c.phone}">Text</a>`:''}<button class="btn secondary" onclick="openFollowup('', '${c.id}')">Follow-up</button></div><div class="section"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div></div></div><div class="section"><h2>Timeline</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')}${fu.map(x=>`<div class="hist">${esc(x.action_type)} · ${fmt(x.scheduled_at)} · ${esc(x.status)}</div>`).join('')}${ls.map(x=>`<div class="hist">Lease: ${esc(x.vehicle)} · Ends ${esc(x.lease_end_date||'')}</div>`).join('')||'<div class="label">No history.</div>'}</div>`)}
+window.openTemplate=()=>templateForm();window.editTemplate=id=>templateForm(DB.templates.find(x=>x.id===id));function templateForm(x={}){modal(x.id?'Edit Template':'New Template',`<form id="f" class="form"><label>Title<input name="title" value="${esc(x.title||'')}" required></label><label>Channel<select name="channel"><option>Text</option><option>Email</option><option>Messenger</option></select></label><label class="full">Message<textarea name="body" rows="7" required>${esc(x.body||'')}</textarea></label><div class="full"><button class="btn">Save</button></div></form>`);$('#f [name=channel]').value=x.channel||'Text';$('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=x.id?await sb.from('message_templates').update(o).eq('id',x.id):await sb.from('message_templates').insert(o);if(error)return alert(error.message);closeModal();await load();render()}}
 init();
 </script></body></html>
