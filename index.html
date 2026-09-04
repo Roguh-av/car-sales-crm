@@ -114,6 +114,8 @@ select,input,textarea{color:var(--text);background:#0b1322}
 .status-badge{padding:4px 8px;border-radius:999px;background:#1e293b;font-size:11px}
 .status-badge.sold{background:#1e3a8a;color:#dbeafe}.status-badge.in-prep{background:#78350f;color:#fef3c7}.status-badge.ready{background:#164e63;color:#cffafe}.status-badge.delivered{background:#14532d;color:#dcfce7}.status-badge.lost{background:#7f1d1d;color:#fee2e2}
 .deal-table tbody tr{transition:background .15s ease}.deal-table tbody tr:hover{background:#172235}.deal-customer b,.deal-vehicle b{display:block}.deal-customer .label,.deal-vehicle .label{margin-top:3px}.deal-empty{padding:18px}
+.deal-stage-editor{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.deal-stage-editor select{min-width:108px;padding:8px;border:1px solid var(--line);border-radius:8px}.deal-stage-editor .btn{padding:8px 10px}.deal-stage-editor .btn:disabled{opacity:.5;cursor:not-allowed}
+.crm-toast{position:fixed;right:20px;bottom:20px;z-index:100;max-width:min(360px,calc(100vw - 30px));padding:12px 15px;border:1px solid #24633c;border-radius:11px;background:#123322;color:#dcfce7;box-shadow:0 14px 40px #0009;font-size:13px;font-weight:750;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}.crm-toast.show{opacity:1;transform:translateY(0)}
 .contract-tabs{display:flex;gap:7px;margin:14px 0}.contract-tabs button{border:1px solid var(--line);background:var(--card);color:#cbd5e1;padding:9px 12px;border-radius:9px;font-weight:750}.contract-tabs button.active{background:var(--accent);color:white;border-color:var(--accent)}
 .finance-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.finance-summary .card{display:flex;align-items:baseline;gap:9px}.finance-summary .metric{font-size:23px}.finance-tools{display:grid;grid-template-columns:minmax(250px,1fr) 190px 200px;gap:9px;margin:10px 0}.finance-tools select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px}.contract-table td b,.contract-table td span{display:block}.contract-table td .label{margin-top:3px}.contract-table .btn{padding:7px 10px}.maturity{font-weight:800;white-space:nowrap}.maturity.soon{color:#fbbf24}.maturity.urgent{color:#fca5a5}.maturity.later{color:#86efac}.maturity.completed{color:var(--muted)}
 .finance-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}.finance-pagination{display:flex;gap:7px}.finance-pagination .btn:disabled{opacity:.45;cursor:not-allowed}.finance-empty{padding:18px}.contract-count{display:inline-block;margin-top:5px;padding:3px 7px;border-radius:999px;background:#1e293b;color:#bfdbfe;font-size:11px}
@@ -135,7 +137,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
  .month-title{min-height:43px}.month-weekdays div{font-size:10px;padding:7px 1px}.month-day{min-height:52px;padding:4px;text-align:center}.month-date{width:27px;height:27px;padding:0}
  .month-event{display:inline-block;width:7px;height:7px;min-height:0;margin:3px 1px 0;padding:0;border-radius:50%;font-size:0;vertical-align:top}.month-event .month-event-open,.month-event .calendar-check{display:none}.month-more{display:none}.mobile-agenda{display:block}
  .top h1{font-size:23px}.top .btn{padding:10px 12px}
- .deal-table,.deal-table tbody,.deal-table tr,.deal-table td{display:block;width:100%}.deal-table thead{display:none}.deal-table{background:transparent}.deal-table tbody{display:grid;gap:10px}.deal-table tr{padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.deal-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0}.deal-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.deal-table td:last-child{display:block;padding-top:10px}.deal-table td:last-child:before{display:none}.deal-table td:last-child .btn{width:100%;text-align:center}
+ .deal-table,.deal-table tbody,.deal-table tr,.deal-table td{display:block;width:100%}.deal-table thead{display:none}.deal-table{background:transparent}.deal-table tbody{display:grid;gap:10px}.deal-table tr{padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.deal-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0}.deal-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.deal-table td.deal-stage-cell{display:block;margin-top:4px;padding-top:11px;border-top:1px solid var(--line)}.deal-table td.deal-stage-cell:before{display:block;margin-bottom:7px}.deal-stage-editor{display:grid;grid-template-columns:minmax(0,1fr) auto;width:100%}.deal-stage-editor select{width:100%;min-width:0}.deal-table td:last-child{display:block;padding-top:10px}.deal-table td:last-child:before{display:none}.deal-table td:last-child .btn{width:100%;text-align:center}.crm-toast{left:15px;right:15px;bottom:15px;max-width:none;text-align:center}
  .finance-summary{grid-template-columns:1fr 1fr}.finance-summary .card:last-child{display:none}.finance-tools{grid-template-columns:1fr 1fr}.finance-tools .search{grid-column:1/-1}.contract-table,.contract-table tbody,.contract-table tr,.contract-table td{display:block;width:100%}.contract-table thead{display:none}.contract-table{background:transparent}.contract-table tbody{display:grid;gap:10px}.contract-table tr{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.contract-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0;overflow-wrap:anywhere}.contract-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.contract-table td:last-child .btn{width:100%;text-align:center}.finance-footer{align-items:stretch;flex-direction:column}.finance-pagination{display:grid;grid-template-columns:1fr 1fr}.contract-tabs{display:grid;grid-template-columns:1fr 1fr}.contract-tabs button{min-width:0;padding:10px 5px}
 }
 
@@ -261,6 +263,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 </main></div>
 
 <div id="modal" class="modal"><div class="box"><div class="head"><h2 id="mtitle"></h2><button class="close" onclick="closeModal()">×</button></div><div id="mbody"></div></div></div>
+<div id="crmToast" class="crm-toast" role="status" aria-live="polite"></div>
 
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -303,7 +306,7 @@ async function enter(){
   }
   isAdmin=!!access.is_admin;$('#approvalsNav').classList.toggle('hide',!isAdmin);
   const identity=(user.email||'Sales').split('@')[0];$('#userEmail').textContent=identity;$('#userBadge').textContent=(identity[0]||'S').toUpperCase();
-  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');page('dashboard')
+  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');page(rememberedPage())
 }
 async function init(){
   let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();
@@ -313,13 +316,27 @@ sb.auth.onAuthStateChange((_,session)=>{user=session?.user||null;if(user)setTime
 $('#signin').onclick=async()=>{const btn=$('#signin');btn.disabled=true;$('#authmsg').textContent='Signing in...';let {data,error}=await sb.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});if(error){$('#authmsg').textContent=error.message;btn.disabled=false;return}user=data?.user||data?.session?.user||user;setTimeout(()=>{enter().catch(err=>{$('#authmsg').textContent='Sign-in error: '+(err?.message||err);btn.disabled=false})},0)};
 $('#signup').onclick=async()=>{let {data,error}=await sb.auth.signUp({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||(data.session?'Account created. Waiting for administrator approval.':'Check your email to confirm. After confirmation, your account will wait for administrator approval.')};
 
-function page(id){$$('.page').forEach(x=>x.classList.add('hide'));$('#'+id).classList.remove('hide');$$('.nav button[data-p]').forEach(x=>x.classList.toggle('active',x.dataset.p===id));render()}
+function pageStorageKey(){return `crm:last-page:${user?.id||'guest'}`}
+function rememberedPage(){
+  try{
+    const id=localStorage.getItem(pageStorageKey());
+    return id&&$('#'+id)?.classList.contains('page')&&(id!=='approvals'||isAdmin)?id:'dashboard'
+  }catch{return'dashboard'}
+}
+function page(id){
+  const target=$('#'+id),safeId=target?.classList.contains('page')&&(id!=='approvals'||isAdmin)?id:'dashboard';
+  $$('.page').forEach(x=>x.classList.add('hide'));$('#'+safeId).classList.remove('hide');$$('.nav button[data-p]').forEach(x=>x.classList.toggle('active',x.dataset.p===safeId));
+  try{localStorage.setItem(pageStorageKey(),safeId)}catch{}
+  render()
+}
 $$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));
 $('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.add('hide');$('#auth').classList.remove('hide')};
 
 function tab(h,r){return r.length?`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.join('')}</tbody></table>`:'<div class="card label">No records.</div>'}
 function modal(t,b){$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
 window.closeModal=()=>$('#modal').classList.remove('show');
+let toastTimer=null;
+function showToast(message){const toast=$('#crmToast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
 
 let calendarPickerSeq=0;
 const pad2=n=>String(n).padStart(2,'0');
@@ -666,10 +683,11 @@ function completed(){
     const customer=cust(x.customerId),stageClass=String(x.stage).toLowerCase().replace(/\s+/g,'-');
     const reference=x.leadNumber?`Lead #${x.leadNumber}`:'Delivery record';
     const action=x.leadId?`openLeadFile('${x.leadId}')`:`openCalendarDelivery('${x.deliveryId}')`;
+    const stage=x.stage==='Ready'&&x.deliveryId?`<div class="deal-stage-editor"><select aria-label="Deal status for ${esc(customer.name||'customer')}" onchange="this.nextElementSibling.disabled=this.value==='Ready'"><option selected>Ready</option><option>Delivered</option></select><button class="btn" disabled onclick="updateDealStatus('${x.deliveryId}',this.previousElementSibling.value,this)">Save status</button></div>`:`<span class="status-badge ${stageClass}">${esc(x.stage)}</span>`;
     return `<tr>
       <td data-label="Customer" class="deal-customer"><b>${esc(customer.name||'Customer')}</b><div class="label">${esc(customer.phone||'')}</div></td>
       <td data-label="Vehicle" class="deal-vehicle"><b>${esc(x.vehicle||'Vehicle not entered')}</b>${x.stock?`<div class="label">Stock #${esc(x.stock)}</div>`:''}</td>
-      <td data-label="Current stage"><span class="status-badge ${stageClass}">${esc(x.stage)}</span></td>
+      <td data-label="Current stage" class="deal-stage-cell">${stage}</td>
       <td data-label="Sold / Lost">${fmt(x.closedAt)}</td>
       <td data-label="Delivery">${fmt(x.deliveryAt)}</td>
       <td data-label="Reference">${esc(reference)}</td>
@@ -678,6 +696,13 @@ function completed(){
   });
   $('#completedtable').innerHTML=`<table class="deal-table"><thead><tr>${['Customer','Vehicle','Current stage','Sold / Lost','Delivery','Reference',''].map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`
 }
+window.updateDealStatus=async(id,status,button)=>{
+  if(status!=='Delivered')return;
+  const original=button.textContent;button.disabled=true;button.textContent='Saving…';
+  const {data,error}=await sb.from('deliveries').update({status:'Delivered'}).eq('id',id).eq('status','Ready').select('id,status').maybeSingle();
+  if(error||!data){button.disabled=false;button.textContent=original;return alert(error?.message||'The delivery could not be updated. Please try again.')}
+  await load();render();showToast('Deal marked as Delivered')
+};
 $('#dealSearch').oninput=completed;
 $('#dealFilters').onclick=e=>{if(!e.target.dataset.f)return;dealFilter=e.target.dataset.f;completed()};
 
