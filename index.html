@@ -124,6 +124,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 /* FINANCE_OUTREACH_WORKFLOW_V1 */
 .finance-queue-tabs{display:flex;gap:7px;overflow:auto;margin:12px 0 4px;padding-bottom:3px}.finance-queue-tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:#cbd5e1;padding:9px 12px;border-radius:999px;font-weight:750}.finance-queue-tabs button.active{background:var(--accent);border-color:var(--accent);color:#fff}.finance-queue-tabs .queue-count{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:5px;padding:0 6px;border-radius:999px;background:#02081766;font-size:11px}
 .finance-stage{display:inline-block;padding:4px 8px;border-radius:999px;background:#1e293b;color:#dbeafe;font-size:11px;font-weight:800;white-space:nowrap}.finance-stage.interested{background:#064e3b;color:#a7f3d0}.finance-stage.appointment-set{background:#134e4a;color:#99f6e4}.finance-stage.follow-up-scheduled{background:#312e81;color:#c4b5fd}.finance-stage.no-answer{background:#78350f;color:#fde68a}.finance-stage.keeping-vehicle{background:#334155;color:#cbd5e1}.finance-stage.not-contacted{background:#1e3a8a;color:#bfdbfe}
+.finance-stage.buying-out-lease{background:#3f3f46;color:#e4e4e7}.finance-stage.returning-vehicle{background:#713f12;color:#fef3c7}.finance-stage.not-interested{background:#3f1d2b;color:#fecdd3}
 .finance-next.due{color:#fca5a5;font-weight:800}.finance-next.upcoming{color:#c4b5fd;font-weight:800}.finance-row-note{display:block;max-width:240px;margin-top:4px;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.finance-safety-note{margin:8px 0;color:var(--muted);font-size:11px}
 .outreach-box{width:min(980px,100%)}.outreach-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:16px}.outreach-customer{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.outreach-customer h3{margin:0 0 4px;font-size:19px}.outreach-outcomes{display:grid;grid-template-columns:1fr 1fr;gap:8px}.outcome-btn{border:1px solid var(--line);border-radius:10px;background:#0b1322;color:#dbeafe;padding:11px;text-align:left;font-weight:800}.outcome-btn span{display:block;margin-top:3px;color:var(--muted);font-size:11px;font-weight:500}.outcome-btn.active{border-color:#60a5fa;background:#102442;box-shadow:inset 0 0 0 1px #3b82f6}.outcome-btn[data-outcome="Keeping vehicle"].active{border-color:#94a3b8;background:#263244;box-shadow:inset 0 0 0 1px #64748b}.outreach-note{width:100%;min-height:110px;margin-top:5px;padding:10px;border:1px solid var(--line);border-radius:9px}.outreach-history{max-height:520px;overflow:auto}.outreach-history-item{padding:11px 0;border-bottom:1px solid var(--line)}.outreach-history-item:last-child{border-bottom:0}.outreach-history-head{display:flex;justify-content:space-between;gap:8px}.outreach-history-item p{margin:6px 0 0;color:#cbd5e1;font-size:12px;white-space:pre-wrap}.outreach-history-next{margin-top:5px;color:#a78bfa;font-size:11px}.outreach-help{margin:10px 0 0;padding:10px;border-radius:9px;background:#0b1322;color:var(--muted);font-size:11px;line-height:1.45}
 .customer-suggest{position:relative}
@@ -236,9 +237,26 @@ select,input,textarea{color:var(--text);background:#0b1322}
 
 <section id="leases" class="page hide">
   <div class="top"><div><h1>Lease &amp; Finance Customers</h1><div class="label">Manage lease maturities and finance follow-up opportunities.</div></div><button id="addFinance" class="btn hide" onclick="openFinanceContract()">+ Finance Contract</button></div>
-  <div id="contractTabs" class="contract-tabs"><button class="active" data-contract-view="lease">Lease Customers</button><button data-contract-view="finance">Finance Opportunities <span id="financeTabCount"></span></button></div>
+  <div id="contractTabs" class="contract-tabs"><button class="active" data-contract-view="lease">Lease Opportunities <span id="leaseTabCount"></span></button><button data-contract-view="finance">Finance Opportunities <span id="financeTabCount"></span></button></div>
   <div id="leasePanel">
-    <input id="leasesearch" class="search" placeholder="Search customer, vehicle, VIN, stock..."><div id="leasetable" class="section"></div>
+    <!-- LEASE_OUTREACH_WORKFLOW_V1 -->
+    <div id="leaseQueueTabs" class="finance-queue-tabs" aria-label="Lease opportunity queues">
+      <button class="active" data-lease-queue="active">Active Call List <span class="queue-count" data-lease-queue-count="active">0</span></button>
+      <button data-lease-queue="interested">Interested <span class="queue-count" data-lease-queue-count="interested">0</span></button>
+      <button data-lease-queue="appointments">Appointments <span class="queue-count" data-lease-queue-count="appointments">0</span></button>
+      <button data-lease-queue="decision">Buyout / Return <span class="queue-count" data-lease-queue-count="decision">0</span></button>
+      <button data-lease-queue="closed">Closed History <span class="queue-count" data-lease-queue-count="closed">0</span></button>
+    </div>
+    <div id="leaseSummary" class="finance-summary"></div>
+    <div class="finance-tools">
+      <input id="leasesearch" class="search" placeholder="Search customer, phone, vehicle, VIN or stock...">
+      <select id="leaseCallFilter" aria-label="Lease calls"><option value="all">All calls</option><option value="due">Calls due now</option><option value="today">Due today</option><option value="upcoming">Upcoming calls</option><option value="uncontacted">Never contacted</option></select>
+      <select id="leaseMaturityFilter" aria-label="Lease maturity"><option value="all">All maturities</option><option value="expired">Expired</option><option value="soon">Ending ≤6 months</option><option value="year">7–12 months</option><option value="later">13+ months</option></select>
+      <select id="leaseSort" aria-label="Sort lease contracts"><option value="maturity">Lease end: soonest</option><option value="customer">Customer: A–Z</option><option value="contact">Next call: soonest</option></select>
+    </div>
+    <div class="finance-safety-note">A call result never deletes a lease customer. Buyout, return and closed opportunities stay available with their full history.</div>
+    <div id="leasetable" class="section"></div>
+    <div class="finance-footer"><div id="leasePageLabel" class="label"></div><div class="finance-pagination"><button id="leasePrev" class="btn secondary">← Previous</button><button id="leaseNext" class="btn secondary">Next →</button></div></div>
   </div>
   <div id="financePanel" class="hide">
     <div id="financeQueueTabs" class="finance-queue-tabs" aria-label="Finance opportunity queues">
@@ -286,7 +304,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
 const GOOGLE_REVIEW_URL='https://search.google.com/local/writereview?placeid=ChIJrUZBpnI4yUwR56f_GEoH90s';
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],finance:[],outreach:[],orders:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all',contractView='lease',financeQueue='active',financeCallFilter='all',financeFilter='all',financeSort='maturity',financePage=1;
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],leaseOutreach:[],finance:[],outreach:[],orders:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all',contractView='lease',leaseQueue='active',leaseCallFilter='all',leaseMaturityFilter='all',leaseSort='maturity',leasePage=1,financeQueue='active',financeCallFilter='all',financeFilter='all',financeSort='maturity',financePage=1;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -308,7 +326,7 @@ function financeMaturity(endDate){
 }
 
 async function load(){
-  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',finance:'finance_contracts',outreach:'finance_outreach_history',orders:'orders'})){
+  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',leaseOutreach:'lease_outreach_history',finance:'finance_contracts',outreach:'finance_outreach_history',orders:'orders'})){
     let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=data||[]
   }
   if(isAdmin){let {data,error}=await sb.from('crm_account_access').select('user_id,email,status,is_admin,created_at,reviewed_at').order('created_at',{ascending:true});if(error)throw error;DB.access=data||[]}else DB.access=[]
@@ -487,6 +505,7 @@ window.toggleCalendarCompletion=async(event,kind,id,checked)=>{
   if(kind==='followup'){
     const item=DB.followups.find(x=>x.id===id);
     if(item?.finance_contract_id){const {error:financeError}=await sb.from('finance_contracts').update({next_contact_at:checked?null:item.scheduled_at,updated_at:new Date().toISOString()}).eq('id',item.finance_contract_id);if(financeError)return alert(financeError.message)}
+    if(item?.lease_contract_id){const {error:leaseError}=await sb.from('leases').update({next_contact_at:checked?null:item.scheduled_at}).eq('id',item.lease_contract_id);if(leaseError)return alert(leaseError.message)}
   }
   await load();render()
 };
@@ -567,7 +586,7 @@ function openTodayAppointmentsList(){
   const rows=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
   modal('Appointments Today',rows.length?tab(['Customer','Phone','Time','Notes','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.notes||'')}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No appointments scheduled for today.</div>')
 }
-window.followupStatus=async(id,status)=>{const {error}=await sb.from('followups').update({status}).eq('id',id);if(error)return alert(error.message);await load();render()};
+window.followupStatus=async(id,status)=>{const item=DB.followups.find(x=>x.id===id);let {error}=await sb.from('followups').update({status}).eq('id',id);if(error)return alert(error.message);if(item?.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:status==='Done'?null:item.scheduled_at,updated_at:new Date().toISOString()}).eq('id',item.finance_contract_id));if(error)return alert(error.message)}if(item?.lease_contract_id){({error}=await sb.from('leases').update({next_contact_at:status==='Done'?null:item.scheduled_at}).eq('id',item.lease_contract_id));if(error)return alert(error.message)}await load();render()};
 
 function actions(){
   let a=[];
@@ -596,22 +615,72 @@ function customers(){
   if(q)a=a.filter(x=>(x.name+' '+x.phone+' '+x.city).toLowerCase().includes(q));
   $('#custtable').innerHTML=tab(['Name','Phone','City','Language'],a.map(x=>`<tr><td><button class="btn secondary" onclick="customerFile('${x.id}')">${esc(x.name)}</button></td><td>${esc(x.phone||'')}</td><td>${esc(x.city||'')}</td><td>${esc(x.language||'English')}</td></tr>`))
 }
-$('#leasesearch').oninput=leases;
+function leaseMaturityBucket(contract){
+  const left=leaseDaysLeft(contract.lease_end_date);if(left.days===null)return'later';if(left.days<0)return'expired';if(left.days<=183)return'soon';if(left.days<=365)return'year';return'later'
+}
+function leaseOpenAppointment(contract){
+  return DB.followups.filter(item=>item.customer_id===contract.customer_id&&item.status!=='Done'&&String(item.action_type||'').toLowerCase()==='appointment'&&(item.lease_contract_id===contract.id||(!item.lease_contract_id&&!item.finance_contract_id))).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0]||null
+}
+function leaseQueueFor(contract){
+  if(contract.opportunity_status==='Not interested'||contract.closed_at)return'closed';
+  if(leaseOpenAppointment(contract))return'appointments';
+  if(contract.opportunity_status==='Interested')return'interested';
+  if(['Buying out lease','Returning vehicle'].includes(contract.opportunity_status))return'decision';
+  return'active'
+}
+function leaseStage(contract){return leaseQueueFor(contract)==='appointments'?'Appointment set':contract.opportunity_status||'Not contacted'}
+function leaseIsDue(contract){
+  if(leaseQueueFor(contract)!=='active')return false;
+  if(!contract.last_contact_at)return true;
+  return !!contract.next_contact_at&&new Date(contract.next_contact_at)<=new Date()
+}
+function leaseNextAction(contract){
+  const appointment=leaseOpenAppointment(contract);
+  if(appointment)return {label:`Appointment · ${fmt(appointment.scheduled_at)}`,tone:new Date(appointment.scheduled_at)<=new Date()?'due':'upcoming'};
+  if(contract.next_contact_at)return {label:`Call · ${fmt(contract.next_contact_at)}`,tone:new Date(contract.next_contact_at)<=new Date()?'due':'upcoming'};
+  if(leaseQueueFor(contract)==='closed')return {label:`Closed · ${fmt(contract.closed_at||contract.last_contact_at)}`,tone:''};
+  if(contract.opportunity_status==='Interested')return {label:'Schedule an appointment',tone:'upcoming'};
+  if(['Buying out lease','Returning vehicle'].includes(contract.opportunity_status))return {label:'Confirm decision / next step',tone:'upcoming'};
+  return {label:'Call now',tone:'due'}
+}
 function leases(){
-  let q=$('#leasesearch').value.toLowerCase(),a=[...DB.leases].sort((x,y)=>(x.lease_end_date||'').localeCompare(y.lease_end_date||''));
-  if(q)a=a.filter(x=>((cust(x.customer_id).name||'')+' '+x.vehicle+' '+x.vin+' '+x.stock_number).toLowerCase().includes(q));
-  $('#leasetable').innerHTML=a.length?`<table class="contract-table"><thead><tr><th>Customer</th><th>Phone</th><th>Vehicle</th><th>Stock</th><th>Lease End</th><th>Days Left</th></tr></thead><tbody>${a.map(x=>{const c=cust(x.customer_id),left=leaseDaysLeft(x.lease_end_date),style=left.days!==null&&left.days<=90?'urgent':left.days!==null&&left.days<=180?'soon':'';return `<tr><td data-label="Customer"><button class="btn secondary" onclick="customerFile('${x.customer_id}')">${esc(c.name)}</button></td><td data-label="Phone">${esc(c.phone||'—')}</td><td data-label="Vehicle">${esc(x.vehicle)}</td><td data-label="Stock">${esc(x.stock_number||'—')}</td><td data-label="Lease End">${dateFmt(x.lease_end_date)}</td><td data-label="Days Left"><span class="maturity ${style}">${esc(left.label)}</span></td></tr>`}).join('')}</tbody></table>`:'<div class="card label">No lease customers found.</div>';
+  $('#leaseTabCount').textContent=`(${DB.leases.length})`;
+  const all=[...DB.leases],queueCounts={active:0,interested:0,appointments:0,decision:0,closed:0};all.forEach(x=>queueCounts[leaseQueueFor(x)]++);
+  $$('#leaseQueueTabs [data-lease-queue-count]').forEach(item=>item.textContent=queueCounts[item.dataset.leaseQueueCount]||0);
+  $$('#leaseQueueTabs button').forEach(button=>button.classList.toggle('active',button.dataset.leaseQueue===leaseQueue));
+  const activeOpportunities=all.length-queueCounts.closed,due=all.filter(leaseIsDue).length,endingSoon=all.filter(x=>{const d=leaseDaysLeft(x.lease_end_date).days;return d!==null&&d>=0&&d<=365}).length;
+  $('#leaseSummary').innerHTML=`<div class="card"><div class="metric">${activeOpportunities}</div><div class="label">Active opportunities</div></div><div class="card"><div class="metric">${due}</div><div class="label">Calls due now</div></div><div class="card"><div class="metric">${endingSoon}</div><div class="label">Ending within 12 months</div></div>`;
+  const q=$('#leasesearch').value.trim().toLowerCase();let a=all.filter(x=>leaseQueueFor(x)===leaseQueue);
+  if(q)a=a.filter(x=>{const c=cust(x.customer_id);return `${c.name||''} ${c.phone||''} ${c.email||''} ${x.vehicle||''} ${x.vin||''} ${x.stock_number||''} ${x.lease_end_date||''}`.toLowerCase().includes(q)});
+  if(leaseCallFilter==='due')a=a.filter(leaseIsDue);
+  else if(leaseCallFilter==='today')a=a.filter(x=>x.next_contact_at&&localDate(x.next_contact_at)===today());
+  else if(leaseCallFilter==='upcoming')a=a.filter(x=>x.next_contact_at&&new Date(x.next_contact_at)>new Date());
+  else if(leaseCallFilter==='uncontacted')a=a.filter(x=>!x.last_contact_at);
+  if(leaseMaturityFilter!=='all')a=a.filter(x=>leaseMaturityBucket(x)===leaseMaturityFilter);
+  if(leaseSort==='customer')a.sort((x,y)=>String(cust(x.customer_id).name||'').localeCompare(String(cust(y.customer_id).name||''))||String(x.lease_end_date||'9999').localeCompare(String(y.lease_end_date||'9999')));
+  else if(leaseSort==='contact')a.sort((x,y)=>String(x.next_contact_at||'9999').localeCompare(String(y.next_contact_at||'9999'))||String(x.lease_end_date||'9999').localeCompare(String(y.lease_end_date||'9999')));
+  else a.sort((x,y)=>{const xRank=leaseIsDue(x)?0:!x.last_contact_at?1:x.next_contact_at?2:3,yRank=leaseIsDue(y)?0:!y.last_contact_at?1:y.next_contact_at?2:3;if(xRank!==yRank)return xRank-yRank;if(x.next_contact_at||y.next_contact_at){const next=String(x.next_contact_at||'9999').localeCompare(String(y.next_contact_at||'9999'));if(next)return next}return String(x.lease_end_date||'9999').localeCompare(String(y.lease_end_date||'9999'))});
+  const pageSize=25,totalPages=Math.max(1,Math.ceil(a.length/pageSize));leasePage=Math.min(Math.max(1,leasePage),totalPages);const start=(leasePage-1)*pageSize,shown=a.slice(start,start+pageSize);
+  $('#leasetable').innerHTML=shown.length?`<table class="contract-table"><thead><tr><th>Customer</th><th>Vehicle</th><th>Lease Ends</th><th>Last Contact</th><th>Next Action</th><th>Stage</th><th></th></tr></thead><tbody>${shown.map(x=>{const c=cust(x.customer_id),left=leaseDaysLeft(x.lease_end_date),style=left.days!==null&&left.days<=90?'urgent':left.days!==null&&left.days<=183?'soon':left.days!==null&&left.days>365?'later':'',next=leaseNextAction(x),stage=leaseStage(x);return `<tr><td data-label="Customer"><button class="btn secondary" onclick="customerFile('${x.customer_id}')">${esc(c.name||'Customer')}</button><span class="label">${esc(c.phone||'No phone')}${c.email?` · ${esc(c.email)}`:''}</span></td><td data-label="Vehicle"><b>${esc(x.vehicle||'—')}</b><span class="label">Stock ${esc(x.stock_number||'—')}${x.vin?` · VIN ${esc(x.vin)}`:''}</span></td><td data-label="Lease Ends"><span class="maturity ${style}">${dateFmt(x.lease_end_date)}</span><span class="label">${esc(left.label)}</span></td><td data-label="Last Contact">${x.last_contact_at?fmt(x.last_contact_at):'Never'}${x.last_contact_notes?`<span class="finance-row-note" title="${esc(x.last_contact_notes)}">${esc(x.last_contact_notes)}</span>`:''}</td><td data-label="Next Action"><span class="finance-next ${next.tone}">${esc(next.label)}</span></td><td data-label="Stage"><span class="finance-stage ${financeStageClass(stage)}">${esc(stage)}</span></td><td data-label=""><button class="btn ${leaseQueueFor(x)==='closed'?'secondary':''}" onclick="openLeaseOutreach('${x.id}')">${leaseQueueFor(x)==='closed'?'View history':'Call & update'}</button></td></tr>`}).join('')}</tbody></table>`:'<div class="card label finance-empty">No matching customers in this queue.</div>';
+  const queueNames={active:'active calls',interested:'interested customers',appointments:'appointments',decision:'buyout / return decisions',closed:'closed opportunities'};$('#leasePageLabel').textContent=a.length?`Showing ${start+1}–${Math.min(start+pageSize,a.length)} of ${a.length} ${queueNames[leaseQueue]}`:`0 ${queueNames[leaseQueue]}`;$('#leasePrev').disabled=leasePage<=1;$('#leaseNext').disabled=leasePage>=totalPages;
   financeCustomers()
 }
+$('#leaseQueueTabs').onclick=e=>{const button=e.target.closest('[data-lease-queue]');if(!button)return;leaseQueue=button.dataset.leaseQueue;leaseCallFilter='all';$('#leaseCallFilter').value='all';leasePage=1;leases()};
+$('#leasesearch').oninput=()=>{leasePage=1;leases()};
+$('#leaseCallFilter').onchange=e=>{leaseCallFilter=e.target.value;leasePage=1;leases()};
+$('#leaseMaturityFilter').onchange=e=>{leaseMaturityFilter=e.target.value;leasePage=1;leases()};
+$('#leaseSort').onchange=e=>{leaseSort=e.target.value;leasePage=1;leases()};
+$('#leasePrev').onclick=()=>{if(leasePage>1){leasePage--;leases()}};
+$('#leaseNext').onclick=()=>{leasePage++;leases()};
 function showContractView(view){
   contractView=view;
   $$('#contractTabs button').forEach(button=>button.classList.toggle('active',button.dataset.contractView===view));
   $('#leasePanel').classList.toggle('hide',view!=='lease');$('#financePanel').classList.toggle('hide',view!=='finance');$('#addFinance').classList.toggle('hide',view!=='finance');
-  if(view==='finance')financeCustomers()
+  if(view==='finance')financeCustomers();else leases()
 }
 $('#contractTabs').onclick=e=>{const button=e.target.closest('[data-contract-view]');if(button)showContractView(button.dataset.contractView)};
 function financeOpenAppointment(contract){
-  return DB.followups.filter(item=>item.customer_id===contract.customer_id&&item.status!=='Done'&&String(item.action_type||'').toLowerCase()==='appointment').sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0]||null
+  return DB.followups.filter(item=>item.customer_id===contract.customer_id&&item.status!=='Done'&&String(item.action_type||'').toLowerCase()==='appointment'&&(item.finance_contract_id===contract.id||(!item.finance_contract_id&&!item.lease_contract_id))).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0]||null
 }
 function financeQueueFor(contract){
   if(contract.opportunity_status==='Keeping vehicle'||contract.closed_at)return'closed';
@@ -816,11 +885,11 @@ window.openCustomer=()=>{
   modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label>Language<select name="language"><option>English</option><option>French</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
 }
-window.openFollowup=(lid='',cid='',defaultAction='Call',financeContractId='')=>{
+window.openFollowup=(lid='',cid='',defaultAction='Call',financeContractId='',leaseContractId='')=>{
   modal(defaultAction==='Appointment'?'New Appointment':'Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(action=>`<option ${action===defaultAction?'selected':''}>${action}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at','',true)}<label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
   wireCustomerSearch($('#f'));
   wireDateTimePickers($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,finance_contract_id:financeContractId||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,finance_contract_id:financeContractId||null,lease_contract_id:leaseContractId||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
 }
 window.openDelivery=(lid='',cid='',vehicle='')=>{
   modal('Schedule Delivery',`<form id="f" class="form">${customerSearchField(cid)}<label>Vehicle<input name="vehicle" value="${esc(vehicle)}"></label><label>Stock #<input name="stock_number"></label><label>Prep Date<input type="date" name="prep_date"></label>${calendarDateTimeField('Delivery Date / Time','delivery_at')}<label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
@@ -871,6 +940,29 @@ window.openFinanceOutreach=id=>{
     financeQueue=values.outcome==='Keeping vehicle'?'closed':values.outcome==='Interested'?'interested':'active';financeCallFilter='all';closeModal();await load();render();page('leases');showContractView('finance');showToast(values.outcome==='Keeping vehicle'?'Opportunity closed. Customer and history were kept.':'Call result saved.')
   }
 }
+window.openLeaseAppointment=id=>{
+  const contract=DB.leases.find(item=>item.id===id);if(!contract)return;
+  openFollowup('',contract.customer_id,'Appointment','',contract.id)
+}
+window.openLeaseOutreach=id=>{
+  const contract=DB.leases.find(item=>item.id===id);if(!contract)return;
+  const customer=cust(contract.customer_id),left=leaseDaysLeft(contract.lease_end_date),stage=leaseStage(contract);
+  const history=DB.leaseOutreach.filter(item=>item.lease_contract_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  let nextValue='';if(contract.next_contact_at){const d=new Date(contract.next_contact_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());nextValue=d.toISOString().slice(0,16)}
+  const historyHtml=history.length?history.map(item=>`<div class="outreach-history-item"><div class="outreach-history-head"><span class="finance-stage ${financeStageClass(item.outcome)}">${esc(item.outcome)}</span><span class="label">${fmt(item.created_at)}</span></div>${item.notes?`<p>${esc(item.notes)}</p>`:'<p class="label">No notes recorded.</p>'}${item.next_contact_at?`<div class="outreach-history-next">Next call: ${fmt(item.next_contact_at)}</div>`:''}</div>`).join(''):'<div class="label">No calls logged yet.</div>';
+  modal('Update Lease Opportunity',`<div class="outreach-layout"><div><div class="card outreach-customer"><div><h3>${esc(customer.name||'Customer')}</h3><div class="label">${esc(contract.vehicle||'Vehicle')} · Lease ends ${dateFmt(contract.lease_end_date)} · ${esc(left.label)} · <span class="finance-stage ${financeStageClass(stage)}">${esc(stage)}</span></div><div class="label" style="margin-top:5px">${esc(customer.phone||'No phone number')}${customer.email?` · ${esc(customer.email)}`:''}</div></div><div class="inline-actions">${customer.phone?`<a class="btn" href="tel:${esc(customer.phone)}">Call customer</a>`:''}<button type="button" class="btn secondary" onclick="customerFile('${contract.customer_id}')">Customer file</button></div></div><form id="leaseOutreachForm" class="section"><input type="hidden" name="outcome"><h2>What happened on the call?</h2><div class="outreach-outcomes"><button type="button" class="outcome-btn" data-outcome="Interested in upgrading">Interested in upgrading<span>Move this customer into your interested queue.</span></button><button type="button" class="outcome-btn" data-outcome="Follow up later">Follow up later<span>Choose the next call and add it to your calendar.</span></button><button type="button" class="outcome-btn" data-outcome="Buying out lease">Buying out lease<span>Move the customer to your buyout / return queue.</span></button><button type="button" class="outcome-btn" data-outcome="Returning vehicle">Returning vehicle<span>Keep the decision visible for the next step.</span></button><button type="button" class="outcome-btn" data-outcome="No answer">No answer<span>Log the attempt and schedule another call.</span></button><button type="button" class="outcome-btn" data-outcome="Not interested">Not interested<span>Close the opportunity but keep the customer and history.</span></button></div><div id="leaseNextCall" class="hide section">${calendarDateTimeField('Next call date / time','next_contact_at',nextValue,true)}</div><label class="section" style="display:block;color:var(--muted);font-size:12px;font-weight:700">Call notes<textarea class="outreach-note" name="notes" placeholder="What did they say? What matters for the next conversation?"></textarea></label><div class="inline-actions section"><button class="btn" id="saveLeaseOutcome">Save call result</button>${leaseQueueFor(contract)!=='closed'?`<button type="button" class="btn secondary" onclick="openLeaseAppointment('${contract.id}')">Schedule appointment</button>`:''}</div><div class="outreach-help">Use <b>Not interested</b> only when this sales opportunity is finished. The customer, lease and full call history are always kept. Saving a new outcome later reopens the opportunity.</div></form></div><aside class="card outreach-history"><h2>Call history</h2>${historyHtml}</aside></div>`);
+  $('#modal').classList.add('finance-outreach-modal');$('#modal .box').classList.add('outreach-box');
+  const form=$('#leaseOutreachForm'),nextWrap=$('#leaseNextCall');wireDateTimePickers(form);
+  form.querySelectorAll('[data-outcome]').forEach(button=>button.onclick=()=>{form.elements.outcome.value=button.dataset.outcome;form.querySelectorAll('[data-outcome]').forEach(item=>item.classList.toggle('active',item===button));nextWrap.classList.toggle('hide',!['Follow up later','No answer'].includes(button.dataset.outcome))});
+  form.onsubmit=async e=>{
+    e.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=['Follow up later','No answer'].includes(values.outcome);
+    if(!values.outcome)return alert('Choose what happened on the call.');if(needsNext&&!requireDateTime(values.next_contact_at))return;
+    const button=$('#saveLeaseOutcome');button.disabled=true;button.textContent='Saving...';
+    const {error}=await sb.rpc('save_lease_outreach',{p_lease_contract_id:contract.id,p_outcome:values.outcome,p_notes:values.notes||null,p_next_contact_at:needsNext?new Date(values.next_contact_at).toISOString():null});
+    if(error){button.disabled=false;button.textContent='Save call result';return alert(error.message)}
+    leaseQueue=values.outcome==='Not interested'?'closed':values.outcome==='Interested in upgrading'?'interested':['Buying out lease','Returning vehicle'].includes(values.outcome)?'decision':'active';leaseCallFilter='all';closeModal();await load();render();page('leases');showContractView('lease');showToast(values.outcome==='Not interested'?'Opportunity closed. Customer, lease and history were kept.':'Call result saved.')
+  }
+}
 window.openOrder=(id='')=>{
   const x=id?DB.orders.find(o=>o.id===id):null;
   modal(x?'Edit New Vehicle Order':'New Vehicle Order',`<form id="f" class="form">
@@ -910,15 +1002,16 @@ window.openPostDeliveryThankYou=id=>{
 window.openCalendarFollowupGeneric=id=>{
   const x=DB.followups.find(f=>f.id===id);if(!x)return;
   const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
-  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up','Finance follow-up','Post-delivery thank you'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up','Finance follow-up','Lease follow-up','Post-delivery thank you'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
   wireDateTimePickers($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;const scheduledAt=new Date(o.scheduled_at).toISOString();let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:scheduledAt,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);if(x.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:o.status==='Done'?null:scheduledAt,updated_at:new Date().toISOString()}).eq('id',x.finance_contract_id));if(error)return alert(error.message)}closeModal();await load();render()};
-  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);if(x.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:null,updated_at:new Date().toISOString()}).eq('id',x.finance_contract_id));if(error)return alert(error.message)}closeModal();await load();render()}
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;const scheduledAt=new Date(o.scheduled_at).toISOString();let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:scheduledAt,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);if(x.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:o.status==='Done'?null:scheduledAt,updated_at:new Date().toISOString()}).eq('id',x.finance_contract_id));if(error)return alert(error.message)}if(x.lease_contract_id){({error}=await sb.from('leases').update({next_contact_at:o.status==='Done'?null:scheduledAt}).eq('id',x.lease_contract_id));if(error)return alert(error.message)}closeModal();await load();render()};
+  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);if(x.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:null,updated_at:new Date().toISOString()}).eq('id',x.finance_contract_id));if(error)return alert(error.message)}if(x.lease_contract_id){({error}=await sb.from('leases').update({next_contact_at:null}).eq('id',x.lease_contract_id));if(error)return alert(error.message)}closeModal();await load();render()}
 }
 window.openCalendarFollowup=id=>{
   const x=DB.followups.find(f=>f.id===id);if(!x)return;
   if(x.action_type==='Post-delivery thank you')return openPostDeliveryThankYou(id);
+  if(x.finance_contract_id||x.lease_contract_id)return openCalendarFollowupGeneric(id);
   const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
   modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
