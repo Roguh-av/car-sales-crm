@@ -12,3 +12,8 @@ Your existing records remain assigned to your account.
 
 Cloudflare deployment enabled
 Deployment retry 2
+
+Top 10 Calls Today:
+- Ranks live lead, lease and finance opportunities on the dashboard.
+- Records each call result and next action in Supabase.
+- Keeps the existing metrics, action list and Day / Week / Month calendar below it.

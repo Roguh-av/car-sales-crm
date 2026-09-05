@@ -42,6 +42,7 @@ h1{margin:0;font-size:25px}h2{font-size:17px;margin:0 0 10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px}
 .metric{font-size:27px;font-weight:850}
 .card.clickable{cursor:pointer}.card.clickable:hover{border-color:#3b82f6}
+.priority-wrap{margin-top:17px}.priority-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}.priority-head h2{margin-bottom:3px}.priority-progress{display:flex;align-items:center;gap:14px;margin-bottom:9px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.priority-progress-copy{min-width:210px}.priority-progress-copy b,.priority-progress-copy span{display:block}.priority-progress-copy b{font-size:13px}.priority-progress-copy span{margin-top:2px;color:var(--muted);font-size:10px}.priority-progress-track{flex:1;height:7px;overflow:hidden;border-radius:99px;background:#263247}.priority-progress-fill{height:100%;width:0;background:#4ade80;transition:width .2s ease}.priority-call-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.priority-card{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.priority-card.completed{opacity:.58}.priority-card.completed .priority-name{text-decoration:line-through}.priority-rank{display:grid;place-items:center;width:29px;height:29px;border-radius:8px;background:#1e293b;color:#bfdbfe;font-size:12px;font-weight:850}.priority-main{min-width:0}.priority-name-line{display:flex;align-items:center;gap:7px;min-width:0}.priority-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.priority-badge{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}.priority-badge.urgent{background:#4c1724;color:#fecdd3}.priority-badge.high{background:#442f10;color:#fde68a}.priority-badge.medium{background:#1e3a5f;color:#bfdbfe}.priority-opportunity{margin-top:3px;color:#93c5fd;font-size:10px;font-weight:800;text-transform:uppercase}.priority-reason{margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:750}.priority-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px;color:var(--muted);font-size:10px}.priority-actions{display:flex;align-items:center;gap:6px}.priority-actions .btn{padding:8px 10px;font-size:11px}.priority-done{display:none;color:#4ade80;font-size:19px;font-weight:900}.priority-card.completed .priority-done{display:block}.priority-card.completed .priority-actions .priority-call-button{display:none}.priority-load{display:flex;justify-content:center;margin-top:10px}.priority-empty{padding:18px;color:var(--muted);text-align:center}.dashboard-calendar-block{margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}.dashboard-calendar-title{margin-bottom:4px}.priority-modal-summary{margin-bottom:12px}.priority-outcomes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.priority-outcome{border:1px solid var(--line);border-radius:9px;background:#0b1322;color:#dbeafe;padding:9px;text-align:left;font-size:11px;font-weight:750}.priority-outcome.active{border-color:#60a5fa;background:#102442;box-shadow:inset 0 0 0 1px #3b82f6}.priority-next-note{margin:5px 0 0;color:#fbbf24;font-size:11px}
 .section{margin-top:18px}
 .search{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:#0b1322;color:var(--text)}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
@@ -148,6 +149,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
  .deal-table,.deal-table tbody,.deal-table tr,.deal-table td{display:block;width:100%}.deal-table thead{display:none}.deal-table{background:transparent}.deal-table tbody{display:grid;gap:10px}.deal-table tr{padding:9px 11px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.deal-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0}.deal-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.deal-table td.deal-stage-cell{display:block;margin-top:4px;padding-top:11px;border-top:1px solid var(--line)}.deal-table td.deal-stage-cell:before{display:block;margin-bottom:7px}.deal-stage-editor{display:grid;grid-template-columns:minmax(0,1fr) auto;width:100%}.deal-stage-editor select{width:100%;min-width:0}.deal-table td:last-child{display:block;padding-top:10px}.deal-table td:last-child:before{display:none}.deal-table td:last-child .btn{width:100%;text-align:center}.crm-toast{left:15px;right:15px;bottom:15px;max-width:none;text-align:center}
  .finance-summary{grid-template-columns:1fr 1fr}.finance-summary .card:last-child{display:none}.finance-tools{grid-template-columns:1fr 1fr}.finance-tools .search{grid-column:1/-1}.contract-table,.contract-table tbody,.contract-table tr,.contract-table td{display:block;width:100%}.contract-table thead{display:none}.contract-table{background:transparent}.contract-table tbody{display:grid;gap:10px}.contract-table tr{padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card)}.contract-table td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:7px 0;border:0;overflow-wrap:anywhere}.contract-table td:before{content:attr(data-label);color:var(--muted);font-size:11px;font-weight:800}.contract-table td:last-child .btn{width:100%;text-align:center}.finance-footer{align-items:stretch;flex-direction:column}.finance-pagination{display:grid;grid-template-columns:1fr 1fr}.contract-tabs{display:grid;grid-template-columns:1fr 1fr}.contract-tabs button{min-width:0;padding:10px 5px}
  .outreach-layout{grid-template-columns:1fr}.outreach-history{max-height:none}.outreach-outcomes{grid-template-columns:1fr}.modal.finance-outreach-modal{align-items:flex-end;padding:0}.modal.finance-outreach-modal .outreach-box{width:100%;max-height:94vh;border-radius:18px 18px 0 0;border-bottom:0;padding:18px 15px calc(18px + env(safe-area-inset-bottom))}.outreach-customer{display:block}.outreach-customer .inline-actions{margin-top:10px}.finance-row-note{max-width:none}
+ .priority-wrap{margin-top:13px}.priority-head{align-items:flex-start}.priority-progress{padding:8px 10px}.priority-progress-copy{min-width:155px}.priority-progress-copy b{font-size:12px}.priority-call-grid{grid-template-columns:1fr;gap:6px}.priority-card{grid-template-columns:auto minmax(0,1fr);gap:8px;padding:9px 10px}.priority-rank{width:26px;height:26px}.priority-name{font-size:13px}.priority-reason{font-size:11px}.priority-meta{gap:7px;font-size:9px}.priority-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.priority-actions .btn{min-height:36px;padding:7px 8px}.priority-done{position:absolute;right:12px;top:12px}.priority-card.completed .priority-actions{display:none}.priority-outcomes{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-calendar-block{margin-top:18px}.modal.priority-call-modal{align-items:flex-end;padding:0}.modal.priority-call-modal .box{width:100%;max-height:94vh;border-radius:18px 18px 0 0;border-bottom:0;padding:16px 13px calc(16px + env(safe-area-inset-bottom))}
 }
 
 /* Collapsible sidebar */
@@ -197,7 +199,17 @@ select,input,textarea{color:var(--text);background:#0b1322}
 <header class="appbar"><div class="appbar-brand">Car Sales CRM</div><div class="appbar-user"><span>🔔</span><span id="userBadge" class="user-avatar">J</span><span id="userEmail">Sales</span></div></header>
 
 <section id="dashboard" class="page">
-  <div class="top"><div><h1>Sales Calendar</h1><div class="label">Your daily working screen</div></div><div class="inline-actions"><button class="btn secondary" onclick="openFollowup('','','Appointment')">+ Appointment</button><button class="btn" onclick="openLead()">+ New Lead</button></div></div>
+  <div class="top"><div><h1>Sales Dashboard</h1><div class="label">Your daily working screen</div></div><div class="inline-actions"><button class="btn secondary" onclick="openFollowup('','','Appointment')">+ Appointment</button><button class="btn" onclick="openLead()">+ New Lead</button></div></div>
+  <section class="priority-wrap" aria-labelledby="priorityCallsTitle">
+    <div class="priority-head"><div><h2 id="priorityCallsTitle">TOP 10 CALLS TODAY</h2><div class="label">The customers most worth calling right now, ranked from your real CRM activity.</div></div><button id="resetPriorityDisplay" class="btn secondary" type="button">Show Top 10</button></div>
+    <div class="priority-progress"><div class="priority-progress-copy"><b id="priorityProgressText">0 / 10 Priority Calls Completed</b><span id="priorityProgressMessage">Start with the highest-ranked opportunity.</span></div><div class="priority-progress-track" role="progressbar" aria-label="Today's priority call progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div id="priorityProgressFill" class="priority-progress-fill"></div></div></div>
+    <div id="priorityCallGrid" class="priority-call-grid"></div>
+    <div class="priority-load"><button id="loadMorePriorityCalls" type="button" class="btn secondary">Load 5 More Opportunities</button></div>
+  </section>
+  <div id="metrics" class="cards"></div>
+  <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
+  <div class="dashboard-calendar-block">
+  <div class="dashboard-calendar-title"><h2>Calendar</h2><div class="label">Your existing calendar stays here with Day, Week and Month views.</div></div>
   <div class="calendar-dashboard-controls">
     <div class="filters calendar-view-switch" id="dashboardCalendarViews"><button data-view="day">Day</button><button class="active" data-view="week">Week</button><button data-view="month">Month</button></div>
     <div class="filters" id="weekCalFilters"><button class="active" data-f="all">All</button><button data-f="followups">Follow-ups</button><button data-f="appointments">Appointments</button><button data-f="deliveries">Deliveries</button></div>
@@ -220,8 +232,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
     </div>
     <div id="mobileAgenda" class="mobile-agenda"></div>
   </div>
-  <div id="metrics" class="cards"></div>
-  <div class="section"><h2>Action Needed</h2><div id="actions"></div></div>
+  </div>
 </section>
 
 <section id="leads" class="page hide">
@@ -304,7 +315,7 @@ select,input,textarea{color:var(--text);background:#0b1322}
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
 const GOOGLE_REVIEW_URL='https://search.google.com/local/writereview?placeid=ChIJrUZBpnI4yUwR56f_GEoH90s';
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],leaseOutreach:[],finance:[],outreach:[],orders:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all',contractView='lease',leaseQueue='active',leaseCallFilter='all',leaseMaturityFilter='all',leaseSort='maturity',leasePage=1,financeQueue='active',financeCallFilter='all',financeFilter='all',financeSort='maturity',financePage=1;
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],leaseOutreach:[],finance:[],outreach:[],orders:[],dailyCalls:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all',contractView='lease',leaseQueue='active',leaseCallFilter='all',leaseMaturityFilter='all',leaseSort='maturity',leasePage=1,financeQueue='active',financeCallFilter='all',financeFilter='all',financeSort='maturity',financePage=1,priorityCallDisplayCount=10,activePriorityCandidate=null;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -326,7 +337,7 @@ function financeMaturity(endDate){
 }
 
 async function load(){
-  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',leaseOutreach:'lease_outreach_history',finance:'finance_contracts',outreach:'finance_outreach_history',orders:'orders'})){
+  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',leaseOutreach:'lease_outreach_history',finance:'finance_contracts',outreach:'finance_outreach_history',orders:'orders',dailyCalls:'daily_priority_calls'})){
     let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=data||[]
   }
   if(isAdmin){let {data,error}=await sb.from('crm_account_access').select('user_id,email,status,is_admin,created_at,reviewed_at').order('created_at',{ascending:true});if(error)throw error;DB.access=data||[]}else DB.access=[]
@@ -368,8 +379,8 @@ $$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));
 $('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.add('hide');$('#auth').classList.remove('hide')};
 
 function tab(h,r){return r.length?`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.join('')}</tbody></table>`:'<div class="card label">No records.</div>'}
-function modal(t,b){$('#modal').classList.remove('finance-outreach-modal');$('#modal .box').classList.remove('outreach-box');$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
-window.closeModal=()=>{$('#modal').classList.remove('show','finance-outreach-modal');$('#modal .box').classList.remove('outreach-box')};
+function modal(t,b){$('#modal').classList.remove('finance-outreach-modal','priority-call-modal');$('#modal .box').classList.remove('outreach-box');$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
+window.closeModal=()=>{$('#modal').classList.remove('show','finance-outreach-modal','priority-call-modal');$('#modal .box').classList.remove('outreach-box')};
 let toastTimer=null;
 function showToast(message){const toast=$('#crmToast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
 
@@ -460,13 +471,103 @@ function requireDateTime(value){
   return false
 }
 
+const PRIORITY_DAY_MS=86400000;
+function priorityKey(type,id){return `${type}:${id}`}
+function priorityDaysSince(value){return value==null?null:Math.max(0,Math.floor((Date.now()-new Date(value).getTime())/PRIORITY_DAY_MS))}
+function priorityRelevantFollowups(candidate){
+  return DB.followups.filter(item=>{
+    if(item.customer_id!==candidate.customerId)return false;
+    if(candidate.type==='Lead')return item.lead_id===candidate.id||(!item.lead_id&&!item.finance_contract_id&&!item.lease_contract_id);
+    if(candidate.type==='Finance')return item.finance_contract_id===candidate.id||(!item.lead_id&&!item.finance_contract_id&&!item.lease_contract_id);
+    return item.lease_contract_id===candidate.id||(!item.lead_id&&!item.finance_contract_id&&!item.lease_contract_id)
+  })
+}
+function priorityLastContact(candidate){
+  if(candidate.type==='Finance'||candidate.type==='Lease')return candidate.record.last_contact_at||null;
+  const history=DB.history.filter(item=>item.lead_id===candidate.id&&String(item.event_type||'').toLowerCase()!=='lead created').map(item=>item.occurred_at).filter(Boolean);
+  const completed=priorityRelevantFollowups(candidate).filter(item=>item.status==='Done').map(item=>item.scheduled_at).filter(Boolean);
+  return [...history,...completed].sort((a,b)=>new Date(b)-new Date(a))[0]||null
+}
+function priorityNextDate(candidate){
+  const dates=priorityRelevantFollowups(candidate).filter(item=>item.status!=='Done'&&item.scheduled_at).map(item=>item.scheduled_at);
+  if(candidate.type==='Lead'&&candidate.record.next_action_at)dates.push(candidate.record.next_action_at);
+  if(candidate.type!=='Lead'&&candidate.record.next_contact_at)dates.push(candidate.record.next_contact_at);
+  return dates.sort((a,b)=>new Date(a)-new Date(b))[0]||null
+}
+function priorityFormatLast(value){
+  if(!value)return'Never contacted';const days=priorityDaysSince(value);if(days===0)return'Today';if(days===1)return'Yesterday';if(days<14)return`${days} days ago`;return fmt(value)
+}
+function priorityFormatNext(value){
+  if(!value)return'Not scheduled';const date=localDate(value),days=Math.ceil((new Date(value)-new Date())/PRIORITY_DAY_MS);if(date===today())return'Due today';if(days<0)return`${Math.max(1,Math.abs(days))} days overdue`;return fmt(value)
+}
+function financeOwnershipYears(contract){
+  let start=contract.delivery_date?new Date(`${contract.delivery_date}T12:00:00`):null;
+  if(!start&&contract.last_payment_date&&contract.term_months){start=new Date(`${contract.last_payment_date}T12:00:00`);start.setMonth(start.getMonth()-Number(contract.term_months))}
+  if(!start||Number.isNaN(start.getTime()))return null;
+  return Math.max(0,(Date.now()-start.getTime())/(365.25*PRIORITY_DAY_MS))
+}
+function priorityScore(candidate){
+  let total=0,reasons=[];const add=(points,text)=>{total+=points;reasons.push({points,text})};
+  const record=candidate.record,lastContact=priorityLastContact(candidate),lastDays=priorityDaysSince(lastContact),followups=priorityRelevantFollowups(candidate),open=followups.filter(item=>item.status!=='Done'),future=open.filter(item=>new Date(item.scheduled_at)>new Date()),overdue=open.filter(item=>new Date(item.scheduled_at)<new Date()&&localDate(item.scheduled_at)<today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)),dueToday=open.filter(item=>localDate(item.scheduled_at)===today()),futureAppointment=future.find(item=>String(item.action_type||'').toLowerCase()==='appointment'),missedAppointment=open.filter(item=>String(item.action_type||'').toLowerCase()==='appointment'&&new Date(item.scheduled_at)<new Date()).sort((a,b)=>new Date(b.scheduled_at)-new Date(a.scheduled_at))[0];
+  if(candidate.type==='Lead'&&record.priority==='Hot')add(150,`Hot lead${lastDays!=null?` — no contact in ${lastDays} day${lastDays===1?'':'s'}`:''}`);
+  if(overdue.length){const days=Math.max(1,Math.floor((Date.now()-new Date(overdue[0].scheduled_at))/PRIORITY_DAY_MS));add(130+Math.min(days,10),`Follow-up overdue by ${days} day${days===1?'':'s'}`)}
+  else if(dueToday.length)add(115,'Next action is due today');
+  if(missedAppointment&&(!lastContact||new Date(lastContact)<new Date(missedAppointment.scheduled_at))){const days=Math.max(1,Math.floor((Date.now()-new Date(missedAppointment.scheduled_at))/PRIORITY_DAY_MS));add(125,days===1?'Missed appointment yesterday':`Missed appointment ${days} days ago`)}
+  if(candidate.type==='Lead'&&record.status==='Showed')add(95,'Visited dealership — did not buy');
+  if(candidate.type==='Lead'&&record.status==='Negotiating')add(110,'Outstanding quote / proposal');
+  if(candidate.type==='Lead'&&['Contacted','Showed','Negotiating'].includes(record.status))add(55,'Previously showed interest');
+  if(candidate.type==='Lease'){
+    const left=leaseDaysLeft(record.lease_end_date).days;
+    if(left!=null&&left<0)add(140,`Lease expired ${Math.abs(left)} days ago`);
+    else if(left!=null&&left<=30)add(135,left===0?'Lease ends today':`Lease ends in ${left} days`);
+    else if(left!=null&&left<=180)add(100,`Lease ends in ${left} days`);
+    else if(left!=null&&left<=365)add(70,`Lease ends in ${left} days`);
+    if(record.opportunity_status==='Interested')add(85,'Interested in changing vehicles')
+  }
+  if(candidate.type==='Finance'){
+    const years=financeOwnershipYears(record);
+    if(years!=null&&years>=2&&years<=4.5)add(75+Math.round(Math.min(15,(years-2)*6)),`Finance customer — ${Math.round(years*10)/10} years ownership`);
+    if(record.opportunity_status==='Interested')add(90,'Interested in changing vehicles')
+  }
+  const explicitNext=candidate.type==='Lead'?record.next_action_at:record.next_contact_at;
+  if(explicitNext&&localDate(explicitNext)===today()&&!dueToday.length)add(115,'Next action is due today');
+  else if(explicitNext&&new Date(explicitNext)<new Date()&&!overdue.length){const days=Math.max(1,Math.floor((Date.now()-new Date(explicitNext))/PRIORITY_DAY_MS));add(130+Math.min(days,10),`Next action overdue by ${days} day${days===1?'':'s'}`)}
+  if(!lastContact)add(30,'Never contacted');
+  else if(lastDays>=30)add(Math.min(50,20+Math.floor(lastDays/10)),`No contact in ${lastDays} days`);
+  if(!future.length&&!explicitNext)add(18,'No future follow-up scheduled');
+  if(futureAppointment)total-=120;
+  if(lastDays!=null&&lastDays<=2&&(future.length||explicitNext&&new Date(explicitNext)>new Date()))total-=80;
+  reasons.sort((a,b)=>b.points-a.points);
+  return {...candidate,score:total,reasons:reasons.map(item=>item.text),priority:total>=125?'Urgent':total>=85?'High':'Medium',lastContact,nextDate:priorityNextDate(candidate)}
+}
+function buildPriorityCandidates(){
+  const raw=[];
+  DB.leads.filter(record=>!record.archived&&!['Sold','Lost'].includes(record.status)).forEach(record=>raw.push({type:'Lead',id:record.id,customerId:record.customer_id,vehicle:record.vehicle||'Vehicle not entered',record}));
+  DB.leases.filter(record=>['active','interested'].includes(leaseQueueFor(record))).forEach(record=>raw.push({type:'Lease',id:record.id,customerId:record.customer_id,vehicle:record.vehicle||'Vehicle not entered',record}));
+  DB.finance.filter(record=>['active','interested'].includes(financeQueueFor(record))).forEach(record=>raw.push({type:'Finance',id:record.id,customerId:record.customer_id,vehicle:record.vehicle||'Vehicle not entered',record}));
+  const best=new Map();raw.forEach(item=>{const customer=cust(item.customerId);if(!customer.id||customer.archived||String(customer.status||'').toLowerCase()==='do not contact')return;const scored=priorityScore(item),prior=best.get(item.customerId);if(!prior||scored.score>prior.score)best.set(item.customerId,scored)});
+  return [...best.values()].sort((a,b)=>b.score-a.score||String(cust(a.customerId).name||'').localeCompare(String(cust(b.customerId).name||'')))
+}
+function completedPriorityCalls(){return DB.dailyCalls.filter(item=>String(item.call_date)===today()).sort((a,b)=>new Date(a.completed_at)-new Date(b.completed_at))}
+function completedPriorityCandidate(row){
+  const customer=cust(row.customer_id),record=row.opportunity_type==='Lead'?DB.leads.find(x=>x.id===row.opportunity_id):row.opportunity_type==='Finance'?DB.finance.find(x=>x.id===row.opportunity_id):DB.leases.find(x=>x.id===row.opportunity_id);
+  return {type:row.opportunity_type,id:row.opportunity_id,customerId:row.customer_id,vehicle:record?.vehicle||row.vehicle||'Vehicle not entered',record:record||{},score:row.priority_score,priority:row.priority_level,reasons:[row.priority_reason],lastContact:row.completed_at,nextDate:row.next_action_at,completed:true,result:row.result,completedAt:row.completed_at}
+}
+function priorityCalls(){
+  const completedRows=completedPriorityCalls(),completedCustomers=new Set(completedRows.map(item=>item.customer_id)),completedKeys=new Set(completedRows.map(item=>priorityKey(item.opportunity_type,item.opportunity_id))),completed=completedRows.map(completedPriorityCandidate),open=buildPriorityCandidates().filter(item=>!completedCustomers.has(item.customerId)&&!completedKeys.has(priorityKey(item.type,item.id))),openCount=Math.max(0,priorityCallDisplayCount-Math.min(10,completed.length)),shown=[...open.slice(0,openCount),...completed.slice(0,Math.min(completed.length,priorityCallDisplayCount))];
+  $('#priorityCallGrid').innerHTML=shown.length?shown.map((item,index)=>{const customer=cust(item.customerId),reason=item.reasons.slice(0,2).join(' + ')||'Best available opportunity',last=item.completed?`Completed · ${esc(item.result||'Updated')}`:`Last: ${esc(priorityFormatLast(item.lastContact))}`,next=item.nextDate?`Next: ${esc(priorityFormatNext(item.nextDate))}`:'Next: Not scheduled';return `<article class="priority-card ${item.completed?'completed':''}"><div class="priority-rank">${item.completed?'✓':index+1}</div><div class="priority-main"><div class="priority-name-line"><b class="priority-name">${esc(customer.name||'Customer')}</b><span class="priority-badge ${String(item.priority||'Medium').toLowerCase()}">${esc(item.priority||'Medium')}</span></div><div class="priority-opportunity">${esc(item.type)} · ${esc(item.vehicle)}</div><div class="priority-reason">${esc(reason)}</div><div class="priority-meta"><span>${last}</span><span>${next}</span></div></div><div class="priority-actions"><span class="priority-done" aria-label="Completed">✓</span><button class="btn priority-call-button" onclick="openPriorityCall('${item.type}','${item.id}')">Call &amp; Update</button><button class="btn secondary" onclick="customerFile('${item.customerId}')">Open Customer</button></div></article>`}).join(''):'<div class="card priority-empty">No active opportunities are available for today.</div>';
+  const done=Math.min(10,completed.length),complete=done>=10;$('#priorityProgressText').textContent=complete?"✓ Today's priority call list completed":`${done} / 10 Priority Calls Completed`;$('#priorityProgressMessage').textContent=complete?'Your ten highest-value calls are handled.':'Complete a call and record the result.';$('#priorityProgressFill').style.width=`${done*10}%`;$('.priority-progress-track').setAttribute('aria-valuenow',done);$('#loadMorePriorityCalls').classList.toggle('hide',priorityCallDisplayCount>=open.length+Math.min(completed.length,priorityCallDisplayCount))
+}
+$('#loadMorePriorityCalls').onclick=()=>{priorityCallDisplayCount+=5;priorityCalls()};
+$('#resetPriorityDisplay').onclick=()=>{priorityCallDisplayCount=10;priorityCalls()};
+
 function render(){dashboard();leads();customers();leases();orders();deliveries();approvals();completed()}
 function dashboard(){
   const active=DB.leads.filter(x=>!x.archived&&!['Sold','Lost'].includes(x.status));
   const due=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today());
   const hot=active.filter(x=>x.priority==='Hot');
   const ap=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today());
-  $('#metrics').innerHTML=[
+  priorityCalls();$('#metrics').innerHTML=[
     ['Active Leads',active.length,'active'],['Follow-ups Due',due.length,'followups'],['Hot Leads',hot.length,'hot'],['Appointments Today',ap.length,'appointments']
   ].map(x=>`<div class="card clickable" data-shortcut="${x[2]}"><div class="metric">${x[1]}</div><div class="label">${x[0]}</div></div>`).join('');
   $$('#metrics [data-shortcut]').forEach(el=>el.onclick=()=>dashboardShortcut(el.dataset.shortcut));
@@ -695,7 +796,6 @@ function financeStage(contract){
 function financeStageClass(stage){return String(stage||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
 function financeIsDue(contract){
   if(financeQueueFor(contract)!=='active')return false;
-  if(!contract.last_contact_at)return true;
   return !!contract.next_contact_at&&new Date(contract.next_contact_at)<=new Date()
 }
 function financeNextAction(contract){
@@ -712,7 +812,7 @@ function financeCustomers(){
   $$('#financeQueueTabs [data-queue-count]').forEach(item=>item.textContent=queueCounts[item.dataset.queueCount]||0);
   $$('#financeQueueTabs button').forEach(button=>button.classList.toggle('active',button.dataset.financeQueue===financeQueue));
   const activeOpportunities=all.length-queueCounts.closed,due=all.filter(financeIsDue).length,hot=queueCounts.interested+queueCounts.appointments;
-  $('#financeSummary').innerHTML=`<div class="card"><div class="metric">${activeOpportunities}</div><div class="label">Active opportunities</div></div><div class="card"><div class="metric">${due}</div><div class="label">Calls due now</div></div><div class="card"><div class="metric">${hot}</div><div class="label">Interested / appointments</div></div>`;
+  $('#financeSummary').innerHTML=`<div class="card"><div class="metric">${activeOpportunities}</div><div class="label">Active opportunities</div></div><div class="card"><div class="metric">${due}</div><div class="label">Scheduled calls due</div></div><div class="card"><div class="metric">${hot}</div><div class="label">Interested / appointments</div></div>`;
   const q=$('#financesearch').value.trim().toLowerCase();let a=all.filter(x=>financeQueueFor(x)===financeQueue);
   if(q)a=a.filter(x=>{const c=cust(x.customer_id);return `${c.name||''} ${c.phone||''} ${c.email||''} ${x.vehicle||''} ${x.delivery_date||''} ${x.last_payment_date||''}`.toLowerCase().includes(q)});
   if(financeCallFilter==='due')a=a.filter(financeIsDue);
@@ -884,6 +984,21 @@ window.openLead=()=>{
 window.openCustomer=()=>{
   modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label>Language<select name="language"><option>English</option><option>French</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
+}
+window.openPriorityCall=(type,id)=>{
+  const candidate=buildPriorityCandidates().find(item=>item.type===type&&item.id===id);if(!candidate)return alert('This opportunity has already changed. The Top 10 list will refresh.');
+  activePriorityCandidate=candidate;const customer=cust(candidate.customerId),reason=candidate.reasons.slice(0,2).join(' + ')||'Best available opportunity';
+  const results=['No answer','Left voicemail','Spoke','Interested','Appointment booked','Follow up later','Keeping vehicle','Changing vehicle','Sold','Lost','Do Not Contact'];
+  const openResults=new Set(['No answer','Left voicemail','Spoke','Interested','Appointment booked','Follow up later','Changing vehicle']);
+  modal('Call & Update',`<div class="card priority-modal-summary"><b>${esc(customer.name||'Customer')}</b><div class="label">${esc(candidate.vehicle)} · ${esc(candidate.type)} · ${esc(candidate.priority)} priority</div><div style="margin-top:6px">${esc(reason)}</div><div class="inline-actions" style="margin-top:10px">${customer.phone?`<a class="btn" href="tel:${esc(customer.phone)}">Call ${esc(customer.phone)}</a>`:'<span class="label">No phone number saved.</span>'}<button type="button" class="btn secondary" onclick="customerFile('${candidate.customerId}')">Open Customer</button></div></div><form id="priorityCallForm" class="form"><input type="hidden" name="result"><div class="full"><h2>What happened on the call?</h2><div class="priority-outcomes">${results.map(result=>`<button type="button" class="priority-outcome" data-priority-result="${esc(result)}">${esc(result)}</button>`).join('')}</div></div><div id="priorityNextAction" class="full hide">${calendarDateTimeField('Next Action Date / Time','next_action_at','',true)}<p class="priority-next-note">This opportunity is still open, so choose the next action before saving.</p></div><label class="full">Call notes<textarea name="notes" rows="4" placeholder="What did they say? What matters for the next conversation?"></textarea></label><div class="full inline-actions"><button id="savePriorityCall" class="btn">Save Call Result</button><button type="button" class="btn secondary" onclick="closeModal()">Cancel</button></div></form>`);
+  $('#modal').classList.add('priority-call-modal');const form=$('#priorityCallForm'),nextWrap=$('#priorityNextAction');wireDateTimePickers(form);
+  form.querySelectorAll('[data-priority-result]').forEach(button=>button.onclick=()=>{form.elements.result.value=button.dataset.priorityResult;form.querySelectorAll('[data-priority-result]').forEach(item=>item.classList.toggle('active',item===button));nextWrap.classList.toggle('hide',!openResults.has(button.dataset.priorityResult))});
+  form.onsubmit=async event=>{
+    event.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=openResults.has(values.result);if(!values.result)return alert('Choose what happened on the call.');if(needsNext&&!requireDateTime(values.next_action_at))return;
+    const button=$('#savePriorityCall');button.disabled=true;button.textContent='Saving...';const {error}=await sb.rpc('save_priority_call_result',{p_opportunity_type:candidate.type,p_opportunity_id:candidate.id,p_result:values.result,p_notes:values.notes||null,p_next_action_at:needsNext?new Date(values.next_action_at).toISOString():null,p_priority_score:Math.round(candidate.score),p_priority_reason:reason});
+    if(error){button.disabled=false;button.textContent='Save Call Result';return alert(error.message)}
+    closeModal();await load();render();page('dashboard');showToast('Priority call completed and ranking refreshed.')
+  }
 }
 window.openFollowup=(lid='',cid='',defaultAction='Call',financeContractId='',leaseContractId='')=>{
   modal(defaultAction==='Appointment'?'New Appointment':'Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(action=>`<option ${action===defaultAction?'selected':''}>${action}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at','',true)}<label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
