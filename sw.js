@@ -1,4 +1,4 @@
-const VERSION='crm-live-v11-top10';
+const VERSION='crm-live-v12-lease-remove';
 self.addEventListener('install',event=>{self.skipWaiting()});
 self.addEventListener('activate',event=>{
   event.waitUntil((async()=>{

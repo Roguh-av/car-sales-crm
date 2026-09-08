@@ -17,3 +17,4 @@ Top 10 Calls Today:
 - Ranks live lead, lease and finance opportunities on the dashboard.
 - Records each call result and next action in Supabase.
 - Keeps the existing metrics, action list and Day / Week / Month calendar below it.
+- Lease opportunities can be removed when reassigned to another salesperson without deleting the customer or past call history.
