@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+test('inline application JavaScript parses',()=>new vm.SourceTextModule(html.match(/<script type="module">([\s\S]*?)<\/script>/)[1]));
+test('calendar Day Week Month and essential pages retained',()=>{for(const id of ['dashboard','leads','customers','leases','orders','completed'])assert.ok(html.includes('id="'+id+'"'));for(const view of ['day','week','month'])assert.ok(html.includes("'"+view+"'"))});
+test('scheduled actions no longer fabricate lead contact history',()=>{assert.ok(!html.includes("event_type:o.action_type"));assert.ok(!html.includes("event_type:'Lead created',note:o.notes"))});
+test('calendar is sole source of synchronized next action (no extra client write)',()=>assert.ok(!/sb.from\('(finance_contracts|leases)'\).update\(\{next_contact_at/.test(html)));
+test('frontend includes real-data ranking and history modules',()=>{for(const file of ['priority-engine.mjs','customer-history.mjs']){assert.ok(html.includes(file));assert.ok(fs.existsSync(new URL('../'+file,import.meta.url)))}});

@@ -313,9 +313,11 @@ select,input,textarea{color:var(--text);background:#0b1322}
 
 <script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import {businessDay,buildCandidates,dailySelection,lastContact,nextAction,isOpenAction} from './priority-engine.mjs';
+import {customerTimeline} from './customer-history.mjs';
 const sb=createClient('https://rydegsmcsthjzhynggni.supabase.co','sb_publishable_yIbG5imkO7ESMcAQTEsUyQ_9tnr3z95');
 const GOOGLE_REVIEW_URL='https://search.google.com/local/writereview?placeid=ChIJrUZBpnI4yUwR56f_GEoH90s';
-let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],leaseOutreach:[],finance:[],outreach:[],orders:[],dailyCalls:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all',contractView='lease',leaseQueue='active',leaseCallFilter='all',leaseMaturityFilter='all',leaseSort='maturity',leasePage=1,financeQueue='active',financeCallFilter='all',financeFilter='all',financeSort='maturity',financePage=1,priorityCallDisplayCount=10,activePriorityCandidate=null;
+let user=null,isAdmin=false,DB={customers:[],leads:[],history:[],followups:[],deliveries:[],leases:[],leaseOutreach:[],finance:[],outreach:[],orders:[],dailyCalls:[],activity:[],allFollowups:[],access:[]},leadFilter='all',dealFilter='all',dashboardCalendarView='week',dayOffset=0,monthOffset=0,calendarSelected='',weekOffset=0,weekCalFilter='all',contractView='lease',leaseQueue='active',leaseCallFilter='all',leaseMaturityFilter='all',leaseSort='maturity',leasePage=1,financeQueue='active',financeCallFilter='all',financeFilter='all',financeSort='maturity',financePage=1,priorityCallDisplayCount=10,activePriorityCandidate=null;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const localDate=x=>{if(!x)return'';let d=new Date(x);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -336,14 +338,45 @@ function financeMaturity(endDate){
   return {days,bucket,label,tone:days<=90?'urgent':days<=365?'soon':days>730?'later':''}
 }
 
-async function load(){
-  for(const [k,t] of Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',leaseOutreach:'lease_outreach_history',finance:'finance_contracts',outreach:'finance_outreach_history',orders:'orders',dailyCalls:'daily_priority_calls'})){
-    let {data,error}=await sb.from(t).select('*');if(error)throw error;DB[k]=k==='leases'?(data||[]).filter(item=>!item.removed_at):data||[]
+let pendingLoad=null,pendingLoadEpoch=null,readyUserId=null,entering=null,enteringUserId=null,authEpoch=0;
+async function readAll(table,columns='*',key='id'){
+  const rows=[];let after=null;
+  for(;;){
+    let query=sb.from(table).select(columns).order(key,{ascending:true}).limit(500);
+    if(after)query=query.gt(key,after);
+    const {data,error}=await query;if(error)throw error;
+    rows.push(...(data||[]));if(!data?.length||data.length<500)return rows;
+    after=data[data.length-1][key];
   }
-  if(isAdmin){let {data,error}=await sb.from('crm_account_access').select('user_id,email,status,is_admin,created_at,reviewed_at').order('created_at',{ascending:true});if(error)throw error;DB.access=data||[]}else DB.access=[]
+}
+async function load(){
+  if(pendingLoad){
+    if(pendingLoadEpoch===authEpoch)return pendingLoad;
+    try{await pendingLoad}catch{}
+    return load();
+  }
+  const owner=user?.id,epoch=authEpoch;
+  pendingLoadEpoch=epoch;
+  pendingLoad=(async()=>{
+    const snapshot={};
+    await Promise.all(Object.entries({customers:'customers',leads:'leads',history:'lead_history',followups:'followups',deliveries:'deliveries',leases:'leases',leaseOutreach:'lease_outreach_history',finance:'finance_contracts',outreach:'finance_outreach_history',orders:'orders',dailyCalls:'daily_priority_calls',activity:'customer_activity'}).map(async([key,table])=>{snapshot[key]=await readAll(table)}));
+    snapshot.access=isAdmin?await readAll('crm_account_access','user_id,email,status,is_admin,created_at,reviewed_at','user_id'):[];
+    snapshot.allFollowups=snapshot.followups;
+    snapshot.followups=snapshot.followups.filter(x=>!x.cancelled_at&&x.status!=='Cancelled');
+    if(user?.id!==owner||authEpoch!==epoch)return;
+    DB=snapshot;
+  })();
+  try{await pendingLoad}finally{pendingLoad=null;pendingLoadEpoch=null}
+}
+function clearSession(){
+  authEpoch++;user=null;readyUserId=null;isAdmin=false;
+  Object.keys(DB).forEach(key=>DB[key]=[]);activePriorityCandidate=null;
+  closeModal();$('#mbody').innerHTML='';$('#crm').classList.add('hide');$('#auth').classList.remove('hide');$('#signin').disabled=false;
 }
 async function enter(){
+  if(!user)return;const enteringUser=user.id,epoch=authEpoch;
   let {data:access,error}=await sb.from('crm_account_access').select('user_id,email,status,is_admin').eq('user_id',user.id).maybeSingle();
+  if(user?.id!==enteringUser||authEpoch!==epoch)return;
   if(error){$('#authmsg').textContent='Unable to check account approval: '+error.message;return}
   if(!access||access.status!=='approved'){
     isAdmin=false;$('#crm').classList.add('hide');$('#auth').classList.remove('hide');
@@ -352,14 +385,32 @@ async function enter(){
   }
   isAdmin=!!access.is_admin;$('#approvalsNav').classList.toggle('hide',!isAdmin);
   const identity=(user.email||'Sales').split('@')[0];$('#userEmail').textContent=identity;$('#userBadge').textContent=(identity[0]||'S').toUpperCase();
-  await load();$('#auth').classList.add('hide');$('#crm').classList.remove('hide');page(rememberedPage())
+  await load();if(user?.id!==enteringUser||authEpoch!==epoch)return;readyUserId=enteringUser;$('#auth').classList.add('hide');$('#crm').classList.remove('hide');page(rememberedPage())
+}
+function acceptSession(session){
+  if(!session?.user){clearSession();return}
+  if(user?.id!==session.user.id){clearSession();user=session.user}
+  else user=session.user;
+  if(readyUserId===user.id||entering)return;
+  enteringUserId=user.id;
+  entering=enter().catch(err=>{$('#authmsg').textContent='Unable to load CRM: '+(err.message||err);$('#signin').disabled=false}).finally(()=>{
+    const attemptedUser=enteringUserId;entering=null;enteringUserId=null;
+    if(user&&user.id!==attemptedUser)acceptSession({user});
+  });
 }
 async function init(){
-  let {data}=await sb.auth.getSession();user=data.session?.user||null;if(user)await enter();
   /* CRM_AUTH_CALLBACK_FIX_V1 */
-sb.auth.onAuthStateChange((_,session)=>{user=session?.user||null;if(user)setTimeout(()=>{enter().catch(err=>{$('#authmsg').textContent='Sign-in error: '+(err?.message||err)})},0)})
+  sb.auth.onAuthStateChange((event,session)=>{setTimeout(()=>acceptSession(session),0)});
+  const {data,error}=await sb.auth.getSession();
+  if(error){$('#authmsg').textContent=error.message;return}
+  acceptSession(data.session);
 }
-$('#signin').onclick=async()=>{const btn=$('#signin');btn.disabled=true;$('#authmsg').textContent='Signing in...';let {data,error}=await sb.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});if(error){$('#authmsg').textContent=error.message;btn.disabled=false;return}user=data?.user||data?.session?.user||user;setTimeout(()=>{enter().catch(err=>{$('#authmsg').textContent='Sign-in error: '+(err?.message||err);btn.disabled=false})},0)};
+$('#signin').onclick=async()=>{
+  const btn=$('#signin');btn.disabled=true;$('#authmsg').textContent='Signing in...';
+  const {data,error}=await sb.auth.signInWithPassword({email:$('#email').value.trim(),password:$('#password').value});
+  btn.disabled=false;if(error){$('#authmsg').textContent=error.message;return}
+  acceptSession(data.session);
+};
 $('#signup').onclick=async()=>{let {data,error}=await sb.auth.signUp({email:$('#email').value,password:$('#password').value});$('#authmsg').textContent=error?.message||(data.session?'Account created. Waiting for administrator approval.':'Check your email to confirm. After confirmation, your account will wait for administrator approval.')};
 
 function pageStorageKey(){return `crm:last-page:${user?.id||'guest'}`}
@@ -376,7 +427,7 @@ function page(id){
   render()
 }
 $$('.nav button[data-p]').forEach(x=>x.onclick=()=>page(x.dataset.p));
-$('#signoutBtn').onclick=async()=>{await sb.auth.signOut();$('#crm').classList.add('hide');$('#auth').classList.remove('hide')};
+$('#signoutBtn').onclick=async()=>{const {error}=await sb.auth.signOut();if(error)return alert(error.message);clearSession()};
 
 function tab(h,r){return r.length?`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${r.join('')}</tbody></table>`:'<div class="card label">No records.</div>'}
 function modal(t,b){$('#modal').classList.remove('finance-outreach-modal','priority-call-modal');$('#modal .box').classList.remove('outreach-box');$('#mtitle').textContent=t;$('#mbody').innerHTML=b;$('#modal').classList.add('show')}
@@ -472,91 +523,30 @@ function requireDateTime(value){
 }
 
 const PRIORITY_DAY_MS=86400000;
-function priorityKey(type,id){return `${type}:${id}`}
-function priorityDaysSince(value){return value==null?null:Math.max(0,Math.floor((Date.now()-new Date(value).getTime())/PRIORITY_DAY_MS))}
-function priorityRelevantFollowups(candidate){
-  return DB.followups.filter(item=>{
-    if(item.customer_id!==candidate.customerId)return false;
-    if(candidate.type==='Lead')return item.lead_id===candidate.id||(!item.lead_id&&!item.finance_contract_id&&!item.lease_contract_id);
-    if(candidate.type==='Finance')return item.finance_contract_id===candidate.id||(!item.lead_id&&!item.finance_contract_id&&!item.lease_contract_id);
-    return item.lease_contract_id===candidate.id||(!item.lead_id&&!item.finance_contract_id&&!item.lease_contract_id)
-  })
-}
-function priorityLastContact(candidate){
-  if(candidate.type==='Finance'||candidate.type==='Lease')return candidate.record.last_contact_at||null;
-  const history=DB.history.filter(item=>item.lead_id===candidate.id&&String(item.event_type||'').toLowerCase()!=='lead created').map(item=>item.occurred_at).filter(Boolean);
-  const completed=priorityRelevantFollowups(candidate).filter(item=>item.status==='Done').map(item=>item.scheduled_at).filter(Boolean);
-  return [...history,...completed].sort((a,b)=>new Date(b)-new Date(a))[0]||null
-}
-function priorityNextDate(candidate){
-  const dates=priorityRelevantFollowups(candidate).filter(item=>item.status!=='Done'&&item.scheduled_at).map(item=>item.scheduled_at);
-  if(candidate.type==='Lead'&&candidate.record.next_action_at)dates.push(candidate.record.next_action_at);
-  if(candidate.type!=='Lead'&&candidate.record.next_contact_at)dates.push(candidate.record.next_contact_at);
-  return dates.sort((a,b)=>new Date(a)-new Date(b))[0]||null
-}
+function priorityDaysSince(value){return value?Math.max(0,Math.round((Date.parse(businessDay())-Date.parse(businessDay(value)))/PRIORITY_DAY_MS)):null}
 function priorityFormatLast(value){
-  if(!value)return'Never contacted';const days=priorityDaysSince(value);if(days===0)return'Today';if(days===1)return'Yesterday';if(days<14)return`${days} days ago`;return fmt(value)
+  if(!value)return'No contact recorded';const days=priorityDaysSince(value);return days===0?'Today':days===1?'Yesterday':days<14?`${days} days ago`:fmt(value);
 }
 function priorityFormatNext(value){
-  if(!value)return'Not scheduled';const date=localDate(value),days=Math.ceil((new Date(value)-new Date())/PRIORITY_DAY_MS);if(date===today())return'Due today';if(days<0)return`${Math.max(1,Math.abs(days))} days overdue`;return fmt(value)
+  if(!value)return'Not scheduled';const date=businessDay(value),days=Math.round((Date.parse(businessDay())-Date.parse(date))/PRIORITY_DAY_MS);
+  return date===businessDay()?'Due today':days>0?`${days} days overdue`:fmt(value);
 }
-function financeOwnershipYears(contract){
-  let start=contract.delivery_date?new Date(`${contract.delivery_date}T12:00:00`):null;
-  if(!start&&contract.last_payment_date&&contract.term_months){start=new Date(`${contract.last_payment_date}T12:00:00`);start.setMonth(start.getMonth()-Number(contract.term_months))}
-  if(!start||Number.isNaN(start.getTime()))return null;
-  return Math.max(0,(Date.now()-start.getTime())/(365.25*PRIORITY_DAY_MS))
-}
-function priorityScore(candidate){
-  let total=0,reasons=[];const add=(points,text)=>{total+=points;reasons.push({points,text})};
-  const record=candidate.record,lastContact=priorityLastContact(candidate),lastDays=priorityDaysSince(lastContact),followups=priorityRelevantFollowups(candidate),open=followups.filter(item=>item.status!=='Done'),future=open.filter(item=>new Date(item.scheduled_at)>new Date()),overdue=open.filter(item=>new Date(item.scheduled_at)<new Date()&&localDate(item.scheduled_at)<today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)),dueToday=open.filter(item=>localDate(item.scheduled_at)===today()),futureAppointment=future.find(item=>String(item.action_type||'').toLowerCase()==='appointment'),missedAppointment=open.filter(item=>String(item.action_type||'').toLowerCase()==='appointment'&&new Date(item.scheduled_at)<new Date()).sort((a,b)=>new Date(b.scheduled_at)-new Date(a.scheduled_at))[0];
-  if(candidate.type==='Lead'&&record.priority==='Hot')add(150,`Hot lead${lastDays!=null?` — no contact in ${lastDays} day${lastDays===1?'':'s'}`:''}`);
-  if(overdue.length){const days=Math.max(1,Math.floor((Date.now()-new Date(overdue[0].scheduled_at))/PRIORITY_DAY_MS));add(130+Math.min(days,10),`Follow-up overdue by ${days} day${days===1?'':'s'}`)}
-  else if(dueToday.length)add(115,'Next action is due today');
-  if(missedAppointment&&(!lastContact||new Date(lastContact)<new Date(missedAppointment.scheduled_at))){const days=Math.max(1,Math.floor((Date.now()-new Date(missedAppointment.scheduled_at))/PRIORITY_DAY_MS));add(125,days===1?'Missed appointment yesterday':`Missed appointment ${days} days ago`)}
-  if(candidate.type==='Lead'&&record.status==='Showed')add(95,'Visited dealership — did not buy');
-  if(candidate.type==='Lead'&&record.status==='Negotiating')add(110,'Outstanding quote / proposal');
-  if(candidate.type==='Lead'&&['Contacted','Showed','Negotiating'].includes(record.status))add(55,'Previously showed interest');
-  if(candidate.type==='Lease'){
-    const left=leaseDaysLeft(record.lease_end_date).days;
-    if(left!=null&&left<0)add(140,`Lease expired ${Math.abs(left)} days ago`);
-    else if(left!=null&&left<=30)add(135,left===0?'Lease ends today':`Lease ends in ${left} days`);
-    else if(left!=null&&left<=180)add(100,`Lease ends in ${left} days`);
-    else if(left!=null&&left<=365)add(70,`Lease ends in ${left} days`);
-    if(record.opportunity_status==='Interested')add(85,'Interested in changing vehicles')
-  }
-  if(candidate.type==='Finance'){
-    const years=financeOwnershipYears(record);
-    if(years!=null&&years>=2&&years<=4.5)add(75+Math.round(Math.min(15,(years-2)*6)),`Finance customer — ${Math.round(years*10)/10} years ownership`);
-    if(record.opportunity_status==='Interested')add(90,'Interested in changing vehicles')
-  }
-  const explicitNext=candidate.type==='Lead'?record.next_action_at:record.next_contact_at;
-  if(explicitNext&&localDate(explicitNext)===today()&&!dueToday.length)add(115,'Next action is due today');
-  else if(explicitNext&&new Date(explicitNext)<new Date()&&!overdue.length){const days=Math.max(1,Math.floor((Date.now()-new Date(explicitNext))/PRIORITY_DAY_MS));add(130+Math.min(days,10),`Next action overdue by ${days} day${days===1?'':'s'}`)}
-  if(!lastContact)add(30,'Never contacted');
-  else if(lastDays>=30)add(Math.min(50,20+Math.floor(lastDays/10)),`No contact in ${lastDays} days`);
-  if(!future.length&&!explicitNext)add(18,'No future follow-up scheduled');
-  if(futureAppointment)total-=120;
-  if(lastDays!=null&&lastDays<=2&&(future.length||explicitNext&&new Date(explicitNext)>new Date()))total-=80;
-  reasons.sort((a,b)=>b.points-a.points);
-  return {...candidate,score:total,reasons:reasons.map(item=>item.text),priority:total>=125?'Urgent':total>=85?'High':'Medium',lastContact,nextDate:priorityNextDate(candidate)}
-}
-function buildPriorityCandidates(){
-  const raw=[];
-  DB.leads.filter(record=>!record.archived&&!['Sold','Lost'].includes(record.status)).forEach(record=>raw.push({type:'Lead',id:record.id,customerId:record.customer_id,vehicle:record.vehicle||'Vehicle not entered',record}));
-  DB.leases.filter(record=>['active','interested'].includes(leaseQueueFor(record))).forEach(record=>raw.push({type:'Lease',id:record.id,customerId:record.customer_id,vehicle:record.vehicle||'Vehicle not entered',record}));
-  DB.finance.filter(record=>['active','interested'].includes(financeQueueFor(record))).forEach(record=>raw.push({type:'Finance',id:record.id,customerId:record.customer_id,vehicle:record.vehicle||'Vehicle not entered',record}));
-  const best=new Map();raw.forEach(item=>{const customer=cust(item.customerId);if(!customer.id||customer.archived||String(customer.status||'').toLowerCase()==='do not contact')return;const scored=priorityScore(item),prior=best.get(item.customerId);if(!prior||scored.score>prior.score)best.set(item.customerId,scored)});
-  return [...best.values()].sort((a,b)=>b.score-a.score||String(cust(a.customerId).name||'').localeCompare(String(cust(b.customerId).name||'')))
-}
-function completedPriorityCalls(){return DB.dailyCalls.filter(item=>String(item.call_date)===today()).sort((a,b)=>new Date(a.completed_at)-new Date(b.completed_at))}
+function buildPriorityCandidates(){return buildCandidates(DB)}
+function completedPriorityCalls(){return dailySelection(DB,priorityCallDisplayCount).completed}
 function completedPriorityCandidate(row){
   const customer=cust(row.customer_id),record=row.opportunity_type==='Lead'?DB.leads.find(x=>x.id===row.opportunity_id):row.opportunity_type==='Finance'?DB.finance.find(x=>x.id===row.opportunity_id):DB.leases.find(x=>x.id===row.opportunity_id);
-  return {type:row.opportunity_type,id:row.opportunity_id,customerId:row.customer_id,vehicle:record?.vehicle||row.vehicle||'Vehicle not entered',record:record||{},score:row.priority_score,priority:row.priority_level,reasons:[row.priority_reason],lastContact:row.completed_at,nextDate:row.next_action_at,completed:true,result:row.result,completedAt:row.completed_at}
+  return {type:row.opportunity_type,id:row.opportunity_id,customerId:row.customer_id,vehicle:record?.vehicle||row.vehicle||'Vehicle not entered',record:record||{},score:row.priority_score,priority:row.priority_level,reasons:[row.priority_reason],lastContact:row.completed_at,nextDate:record?nextAction(DB,{type:row.opportunity_type,id:row.opportunity_id,customerId:row.customer_id,record}):null,completed:true,result:row.result,completedAt:row.completed_at}
 }
 function priorityCalls(){
-  const completedRows=completedPriorityCalls(),completedCustomers=new Set(completedRows.map(item=>item.customer_id)),completedKeys=new Set(completedRows.map(item=>priorityKey(item.opportunity_type,item.opportunity_id))),completed=completedRows.map(completedPriorityCandidate),open=buildPriorityCandidates().filter(item=>!completedCustomers.has(item.customerId)&&!completedKeys.has(priorityKey(item.type,item.id))),openCount=Math.max(0,priorityCallDisplayCount-Math.min(10,completed.length)),shown=[...open.slice(0,openCount),...completed.slice(0,Math.min(completed.length,priorityCallDisplayCount))];
-  $('#priorityCallGrid').innerHTML=shown.length?shown.map((item,index)=>{const customer=cust(item.customerId),reason=item.reasons.slice(0,2).join(' + ')||'Best available opportunity',last=item.completed?`Completed · ${esc(item.result||'Updated')}`:`Last: ${esc(priorityFormatLast(item.lastContact))}`,next=item.nextDate?`Next: ${esc(priorityFormatNext(item.nextDate))}`:'Next: Not scheduled';return `<article class="priority-card ${item.completed?'completed':''}"><div class="priority-rank">${item.completed?'✓':index+1}</div><div class="priority-main"><div class="priority-name-line"><b class="priority-name">${esc(customer.name||'Customer')}</b><span class="priority-badge ${String(item.priority||'Medium').toLowerCase()}">${esc(item.priority||'Medium')}</span></div><div class="priority-opportunity">${esc(item.type)} · ${esc(item.vehicle)}</div><div class="priority-reason">${esc(reason)}</div><div class="priority-meta"><span>${last}</span><span>${next}</span></div></div><div class="priority-actions"><span class="priority-done" aria-label="Completed">✓</span><button class="btn priority-call-button" onclick="openPriorityCall('${item.type}','${item.id}')">Call &amp; Update</button><button class="btn secondary" onclick="customerFile('${item.customerId}')">Open Customer</button></div></article>`}).join(''):'<div class="card priority-empty">No active opportunities are available for today.</div>';
-  const done=Math.min(10,completed.length),complete=done>=10;$('#priorityProgressText').textContent=complete?"✓ Today's priority call list completed":`${done} / 10 Priority Calls Completed`;$('#priorityProgressMessage').textContent=complete?'Your ten highest-value calls are handled.':'Complete a call and record the result.';$('#priorityProgressFill').style.width=`${done*10}%`;$('.priority-progress-track').setAttribute('aria-valuenow',done);$('#loadMorePriorityCalls').classList.toggle('hide',priorityCallDisplayCount>=open.length+Math.min(completed.length,priorityCallDisplayCount))
+  const selection=dailySelection(DB,priorityCallDisplayCount),shown=[...selection.open,...selection.completed.map(completedPriorityCandidate)];
+  $('#priorityCallGrid').innerHTML=shown.length?shown.map((item,index)=>{const customer=cust(item.customerId),reason=item.reasons.slice(0,2).join(' + ')||'Best available opportunity',last=item.completed?`Completed · ${esc(item.result||'Updated')}`:`Last: ${esc(priorityFormatLast(item.lastContact))}`,next=item.nextDate?`Next: ${esc(priorityFormatNext(item.nextDate))}`:'Next: Not scheduled';return `<article class="priority-card ${item.completed?'completed':''}"><div class="priority-rank">${item.completed?'✓':index+1}</div><div class="priority-main"><div class="priority-name-line"><b class="priority-name">${esc(customer.name||'Customer')}</b><span class="priority-badge ${String(item.priority||'Medium').toLowerCase()}">${esc(item.priority||'Medium')}</span></div><div class="priority-opportunity">${esc(item.type)} · ${esc(item.vehicle)}</div><div class="priority-reason">${esc(reason)}</div>${item.missing?.length?`<details class="label"><summary>Missing information</summary>${item.missing.map(esc).join("<br>")}</details>`:""}<div class="priority-meta"><span>${last}</span><span>${next}</span></div></div><div class="priority-actions"><span class="priority-done" aria-label="Completed">✓</span><button class="btn priority-call-button" onclick="openPriorityCall('${item.type}','${item.id}')">Call &amp; Update</button><button class="btn secondary" onclick="customerFile('${item.customerId}')">Open Customer</button></div></article>`}).join(''):'<div class="card priority-empty">No active opportunities are available for today.</div>';
+  const done=selection.done,target=selection.target,complete=target>0&&done>=target;
+  $('#priorityProgressText').textContent=complete?"✓ Today's priority call list completed":`${done} / ${target} Priority Calls Completed`;
+  $('#priorityProgressMessage').textContent=complete?'Your selected calls are handled.':target<10?'Fewer than 10 eligible opportunities right now.':'Complete a call and record the result.';
+  $('#priorityProgressFill').style.width=`${target?done/target*100:0}%`;
+  $('.priority-progress-track').setAttribute('aria-valuenow',done);$('.priority-progress-track').setAttribute('aria-valuemax',target||10);
+  $('#loadMorePriorityCalls').classList.toggle('hide',!selection.hasMore);
+
 }
 $('#loadMorePriorityCalls').onclick=()=>{priorityCallDisplayCount+=5;priorityCalls()};
 $('#resetPriorityDisplay').onclick=()=>{priorityCallDisplayCount=10;priorityCalls()};
@@ -603,11 +593,6 @@ window.toggleCalendarCompletion=async(event,kind,id,checked)=>{
   const table=kind==='delivery'?'deliveries':'followups',status=kind==='delivery'?(checked?'Delivered':'Ready'):(checked?'Done':'Open');
   const {error}=await sb.from(table).update({status}).eq('id',id);
   if(error){input.checked=!checked;input.disabled=false;return alert(error.message)}
-  if(kind==='followup'){
-    const item=DB.followups.find(x=>x.id===id);
-    if(item?.finance_contract_id){const {error:financeError}=await sb.from('finance_contracts').update({next_contact_at:checked?null:item.scheduled_at,updated_at:new Date().toISOString()}).eq('id',item.finance_contract_id);if(financeError)return alert(financeError.message)}
-    if(item?.lease_contract_id){const {error:leaseError}=await sb.from('leases').update({next_contact_at:checked?null:item.scheduled_at}).eq('id',item.lease_contract_id);if(leaseError)return alert(leaseError.message)}
-  }
   await load();render()
 };
 function weekCalendar(){
@@ -681,13 +666,13 @@ function dashboardShortcut(kind){
 }
 function openDueFollowupsList(){
   const rows=DB.followups.filter(x=>x.status!=='Done'&&localDate(x.scheduled_at)<=today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
-  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id),action=x.action_type==='Post-delivery thank you'?`<button class="btn secondary" onclick="openPostDeliveryThankYou('${x.id}')">Send thank-you text</button>`:esc(x.action_type);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${action}</td><td>${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No follow-ups are due.</div>')
+  modal('Follow-ups Due',rows.length?tab(['Customer','Phone','Action','Scheduled','Status'],rows.map(x=>{const c=cust(x.customer_id),action=x.action_type==='Post-delivery thank you'?`<button class="btn secondary" onclick="openPostDeliveryThankYou('${x.id}')">Send thank-you text</button>`:esc(x.action_type);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${action}</td><td>${fmt(x.scheduled_at)}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option>${x.action_type==='Appointment'?`<option ${x.status==='Missed'?'selected':''}>Missed</option>`:''}</select></td></tr>`})):'<div class="card label">No follow-ups are due.</div>')
 }
 function openTodayAppointmentsList(){
   const rows=DB.followups.filter(x=>x.status!=='Done'&&x.action_type==='Appointment'&&localDate(x.scheduled_at)===today()).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
-  modal('Appointments Today',rows.length?tab(['Customer','Phone','Time','Notes','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.notes||'')}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></td></tr>`})):'<div class="card label">No appointments scheduled for today.</div>')
+  modal('Appointments Today',rows.length?tab(['Customer','Phone','Time','Notes','Status'],rows.map(x=>{const c=cust(x.customer_id);return `<tr><td>${x.lead_id?`<button class="btn secondary" onclick="openLeadFile('${x.lead_id}')">${esc(c.name)}</button>`:esc(c.name)}</td><td>${esc(c.phone||'')}</td><td>${fmt(x.scheduled_at)}</td><td>${esc(x.notes||'')}</td><td><select onchange="followupStatus('${x.id}',this.value)"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option>${x.action_type==='Appointment'?`<option ${x.status==='Missed'?'selected':''}>Missed</option>`:''}</select></td></tr>`})):'<div class="card label">No appointments scheduled for today.</div>')
 }
-window.followupStatus=async(id,status)=>{const item=DB.followups.find(x=>x.id===id);let {error}=await sb.from('followups').update({status}).eq('id',id);if(error)return alert(error.message);if(item?.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:status==='Done'?null:item.scheduled_at,updated_at:new Date().toISOString()}).eq('id',item.finance_contract_id));if(error)return alert(error.message)}if(item?.lease_contract_id){({error}=await sb.from('leases').update({next_contact_at:status==='Done'?null:item.scheduled_at}).eq('id',item.lease_contract_id));if(error)return alert(error.message)}await load();render()};
+window.followupStatus=async(id,status)=>{const {error}=await sb.from('followups').update({status}).eq('id',id);if(error)return alert(error.message);await load();render()};
 
 function actions(){
   let a=[];
@@ -720,7 +705,7 @@ function leaseMaturityBucket(contract){
   const left=leaseDaysLeft(contract.lease_end_date);if(left.days===null)return'later';if(left.days<0)return'expired';if(left.days<=183)return'soon';if(left.days<=365)return'year';return'later'
 }
 function leaseOpenAppointment(contract){
-  return DB.followups.filter(item=>item.customer_id===contract.customer_id&&item.status!=='Done'&&String(item.action_type||'').toLowerCase()==='appointment'&&(item.lease_contract_id===contract.id||(!item.lease_contract_id&&!item.finance_contract_id))).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0]||null
+  return DB.followups.filter(item=>item.customer_id===contract.customer_id&&isOpenAction(item)&&new Date(item.scheduled_at)>new Date()&&String(item.action_type||'').toLowerCase()==='appointment'&&(item.lease_contract_id===contract.id||(!item.lease_contract_id&&!item.finance_contract_id))).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0]||null
 }
 function leaseQueueFor(contract){
   if(contract.opportunity_status==='Not interested'||contract.closed_at)return'closed';
@@ -732,7 +717,6 @@ function leaseQueueFor(contract){
 function leaseStage(contract){return leaseQueueFor(contract)==='appointments'?'Appointment set':contract.opportunity_status||'Not contacted'}
 function leaseIsDue(contract){
   if(leaseQueueFor(contract)!=='active')return false;
-  if(!contract.last_contact_at)return true;
   return !!contract.next_contact_at&&new Date(contract.next_contact_at)<=new Date()
 }
 function leaseNextAction(contract){
@@ -742,11 +726,11 @@ function leaseNextAction(contract){
   if(leaseQueueFor(contract)==='closed')return {label:`Closed · ${fmt(contract.closed_at||contract.last_contact_at)}`,tone:''};
   if(contract.opportunity_status==='Interested')return {label:'Schedule an appointment',tone:'upcoming'};
   if(['Buying out lease','Returning vehicle'].includes(contract.opportunity_status))return {label:'Confirm decision / next step',tone:'upcoming'};
-  return {label:'Call now',tone:'due'}
+  return {label:'Not scheduled',tone:''}
 }
 function leases(){
-  $('#leaseTabCount').textContent=`(${DB.leases.length})`;
-  const all=[...DB.leases],queueCounts={active:0,interested:0,appointments:0,decision:0,closed:0};all.forEach(x=>queueCounts[leaseQueueFor(x)]++);
+  $('#leaseTabCount').textContent=`(${DB.leases.filter(x=>!x.removed_at).length})`;
+  const all=DB.leases.filter(x=>!x.removed_at),queueCounts={active:0,interested:0,appointments:0,decision:0,closed:0};all.forEach(x=>queueCounts[leaseQueueFor(x)]++);
   $$('#leaseQueueTabs [data-lease-queue-count]').forEach(item=>item.textContent=queueCounts[item.dataset.leaseQueueCount]||0);
   $$('#leaseQueueTabs button').forEach(button=>button.classList.toggle('active',button.dataset.leaseQueue===leaseQueue));
   const activeOpportunities=all.length-queueCounts.closed,due=all.filter(leaseIsDue).length,endingSoon=all.filter(x=>{const d=leaseDaysLeft(x.lease_end_date).days;return d!==null&&d>=0&&d<=365}).length;
@@ -781,7 +765,7 @@ function showContractView(view){
 }
 $('#contractTabs').onclick=e=>{const button=e.target.closest('[data-contract-view]');if(button)showContractView(button.dataset.contractView)};
 function financeOpenAppointment(contract){
-  return DB.followups.filter(item=>item.customer_id===contract.customer_id&&item.status!=='Done'&&String(item.action_type||'').toLowerCase()==='appointment'&&(item.finance_contract_id===contract.id||(!item.finance_contract_id&&!item.lease_contract_id))).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0]||null
+  return DB.followups.filter(item=>item.customer_id===contract.customer_id&&isOpenAction(item)&&new Date(item.scheduled_at)>new Date()&&String(item.action_type||'').toLowerCase()==='appointment'&&(item.finance_contract_id===contract.id||(!item.finance_contract_id&&!item.lease_contract_id))).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0]||null
 }
 function financeQueueFor(contract){
   if(contract.opportunity_status==='Keeping vehicle'||contract.closed_at)return'closed';
@@ -804,7 +788,7 @@ function financeNextAction(contract){
   if(contract.next_contact_at)return {label:`Call · ${fmt(contract.next_contact_at)}`,tone:new Date(contract.next_contact_at)<=new Date()?'due':'upcoming'};
   if(financeQueueFor(contract)==='closed')return {label:`Closed · ${fmt(contract.closed_at||contract.last_contact_at)}`,tone:''};
   if(contract.opportunity_status==='Interested')return {label:'Schedule an appointment',tone:'upcoming'};
-  return {label:'Call now',tone:'due'}
+  return {label:'Not scheduled',tone:''}
 }
 function financeCustomers(){
   $('#financeTabCount').textContent=`(${DB.finance.length})`;
@@ -977,7 +961,6 @@ window.openLead=()=>{
     if(!cid){if(!o.name)return alert('Select an existing customer or enter a new customer name');let {data,error}=await sb.from('customers').insert({owner_id:user.id,name:o.name,phone:o.phone||null,source:o.source,language:o.language||'English'}).select().single();if(error)return alert(error.message);cid=data.id}
     let {data,error}=await sb.from('leads').insert({owner_id:user.id,customer_id:cid,vehicle:o.vehicle||null,source:o.source,priority:o.priority,stock_number:o.stock_number||null,notes:o.notes||null}).select().single();
     if(error)return alert(error.message);
-    await sb.from('lead_history').insert({owner_id:user.id,lead_id:data.id,event_type:'Lead created',note:o.notes||null});
     closeModal();await load();render();openLeadFile(data.id)
   }
 }
@@ -985,6 +968,7 @@ window.openCustomer=()=>{
   modal('New Customer',`<form id="f" class="form"><label>Name<input name="name" required></label><label>Phone<input name="phone"></label><label>Email<input name="email"></label><label>City<input name="city"></label><label>Language<select name="language"><option>English</option><option>French</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));let {error}=await sb.from('customers').insert({...o,owner_id:user.id});if(error)return alert(error.message);closeModal();await load();render()}
 }
+function requireFutureAction(value){if(new Date(value)<=new Date()){alert('Choose a next action in the future.');return false}return true}
 window.openPriorityCall=(type,id)=>{
   const candidate=buildPriorityCandidates().find(item=>item.type===type&&item.id===id);if(!candidate)return alert('This opportunity has already changed. The Top 10 list will refresh.');
   activePriorityCandidate=candidate;const customer=cust(candidate.customerId),reason=candidate.reasons.slice(0,2).join(' + ')||'Best available opportunity';
@@ -994,7 +978,7 @@ window.openPriorityCall=(type,id)=>{
   $('#modal').classList.add('priority-call-modal');const form=$('#priorityCallForm'),nextWrap=$('#priorityNextAction');wireDateTimePickers(form);
   form.querySelectorAll('[data-priority-result]').forEach(button=>button.onclick=()=>{form.elements.result.value=button.dataset.priorityResult;form.querySelectorAll('[data-priority-result]').forEach(item=>item.classList.toggle('active',item===button));nextWrap.classList.toggle('hide',!openResults.has(button.dataset.priorityResult))});
   form.onsubmit=async event=>{
-    event.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=openResults.has(values.result);if(!values.result)return alert('Choose what happened on the call.');if(needsNext&&!requireDateTime(values.next_action_at))return;
+    event.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=openResults.has(values.result);if(!values.result)return alert('Choose what happened on the call.');if(needsNext&&(!requireDateTime(values.next_action_at)||!requireFutureAction(values.next_action_at)))return;
     const button=$('#savePriorityCall');button.disabled=true;button.textContent='Saving...';const {error}=await sb.rpc('save_priority_call_result',{p_opportunity_type:candidate.type,p_opportunity_id:candidate.id,p_result:values.result,p_notes:values.notes||null,p_next_action_at:needsNext?new Date(values.next_action_at).toISOString():null,p_priority_score:Math.round(candidate.score),p_priority_reason:reason});
     if(error){button.disabled=false;button.textContent='Save Call Result';return alert(error.message)}
     closeModal();await load();render();page('dashboard');showToast('Priority call completed and ranking refreshed.')
@@ -1004,7 +988,7 @@ window.openFollowup=(lid='',cid='',defaultAction='Call',financeContractId='',lea
   modal(defaultAction==='Appointment'?'New Appointment':'Next Action',`<form id="f" class="form">${customerSearchField(cid)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(action=>`<option ${action===defaultAction?'selected':''}>${action}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at','',true)}<label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Schedule</button></div></form>`);
   wireCustomerSearch($('#f'));
   wireDateTimePickers($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,finance_contract_id:financeContractId||null,lease_contract_id:leaseContractId||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);if(lid)await sb.from('lead_history').insert({owner_id:user.id,lead_id:lid,event_type:o.action_type,note:o.notes||null});closeModal();await load();render()}
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').insert({owner_id:user.id,customer_id:o.customer_id,lead_id:lid||null,finance_contract_id:financeContractId||null,lease_contract_id:leaseContractId||null,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),notes:o.notes||null});if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openDelivery=(lid='',cid='',vehicle='')=>{
   modal('Schedule Delivery',`<form id="f" class="form">${customerSearchField(cid)}<label>Vehicle<input name="vehicle" value="${esc(vehicle)}"></label><label>Stock #<input name="stock_number"></label><label>Prep Date<input type="date" name="prep_date"></label>${calendarDateTimeField('Delivery Date / Time','delivery_at')}<label>Status<select name="status"><option>In Prep</option><option>Ready</option><option>Delivered</option></select></label><label class="full">Notes<textarea name="notes"></textarea></label><div class="full"><button class="btn">Save</button></div></form>`);
@@ -1045,10 +1029,10 @@ window.openFinanceOutreach=id=>{
   modal('Update Finance Opportunity',`<div class="outreach-layout"><div><div class="card outreach-customer"><div><h3>${esc(customer.name||'Customer')}</h3><div class="label">${esc(contract.vehicle||'Vehicle')} · ${esc(left.label)} remaining · <span class="finance-stage ${financeStageClass(stage)}">${esc(stage)}</span></div><div class="label" style="margin-top:5px">${esc(customer.phone||'No phone number')}${customer.email?` · ${esc(customer.email)}`:''}</div></div><div class="inline-actions">${customer.phone?`<a class="btn" href="tel:${esc(customer.phone)}">Call customer</a>`:''}<button type="button" class="btn secondary" onclick="customerFile('${contract.customer_id}')">Customer file</button><button type="button" class="btn secondary" onclick="openFinanceContract('${contract.id}')">Edit contract</button></div></div><form id="financeOutreachForm" class="section"><input type="hidden" name="outcome"><h2>What happened on the call?</h2><div class="outreach-outcomes"><button type="button" class="outcome-btn" data-outcome="Interested">Interested<span>Move this customer into your interested queue.</span></button><button type="button" class="outcome-btn" data-outcome="Follow up later">Follow up later<span>Choose the next call and add it to your calendar.</span></button><button type="button" class="outcome-btn" data-outcome="Keeping vehicle">Keeping vehicle<span>Close this opportunity but keep the customer and history.</span></button><button type="button" class="outcome-btn" data-outcome="No answer">No answer<span>Log the attempt and schedule another call.</span></button></div><div id="financeNextCall" class="hide section">${calendarDateTimeField('Next call date / time','next_contact_at',nextValue,true)}</div><label class="section" style="display:block;color:var(--muted);font-size:12px;font-weight:700">Call notes<textarea class="outreach-note" name="notes" placeholder="What did they say? What matters for the next conversation?"></textarea></label><div class="inline-actions section"><button class="btn" id="saveFinanceOutcome">Save call result</button>${financeQueueFor(contract)!=='closed'?`<button type="button" class="btn secondary" onclick="openFinanceAppointment('${contract.id}')">Schedule appointment</button>`:''}</div><div class="outreach-help">Be deliberate: use <b>Keeping vehicle</b> only when the customer confirms they are not changing cars. It removes the opportunity from your active list, but the record remains in Closed History. Choosing a new outcome later reopens it.</div></form></div><aside class="card outreach-history"><h2>Call history</h2>${historyHtml}</aside></div>`);
   $('#modal').classList.add('finance-outreach-modal');$('#modal .box').classList.add('outreach-box');
   const form=$('#financeOutreachForm'),nextWrap=$('#financeNextCall');wireDateTimePickers(form);
-  form.querySelectorAll('[data-outcome]').forEach(button=>button.onclick=()=>{form.elements.outcome.value=button.dataset.outcome;form.querySelectorAll('[data-outcome]').forEach(item=>item.classList.toggle('active',item===button));nextWrap.classList.toggle('hide',!['Follow up later','No answer'].includes(button.dataset.outcome))});
+  form.querySelectorAll('[data-outcome]').forEach(button=>button.onclick=()=>{form.elements.outcome.value=button.dataset.outcome;form.querySelectorAll('[data-outcome]').forEach(item=>item.classList.toggle('active',item===button));nextWrap.classList.toggle('hide',['Keeping vehicle','Not interested','Buying out lease','Sold','Lost','Do Not Contact'].includes(button.dataset.outcome))});
   form.onsubmit=async e=>{
-    e.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=['Follow up later','No answer'].includes(values.outcome);
-    if(!values.outcome)return alert('Choose what happened on the call.');if(needsNext&&!requireDateTime(values.next_contact_at))return;
+    e.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=!['Keeping vehicle','Not interested','Buying out lease','Sold','Lost','Do Not Contact'].includes(values.outcome);
+    if(!values.outcome)return alert('Choose what happened on the call.');if(needsNext&&(!requireDateTime(values.next_contact_at)||!requireFutureAction(values.next_contact_at)))return;
     const button=$('#saveFinanceOutcome');button.disabled=true;button.textContent='Saving...';
     const {error}=await sb.rpc('save_finance_outreach',{p_finance_contract_id:contract.id,p_outcome:values.outcome,p_notes:values.notes||null,p_next_contact_at:needsNext?new Date(values.next_contact_at).toISOString():null});
     if(error){button.disabled=false;button.textContent='Save call result';return alert(error.message)}
@@ -1060,7 +1044,7 @@ window.openLeaseAppointment=id=>{
   openFollowup('',contract.customer_id,'Appointment','',contract.id)
 }
 window.openLeaseOutreach=id=>{
-  const contract=DB.leases.find(item=>item.id===id);if(!contract)return;
+  const contract=DB.leases.find(item=>item.id===id);if(!contract||contract.removed_at)return;
   const customer=cust(contract.customer_id),left=leaseDaysLeft(contract.lease_end_date),stage=leaseStage(contract);
   const history=DB.leaseOutreach.filter(item=>item.lease_contract_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   let nextValue='';if(contract.next_contact_at){const d=new Date(contract.next_contact_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());nextValue=d.toISOString().slice(0,16)}
@@ -1069,7 +1053,7 @@ window.openLeaseOutreach=id=>{
   const removeButton=document.createElement('button');removeButton.type='button';removeButton.className='btn danger';removeButton.textContent='Remove from my lease list';
   removeButton.onclick=async()=>{
     const customerName=customer.name||'this customer';
-    if(!confirm(`Remove ${customerName}'s ${contract.vehicle||'lease'} from your lease list?\n\nThis removes the lease opportunity and its future lease follow-ups. The customer record and past call history will be kept.`))return;
+    if(!confirm(`Remove ${customerName}'s ${contract.vehicle||'lease'} from your lease list?\n\nThis archives the lease opportunity and cancels its reminders. The customer, reminders and complete history will be kept.`))return;
     removeButton.disabled=true;removeButton.textContent='Removing...';
     const {error}=await sb.rpc('remove_lease_opportunity',{p_lease_contract_id:contract.id,p_reason:'Assigned to another salesperson'});
     if(error){removeButton.disabled=false;removeButton.textContent='Remove from my lease list';return alert(error.message)}
@@ -1078,10 +1062,10 @@ window.openLeaseOutreach=id=>{
   $('#leaseOutreachForm .inline-actions').append(removeButton);
   $('#modal').classList.add('finance-outreach-modal');$('#modal .box').classList.add('outreach-box');
   const form=$('#leaseOutreachForm'),nextWrap=$('#leaseNextCall');wireDateTimePickers(form);
-  form.querySelectorAll('[data-outcome]').forEach(button=>button.onclick=()=>{form.elements.outcome.value=button.dataset.outcome;form.querySelectorAll('[data-outcome]').forEach(item=>item.classList.toggle('active',item===button));nextWrap.classList.toggle('hide',!['Follow up later','No answer'].includes(button.dataset.outcome))});
+  form.querySelectorAll('[data-outcome]').forEach(button=>button.onclick=()=>{form.elements.outcome.value=button.dataset.outcome;form.querySelectorAll('[data-outcome]').forEach(item=>item.classList.toggle('active',item===button));nextWrap.classList.toggle('hide',['Keeping vehicle','Not interested','Buying out lease','Sold','Lost','Do Not Contact'].includes(button.dataset.outcome))});
   form.onsubmit=async e=>{
-    e.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=['Follow up later','No answer'].includes(values.outcome);
-    if(!values.outcome)return alert('Choose what happened on the call.');if(needsNext&&!requireDateTime(values.next_contact_at))return;
+    e.preventDefault();const values=Object.fromEntries(new FormData(form)),needsNext=!['Keeping vehicle','Not interested','Buying out lease','Sold','Lost','Do Not Contact'].includes(values.outcome);
+    if(!values.outcome)return alert('Choose what happened on the call.');if(needsNext&&(!requireDateTime(values.next_contact_at)||!requireFutureAction(values.next_contact_at)))return;
     const button=$('#saveLeaseOutcome');button.disabled=true;button.textContent='Saving...';
     const {error}=await sb.rpc('save_lease_outreach',{p_lease_contract_id:contract.id,p_outcome:values.outcome,p_notes:values.notes||null,p_next_contact_at:needsNext?new Date(values.next_contact_at).toISOString():null});
     if(error){button.disabled=false;button.textContent='Save call result';return alert(error.message)}
@@ -1127,22 +1111,22 @@ window.openPostDeliveryThankYou=id=>{
 window.openCalendarFollowupGeneric=id=>{
   const x=DB.followups.find(f=>f.id===id);if(!x)return;
   const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
-  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up','Finance follow-up','Lease follow-up','Post-delivery thank you'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up','Finance follow-up','Lease follow-up','Post-delivery thank you'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option>${x.action_type==='Appointment'?`<option ${x.status==='Missed'?'selected':''}>Missed</option>`:''}</select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
   wireDateTimePickers($('#f'));
-  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;const scheduledAt=new Date(o.scheduled_at).toISOString();let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:scheduledAt,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);if(x.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:o.status==='Done'?null:scheduledAt,updated_at:new Date().toISOString()}).eq('id',x.finance_contract_id));if(error)return alert(error.message)}if(x.lease_contract_id){({error}=await sb.from('leases').update({next_contact_at:o.status==='Done'?null:scheduledAt}).eq('id',x.lease_contract_id));if(error)return alert(error.message)}closeModal();await load();render()};
-  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);if(x.finance_contract_id){({error}=await sb.from('finance_contracts').update({next_contact_at:null,updated_at:new Date().toISOString()}).eq('id',x.finance_contract_id));if(error)return alert(error.message)}if(x.lease_contract_id){({error}=await sb.from('leases').update({next_contact_at:null}).eq('id',x.lease_contract_id));if(error)return alert(error.message)}closeModal();await load();render()}
+  $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;const scheduledAt=new Date(o.scheduled_at).toISOString();let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:scheduledAt,status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
+  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').update({cancelled_at:new Date().toISOString(),cancellation_reason:'Cancelled from calendar'}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openCalendarFollowup=id=>{
   const x=DB.followups.find(f=>f.id===id);if(!x)return;
   if(x.action_type==='Post-delivery thank you')return openPostDeliveryThankYou(id);
   if(x.finance_contract_id||x.lease_contract_id)return openCalendarFollowupGeneric(id);
   const local=new Date(x.scheduled_at);local.setMinutes(local.getMinutes()-local.getTimezoneOffset());
-  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option></select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
+  modal('Edit Calendar Item',`<form id="f" class="form">${customerSearchField(x.customer_id)}<label>Action<select name="action_type">${['Call','Text','Email','Appointment','General follow-up'].map(s=>`<option ${x.action_type===s?'selected':''}>${s}</option>`).join('')}</select></label>${calendarDateTimeField('Date / Time','scheduled_at',local.toISOString().slice(0,16),true)}<label>Status<select name="status"><option ${x.status==='Open'?'selected':''}>Open</option><option ${x.status==='Done'?'selected':''}>Done</option>${x.action_type==='Appointment'?`<option ${x.status==='Missed'?'selected':''}>Missed</option>`:''}</select></label><label class="full">Notes<textarea name="notes">${esc(x.notes||'')}</textarea></label><div class="full inline-actions"><button class="btn">Save Changes</button><button type="button" class="btn danger" id="delEvt">Delete</button></div></form>`);
   wireCustomerSearch($('#f'));
   wireDateTimePickers($('#f'));
   $('#f').onsubmit=async e=>{e.preventDefault();let o=Object.fromEntries(new FormData(e.target));if(!o.customer_id)return alert('Select a customer');if(!requireDateTime(o.scheduled_at))return;let {error}=await sb.from('followups').update({customer_id:o.customer_id,action_type:o.action_type,scheduled_at:new Date(o.scheduled_at).toISOString(),status:o.status,notes:o.notes||null}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()};
-  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').delete().eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
+  $('#delEvt').onclick=async()=>{if(!confirm('Delete this calendar item?'))return;let {error}=await sb.from('followups').update({cancelled_at:new Date().toISOString(),cancellation_reason:'Cancelled from calendar'}).eq('id',id);if(error)return alert(error.message);closeModal();await load();render()}
 }
 window.openCalendarDelivery=id=>{
   const x=DB.deliveries.find(d=>d.id===id);if(!x)return;
@@ -1157,13 +1141,13 @@ window.openCalendarDelivery=id=>{
 window.openLeadFile=async id=>{
   if(!id)return;let l=DB.leads.find(x=>x.id===id);if(!l)return;let c=cust(l.customer_id);
   let h=DB.history.filter(x=>x.lead_id===id).sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
-  let f=DB.followups.filter(x=>x.lead_id===id&&x.status!=='Done');
-  modal(`Lead #${l.lead_number} — ${c.name}`,`<div class="card"><b style="font-size:18px">${esc(l.vehicle||'No vehicle')}</b><div class="label">${esc(c.phone||'')} · ${esc(l.source||'')}</div><div style="margin-top:9px"><select id="ls"><option>New</option><option>Contacted</option><option>Appointment</option><option>Showed</option><option>Negotiating</option><option>Sold</option><option>Lost</option></select> <select id="lp"><option>Normal</option><option>Hot</option><option>Low</option></select></div><div class="inline-actions" style="margin-top:9px">${c.phone?`<a class="btn secondary" href="tel:${c.phone}">Call</a><a class="btn secondary" href="sms:${c.phone}">Text</a>`:''}<button class="btn secondary" id="fu">Next Action</button><button class="btn secondary" id="ord">New Vehicle Order</button><button class="btn secondary" id="del">Schedule Delivery</button></div></div><div class="section"><h2>Upcoming</h2>${f.map(x=>`<div class="hist" onclick="openCalendarFollowup('${x.id}')" style="cursor:pointer"><b>${esc(x.action_type)}</b> · ${fmt(x.scheduled_at)}<div>${esc(x.notes||'')}</div></div>`).join('')||'<div class="label">None scheduled.</div>'}</div><div class="section"><h2>Add Note</h2><form id="nf"><textarea name="note" class="search" required></textarea><button class="btn" style="margin-top:7px">Add Note</button></form></div><div class="section"><h2>History</h2>${h.map(x=>`<div class="hist"><span class="label">${fmt(x.occurred_at)}</span><br><b>${esc(x.event_type)}</b><div>${esc(x.note||'')}</div></div>`).join('')||'<div class="label">No history.</div>'}</div>`);
+  let f=DB.followups.filter(x=>x.lead_id===id&&isOpenAction(x));
+  modal(`Lead #${l.lead_number} — ${c.name}`,`<div class="card"><b style="font-size:18px">${esc(l.vehicle||'No vehicle')}</b><div class="label">${esc(c.phone||'')} · ${esc(l.source||'')}</div><div style="margin-top:9px"><select id="ls"><option>New</option><option>Contacted</option><option>Appointment</option><option>Showed</option><option>Negotiating</option><option>Sold</option><option>Lost</option></select> <select id="lp"><option>Normal</option><option>Hot</option><option>Low</option></select></div><div class="inline-actions" style="margin-top:9px">${c.phone?`<a class="btn secondary" href="tel:${c.phone}">Call</a><a class="btn secondary" href="sms:${c.phone}">Text</a>`:''}<button class="btn secondary" id="fu">Next Action</button><button class="btn secondary" id="ord">New Vehicle Order</button><button class="btn secondary" id="del">Schedule Delivery</button></div></div><div class="section"><h2>Upcoming</h2>${f.map(x=>`<div class="hist" onclick="openCalendarFollowup('${x.id}')" style="cursor:pointer"><b>${esc(x.action_type)}</b> · ${fmt(x.scheduled_at)}<div>${esc(x.notes||'')}</div></div>`).join('')||'<div class="label">None scheduled.</div>'}</div><div class="section"><h2>Add Note</h2><form id="nf"><label>Activity<select name="event_type">${["Note","Visit completed","Test drive","Quote sent","Quote accepted","Quote declined","Quote withdrawn","Interest expressed"].map(type=>`<option>${type}</option>`).join("")}</select></label><textarea name="note" class="search" required></textarea><button class="btn" style="margin-top:7px">Add Note</button></form></div><div class="section"><h2>History</h2>${h.map(x=>`<div class="hist"><span class="label">${fmt(x.occurred_at)}</span><br><b>${esc(x.event_type)}</b><div>${esc(x.note||'')}</div></div>`).join('')||'<div class="label">No history.</div>'}</div>`);
   $('#ls').value=l.status;$('#lp').value=l.priority;
-  $('#ls').onchange=async e=>{let old=l.status,st=e.target.value;await sb.from('leads').update({status:st}).eq('id',id);await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Status changed',note:`${old} → ${st}`});await load();render();openLeadFile(id)};
-  $('#lp').onchange=async e=>{await sb.from('leads').update({priority:e.target.value}).eq('id',id);await load();render();openLeadFile(id)};
+  $('#ls').onchange=async e=>{const {error}=await sb.from('leads').update({status:e.target.value,updated_at:new Date().toISOString()}).eq('id',id);if(error){e.target.value=l.status;return alert(error.message)}await load();render();openLeadFile(id)};
+  $('#lp').onchange=async e=>{const {error}=await sb.from('leads').update({priority:e.target.value}).eq('id',id);if(error){e.target.value=l.priority;return alert(error.message)}await load();render();openLeadFile(id)};
   $('#fu').onclick=()=>openFollowup(id,l.customer_id);$('#ord').onclick=()=>openOrderFromLead(id,l.customer_id,l.vehicle||'');$('#del').onclick=()=>openDelivery(id,l.customer_id,l.vehicle||'');
-  $('#nf').onsubmit=async e=>{e.preventDefault();let note=new FormData(e.target).get('note');await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:'Note',note});await load();render();openLeadFile(id)}
+  $('#nf').onsubmit=async e=>{e.preventDefault();let note=new FormData(e.target).get('note');const {error}=await sb.from('lead_history').insert({owner_id:user.id,lead_id:id,event_type:new FormData(e.target).get('event_type'),note});if(error)return alert(error.message);await load();render();openLeadFile(id)}
 }
 window.openOrderFromLead=(lid,cid,vehicle)=>{
   openOrder();
@@ -1176,7 +1160,15 @@ window.editCustomer=id=>{
 }
 window.customerFile=id=>{
   let c=cust(id),ls=DB.leases.filter(x=>x.customer_id===id),fs=DB.finance.filter(x=>x.customer_id===id).sort((a,b)=>String(a.last_payment_date||'').localeCompare(String(b.last_payment_date||''))),le=DB.leads.filter(x=>x.customer_id===id),os=DB.orders.filter(x=>x.customer_id===id);
-  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div><div class="label" style="margin-top:6px">Language: ${esc(c.language||'English')}</div><div style="margin-top:9px"><button class="btn secondary" onclick="editCustomer('${c.id}')">Edit Customer</button></div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${dateFmt(x.lease_end_date)}</div>`).join('')||'<div class="label">No leases.</div>'}</div><div class="section"><h2>Finance Contracts</h2>${fs.map(x=>{const left=financeMaturity(x.last_payment_date);return `<div class="hist" onclick="openFinanceContract('${x.id}')" style="cursor:pointer"><b>${esc(x.vehicle)}</b><div class="label">Delivered ${dateFmt(x.delivery_date)} · ${esc(x.term_months||'—')} months · Last payment ${dateFmt(x.last_payment_date)}</div><div class="maturity ${left.tone}" style="margin-top:5px">${esc(left.label)}</div></div>`}).join('')||'<div class="label">No finance contracts.</div>'}</div>`)
+  const timeline=customerTimeline(DB,id);
+  modal(c.name,`<div class="card"><b>${esc(c.phone||'')}</b><div>${esc(c.email||'')}</div><div>${esc(c.city||'')}</div><div class="label" style="margin-top:6px">Language: ${esc(c.language||'English')}</div><div style="margin-top:9px"><button class="btn secondary" onclick="editCustomer('${c.id}')">Edit Customer</button></div></div><div class="section"><h2>Leads</h2>${le.map(x=>`<div class="lead" onclick="openLeadFile('${x.id}')">Lead #${x.lead_number} · ${esc(x.vehicle||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No leads.</div>'}</div><div class="section"><h2>New Vehicle Orders</h2>${os.map(x=>`<div class="hist" onclick="openOrder('${x.id}')" style="cursor:pointer">${esc(x.vehicle)} ${esc(x.trim||'')} · ${esc(x.color||'')} · ${esc(x.status)}</div>`).join('')||'<div class="label">No orders.</div>'}</div><div class="section"><h2>Leases</h2>${ls.map(x=>`<div class="hist">${esc(x.vehicle)} · Ends ${dateFmt(x.lease_end_date)}${x.removed_at?`<div class="label">Removed ${fmt(x.removed_at)} · ${esc(x.removal_reason)}</div>`:""}</div>`).join('')||'<div class="label">No leases.</div>'}</div><div class="section"><h2>Finance Contracts</h2>${fs.map(x=>{const left=financeMaturity(x.last_payment_date);return `<div class="hist" onclick="openFinanceContract('${x.id}')" style="cursor:pointer"><b>${esc(x.vehicle)}</b><div class="label">Delivered ${dateFmt(x.delivery_date)} · ${esc(x.term_months||'—')} months · Last payment ${dateFmt(x.last_payment_date)}</div><div class="maturity ${left.tone}" style="margin-top:5px">${esc(left.label)}</div></div>`}).join('')||'<div class="label">No finance contracts.</div>'}</div><div class="section"><h2>Customer history</h2><form id="customerNoteForm"><label>Add a note<textarea name="note" class="search" required maxlength="10000"></textarea></label><button class="btn" style="margin-top:7px">Save note</button></form><div class="section">${timeline.map(x=>`<div class="hist"><span class="label">${fmt(x.at)}</span><br><b>${esc(x.title)}</b><div style="white-space:pre-wrap">${esc(x.note)}</div></div>`).join('')||'<div class="label">No dated activity recorded.</div>'}</div></div>`);
+  $('#customerNoteForm').onsubmit=async event=>{
+    event.preventDefault();const form=event.target,note=form.elements.note.value.trim();if(!note)return;
+    const button=form.querySelector('button');button.disabled=true;
+    const {error}=await sb.from('customer_activity').insert({owner_id:user.id,customer_id:id,kind:'Note',note});
+    if(error){button.disabled=false;return alert(error.message)}
+    await load();render();customerFile(id);
+  };
 }
 
 function setupSidebarToggle(){
@@ -1213,5 +1205,21 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update()).catch(err=>console.error('Service worker update failed',err));
 }
 
-init();
+let refreshBusy=false,lastPriorityDay=businessDay();
+async function refreshVisibleCRM(){
+  if(document.hidden||!readyUserId||refreshBusy||$('#modal').classList.contains('show'))return;
+  refreshBusy=true;
+  try{
+    const {data,error}=await sb.from('crm_account_access').select('status').eq('user_id',user.id).maybeSingle();
+    if(error)throw error;
+    if(data?.status!=='approved'){readyUserId=null;await enter();return}
+    await load();if(!readyUserId)return;
+    if(lastPriorityDay!==businessDay()){lastPriorityDay=businessDay();priorityCallDisplayCount=10}
+    render();
+  }catch(err){showToast('Could not refresh data. Showing the last loaded records.')}finally{refreshBusy=false}
+}
+document.addEventListener('visibilitychange',refreshVisibleCRM);
+setInterval(refreshVisibleCRM,60000);
+init().catch(err=>{$('#authmsg').textContent=err.message});
+
 </script></body></html>
